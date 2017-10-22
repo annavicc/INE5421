@@ -15,6 +15,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.ListSelectionModel;
+import javax.swing.UIManager;
 
 public class MainFrame {
 
@@ -24,6 +26,12 @@ public class MainFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -42,6 +50,15 @@ public class MainFrame {
 	public MainFrame() {
 		initialize();
 	}
+	
+	public void display() {
+		mainFrame.setVisible(true);
+	}
+
+	public void hide() {
+		mainFrame.setVisible(false);
+	}
+
 
 	/**
 	 * Initialize the contents of the frame.
@@ -57,36 +74,47 @@ public class MainFrame {
 		mainFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
 		
 		JButton btnMainAddRL = new JButton("Add a RL");
-		btnMainAddRL.setBounds(304, 80, 170, 25);
+		btnMainAddRL.setBounds(304, 80, 170, 30);
 		btnMainAddRL.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		mainPanel.setLayout(null);
-		
-		JList listMainRL = new JList();
-		listMainRL.setBounds(12, 50, 280, 195);
-		mainPanel.add(listMainRL);
 		mainPanel.add(btnMainAddRL);
 		
+		JList listMainRL = new JList();
+		listMainRL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		listMainRL.setBounds(12, 50, 280, 195);
+		mainPanel.add(listMainRL);
+		
 		JButton btnMainViewEdit = new JButton("View/Edit");
-		btnMainViewEdit.setBounds(304, 117, 170, 25);
+		btnMainViewEdit.setBounds(304, 117, 170, 30);
 		mainPanel.add(btnMainViewEdit);
 		
 		JButton btnMainRemoveRL = new JButton("Remove");
-		btnMainRemoveRL.setBounds(304, 154, 170, 25);
+		btnMainRemoveRL.setBounds(304, 154, 170, 30);
 		mainPanel.add(btnMainRemoveRL);
 		
 		JButton btnMainClear = new JButton("Clear");
-		btnMainClear.setBounds(304, 191, 170, 25);
+		btnMainClear.setBounds(304, 191, 170, 30);
 		mainPanel.add(btnMainClear);
 		
 		JButton btnMainOperations = new JButton("RL Operations");
-		btnMainOperations.setBounds(46, 297, 200, 25);
+		btnMainOperations.setBounds(46, 297, 200, 30);
 		mainPanel.add(btnMainOperations);
+		btnMainOperations.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	new OperationsFrame(MainFrame.this);
+		    }
+		});
 		
 		JButton btnMainVerifications = new JButton("RL Properties");
-		btnMainVerifications.setBounds(260, 297, 200, 25);
+		btnMainVerifications.setBounds(260, 297, 200, 30);
 		mainPanel.add(btnMainVerifications);
+		btnMainVerifications.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	new PropertiesFrame(MainFrame.this);
+		    }
+		});
 	}
 }

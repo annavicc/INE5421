@@ -71,12 +71,12 @@ public class ViewEditFrame {
 		frmRegularLanguagesOperations.getContentPane().add(edpViewEditRG);
 		
 		JButton btnViewEditSave = new JButton("Save");
-		btnViewEditSave.setBounds(356, 429, 117, 25);
+		btnViewEditSave.setBounds(356, 429, 117, 30);
 		frmRegularLanguagesOperations.getContentPane().add(btnViewEditSave);
 		
 		JButton btnViewEditCancel = new JButton("Cancel");
 		btnViewEditCancel.setVerticalAlignment(SwingConstants.BOTTOM);
-		btnViewEditCancel.setBounds(234, 429, 117, 25);
+		btnViewEditCancel.setBounds(234, 429, 117, 30);
 		frmRegularLanguagesOperations.getContentPane().add(btnViewEditCancel);
 	}
 }

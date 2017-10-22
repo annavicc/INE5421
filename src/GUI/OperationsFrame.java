@@ -1,5 +1,7 @@
 package GUI;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
@@ -10,6 +12,7 @@ import javax.swing.JButton;
 public class OperationsFrame {
 
 	private JFrame frmRegularLanguagesOperations;
+	private MainFrame mainFrame = null;
 
 	/**
 	 * Launch the application.
@@ -26,6 +29,16 @@ public class OperationsFrame {
 			}
 		});
 	}
+		
+	/**
+	 * Hide operations frame.
+	 */
+	public void hide() {
+		if (mainFrame != null) {
+			mainFrame.display();
+		}
+		frmRegularLanguagesOperations.setVisible(false);
+	}
 
 	/**
 	 * Create the application.
@@ -34,6 +47,18 @@ public class OperationsFrame {
 		initialize();
 	}
 
+	public OperationsFrame(MainFrame mainFrame) {
+		try {
+			this.mainFrame = mainFrame;
+			initialize();
+			this.frmRegularLanguagesOperations.setVisible(true);
+			mainFrame.hide();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -70,15 +95,20 @@ public class OperationsFrame {
 		frmRegularLanguagesOperations.getContentPane().add(lbOpSelectRL2);
 		
 		JButton btnOpCancel = new JButton("Cancel");
-		btnOpCancel.setBounds(123, 172, 90, 25);
+		btnOpCancel.setBounds(123, 172, 90, 30);
 		frmRegularLanguagesOperations.getContentPane().add(btnOpCancel);
+		btnOpCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				OperationsFrame.this.hide();
+			}
+		});
 		
 		JButton btnOpSave = new JButton("Save");
-		btnOpSave.setBounds(327, 172, 90, 25);
+		btnOpSave.setBounds(327, 172, 90, 30);
 		frmRegularLanguagesOperations.getContentPane().add(btnOpSave);
 		
 		JButton btnOpView = new JButton("View");
-		btnOpView.setBounds(225, 172, 90, 25);
+		btnOpView.setBounds(225, 172, 90, 30);
 		frmRegularLanguagesOperations.getContentPane().add(btnOpView);
 	}
 }

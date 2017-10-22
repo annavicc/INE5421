@@ -1,5 +1,7 @@
 package GUI;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
@@ -9,6 +11,7 @@ import javax.swing.JButton;
 public class PropertiesFrame {
 
 	private JFrame frmRegularLanguagesProperties;
+	private MainFrame mainFrame = null;
 
 	/**
 	 * Launch the application.
@@ -27,10 +30,31 @@ public class PropertiesFrame {
 	}
 
 	/**
+	 * Hide properties frame.
+	 */
+	public void hide() {
+		if (mainFrame != null) {
+			mainFrame.display();
+		}
+		frmRegularLanguagesProperties.setVisible(false);
+	}
+	
+	/**
 	 * Create the application.
 	 */
 	public PropertiesFrame() {
 		initialize();
+	}
+	
+	public PropertiesFrame(MainFrame mainFrame) {
+		try {
+			this.mainFrame = mainFrame;
+			initialize();
+			this.frmRegularLanguagesProperties.setVisible(true);
+			mainFrame.hide();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -68,11 +92,16 @@ public class PropertiesFrame {
 		frmRegularLanguagesProperties.getContentPane().add(lbPrSelectRL2);
 		
 		JButton btnPrCancel = new JButton("Cancel");
-		btnPrCancel.setBounds(215, 162, 90, 25);
+		btnPrCancel.setBounds(215, 162, 90, 30);
 		frmRegularLanguagesProperties.getContentPane().add(btnPrCancel);
+		btnPrCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				PropertiesFrame.this.hide();
+			}
+		});
 		
 		JButton btnPrVerify = new JButton("Verify");
-		btnPrVerify.setBounds(321, 161, 90, 25);
+		btnPrVerify.setBounds(321, 161, 90, 30);
 		frmRegularLanguagesProperties.getContentPane().add(btnPrVerify);
 	}
 
