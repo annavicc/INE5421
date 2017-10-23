@@ -110,5 +110,10 @@ public class OperationsFrame {
 		JButton btnOpView = new JButton("View");
 		btnOpView.setBounds(225, 172, 90, 30);
 		frmRegularLanguagesOperations.getContentPane().add(btnOpView);
+		
+		cbOpOperations.addItem("Union");
+		cbOpOperations.addItem("Intersection");
+		cbOpOperations.addItem("Difference");
+		cbOpOperations.addItem("Concatenation");
 	}
 }
