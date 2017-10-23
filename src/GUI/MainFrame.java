@@ -10,6 +10,8 @@ import javax.swing.JList;
 import javax.swing.JButton;
 import java.awt.FlowLayout;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridLayout;
@@ -77,6 +79,7 @@ public class MainFrame {
 		btnMainAddRL.setBounds(304, 80, 170, 30);
 		btnMainAddRL.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				new AddRLFrame(MainFrame.this);
 			}
 		});
 		mainPanel.setLayout(null);
