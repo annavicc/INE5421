@@ -6,9 +6,14 @@ import java.awt.event.FocusListener;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.BorderLayout;
 import javax.swing.JEditorPane;
 import javax.swing.JTextField;
+
+import RegularLanguages.RegularLanguage;
+
 import javax.swing.DropMode;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -66,6 +71,7 @@ public class AddRLFrame {
 	 */
 	private void initialize() {
 		frmAddRegularLanguage = new JFrame();
+		frmAddRegularLanguage.setResizable(false);
 		frmAddRegularLanguage.setBounds(100, 100, 500, 500);
 		frmAddRegularLanguage.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmAddRegularLanguage.getContentPane().setLayout(null);
@@ -89,6 +95,20 @@ public class AddRLFrame {
 		frmAddRegularLanguage.getContentPane().add(btnAddRLCancel);
 		
 		JButton btnAddRLAdd = new JButton("Add");
+		btnAddRLAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String input = edpAddRL.getText(); // Gets text from pane
+				RegularLanguage l = RegularLanguage.validate(input); // Gets RL object
+				RegularLanguage.InputType lType = l.getType(); // Gets RL type
+				if(lType.equals(RegularLanguage.InputType.UNDEFINED)) { // If type is not valid
+					JOptionPane.showMessageDialog(AddRLFrame.this.frmAddRegularLanguage, "Invalid input!");
+				}
+				
+				// add Regular Language to Main Panel
+				AddRLFrame.this.mainFrame.addToPanel(l);
+				AddRLFrame.this.hide();
+			}
+		});
 		btnAddRLAdd.setBounds(388, 426, 90, 30);
 		frmAddRegularLanguage.getContentPane().add(btnAddRLAdd);
 		

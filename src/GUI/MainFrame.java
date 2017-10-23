@@ -20,9 +20,12 @@ import java.awt.event.ActionEvent;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 
+import RegularLanguages.RegularLanguage;
+
 public class MainFrame {
 
 	private JFrame mainFrame;
+	private JList listMainRL;
 
 	/**
 	 * Launch the application.
@@ -85,7 +88,7 @@ public class MainFrame {
 		mainPanel.setLayout(null);
 		mainPanel.add(btnMainAddRL);
 		
-		JList listMainRL = new JList();
+		listMainRL = new JList();
 		listMainRL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listMainRL.setBounds(12, 50, 280, 195);
 		mainPanel.add(listMainRL);
@@ -119,5 +122,14 @@ public class MainFrame {
 		    	new PropertiesFrame(MainFrame.this);
 		    }
 		});
+
+	}
+	
+	// Add Regular Language to JList
+	public void addToPanel(RegularLanguage rl) {
+		DefaultListModel list = new DefaultListModel();
+		list.addElement(rl.getId());
+		list.addElement(listMainRL.getModel());
+		this.listMainRL = new JList(list);
 	}
 }

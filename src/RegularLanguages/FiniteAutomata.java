@@ -1,6 +1,6 @@
 package RegularLanguages;
 
-public class FiniteAutomata {
+public class FiniteAutomata extends RegularLanguage {
 
 	
 	public FiniteAutomata determinize() {
