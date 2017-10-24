@@ -18,8 +18,37 @@ public class RegularGrammar extends RegularLanguage {
 	}
 
 	public static boolean isValidRG(String inp) {
-//		return true;
-		return false;
+		return true;
+	}
+	
+	/*
+	 * Get string representation
+	 */
+	public String toString() {
+		return this.getInput();
+	}
+	
+	/*
+	 * Get RG
+	 */
+	public RegularGrammar getRG() {
+		return this;
+	}
+	
+	/*
+	 * Convert RG to AF
+	 * TODO implement
+	 */
+	public FiniteAutomata getAF() {
+		return new FiniteAutomata();
+	}
+	
+	/*
+	 * Convert RG to RE
+	 * Out of scope
+	 */
+	public RegularExpression getRE() {
+		return null;
 	}
 	
 }

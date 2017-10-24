@@ -1,6 +1,6 @@
 package RegularLanguages;
 
-public class RegularLanguage {
+public abstract class RegularLanguage {
 
 	public enum InputType {RE, RG, UNDEFINED};
 	public enum Operation {UNION, CONCATENATION, INTERSECTION, DIFFERENCE};
@@ -27,20 +27,21 @@ public class RegularLanguage {
 				return new RegularExpression(inp);
 			}
 		}
-		return new RegularLanguage();
+		return null;
 	}
 	
 	public String getId() {
 		return this.id;
 	}
 	
+	public String getInput() {
+		return this.input;
+	}
+	
 	public void setId(String id) {
 		this.id = id;
 	}
 	
-	public String toString() {
-		return this.id;
-	}
 	
 	public InputType getType() {
 		return this.type;
@@ -62,6 +63,11 @@ public class RegularLanguage {
 		return true;
 	}
 	
+	public abstract String toString();
+	
+	public abstract RegularGrammar getRG();
+	public abstract RegularExpression getRE();
+	public abstract FiniteAutomata getAF();
 	/*
 	 * Converts AF to RG
 	public RegularGrammar AFToRG(FiniteAutomata fa) {

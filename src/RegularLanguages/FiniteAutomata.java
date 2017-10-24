@@ -11,4 +11,34 @@ public class FiniteAutomata extends RegularLanguage {
 		return null;
 	}
 	
+	/*
+	 * Get string representation
+	 */
+	public String toString() {
+		return this.getInput();
+	}
+	
+	/*
+	 * Convert AF to RG
+	 * TODO implement
+	 */
+	public RegularGrammar getRG() {
+		return new RegularGrammar("");
+	}
+	
+	/*
+	 * Get AF
+	 */
+	public FiniteAutomata getAF() {
+		return this;
+	}
+	
+	/*
+	 * Convert AF to RE
+	 * Out of scope
+	 */
+	public RegularExpression getRE() {
+		return null;
+	}
+	
 }
