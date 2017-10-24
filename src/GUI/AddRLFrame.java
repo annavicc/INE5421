@@ -70,13 +70,7 @@ public class AddRLFrame extends JFrame {
 		
 		// Scrollable RL input box:
 		
-		JEditorPane edpAddRL = new JEditorPane() {
-		    @Override
-		    public boolean getScrollableTracksViewportWidth()
-		    {
-		        return true;
-		    }
-		};
+		JEditorPane edpAddRL = MainFrame.newScrollableEditorPane();
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportView(edpAddRL);
 		edpAddRL.setToolTipText("");

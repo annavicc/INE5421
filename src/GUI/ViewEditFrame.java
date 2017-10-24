@@ -1,31 +1,37 @@
 package GUI;
 
-import java.awt.EventQueue;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.ButtonGroup;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 
-import RegularLanguages.RegularExpression;
 import RegularLanguages.RegularLanguage;
 
-public class ViewEditFrame {
-
-	private MainFrame mainFrame;
-	private JEditorPane edpViewEditRE, edpViewEditRG;
-	private JRadioButton rdbtnViewEditRE;
-	private JRadioButton rdbtnViewEditRG;
-	private JRadioButton rdbtnViewEditFA;
-	private JEditorPane edpViewEditFA;
+public class ViewEditFrame extends JFrame{
 	
-	private JFrame frmRegularLanguagesViewEdit;
+	private MainFrame mainFrame;
+	private JEditorPane edpViewEditRE, edpViewEditRG, edpViewEditFA;
+	private JScrollPane scpViewEditRE, scpViewEditRG, scpViewEditFA;
+	private JTabbedPane viewEditTabbedPane;
+	
 	private RegularLanguage language = null;
+	
+	static final String strRE = "Regular Expression";
+	static final String strFA = "Finite Automata";
+	static final String strRG = "Regular Grammar";
+	
 
 
 	/**
@@ -33,29 +39,9 @@ public class ViewEditFrame {
 	 */
 	public void exit() {
 		mainFrame.setVisible(true);
-		this.frmRegularLanguagesViewEdit.dispose();
-	}
-	
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ViewEditFrame window = new ViewEditFrame();
-					window.frmRegularLanguagesViewEdit.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+		this.dispose();
 	}
 
-	/**
-	 * Create the application.
-	 */
-	public ViewEditFrame() {
-		initialize();
-	}
-	
 	/**
 	 * Create the application.
 	 */
@@ -64,76 +50,62 @@ public class ViewEditFrame {
 			this.mainFrame = f;
 			this.language = l;
 			initialize();
-			this.frmRegularLanguagesViewEdit.setVisible(true);
+			this.setVisible(true);
 			mainFrame.setVisible(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmRegularLanguagesViewEdit = new JFrame();
-		frmRegularLanguagesViewEdit.setTitle("View and Edit Regular Languages");
-		frmRegularLanguagesViewEdit.setResizable(false);
-		frmRegularLanguagesViewEdit.setBounds(100, 100, 500, 500);
-		frmRegularLanguagesViewEdit.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmRegularLanguagesViewEdit.getContentPane().setLayout(null);
+		this.setTitle("View and Edit Regular Languages");
+//		this.setResizable(false);
+		this.setBounds(100, 100, 500, 500);
+		this.setMinimumSize(new Dimension(475, 400));
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		rdbtnViewEditRE = new JRadioButton("Regular Expression");
-		rdbtnViewEditRE.setBounds(8, 77, 165, 23);
-		frmRegularLanguagesViewEdit.getContentPane().add(rdbtnViewEditRE);
-
-		rdbtnViewEditFA = new JRadioButton("Finite Automata");
-		rdbtnViewEditFA.setBounds(182, 77, 145, 23);
-		frmRegularLanguagesViewEdit.getContentPane().add(rdbtnViewEditFA);
+		// Tabbed scrollable JEditorPanes:
 		
-		rdbtnViewEditRG = new JRadioButton("Regular Grammar");
-		rdbtnViewEditRG.setBounds(330, 77, 170, 23);
-		frmRegularLanguagesViewEdit.getContentPane().add(rdbtnViewEditRG);
+		viewEditTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		
-		edpViewEditRE = new JEditorPane();
-		edpViewEditRE.setBounds(24, 108, 141, 268);
-		frmRegularLanguagesViewEdit.getContentPane().add(edpViewEditRE);
+		edpViewEditRE = MainFrame.newScrollableEditorPane();
+		scpViewEditRE = new JScrollPane();
+		scpViewEditRE.setViewportView(edpViewEditRE);
+		viewEditTabbedPane.addTab(strRE, null, scpViewEditRE, null);
 		
-		edpViewEditFA = new JEditorPane();
-		edpViewEditFA.setBounds(176, 108, 141, 268);
-		frmRegularLanguagesViewEdit.getContentPane().add(edpViewEditFA);
+		edpViewEditFA = MainFrame.newScrollableEditorPane();
+		scpViewEditFA = new JScrollPane();
+		scpViewEditFA.setViewportView(edpViewEditFA);
+		viewEditTabbedPane.addTab(strFA, null, scpViewEditFA, null);
 		
-		edpViewEditRG = new JEditorPane();
-		edpViewEditRG.setBounds(328, 108, 141, 268);
-		frmRegularLanguagesViewEdit.getContentPane().add(edpViewEditRG);
+		edpViewEditRG = MainFrame.newScrollableEditorPane();
+		scpViewEditRG = new JScrollPane();
+		scpViewEditRG.setViewportView(edpViewEditRG);
+		viewEditTabbedPane.addTab(strRG, null, scpViewEditRG, null);
 		
-		
-		ButtonGroup editableGroup = new ButtonGroup();
-		editableGroup.add(rdbtnViewEditFA);
-		editableGroup.add(rdbtnViewEditRE);
-		editableGroup.add(rdbtnViewEditRG);
-		setRadioButtonListeners();
 		enableTextPane();
+		
+		// JButtons:
 		
 		JButton btnViewEditSave = new JButton("Save");
 		btnViewEditSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JFrame currentFrame = ViewEditFrame.this.frmRegularLanguagesViewEdit;
 				String input = getPaneText(); // Gets text from pane
 				RegularLanguage l = RegularLanguage.validate(input); // Gets RL object
-				l.setId(language.toString());
-				RegularLanguage.InputType lType = l.getType(); // Gets RL type
-				if(lType.equals(RegularLanguage.InputType.UNDEFINED)) { // If type is not valid
-					JOptionPane.showMessageDialog(currentFrame, "Invalid input!");
+				if(l == null) { // If type is not valid
+					JOptionPane.showMessageDialog(ViewEditFrame.this, "Invalid input!");
 					return;
 				}
-				// add Regular Language to Main Panel
+				l.setId(language.toString());
+//				// add Regular Language to Main Panel
 				ViewEditFrame.this.mainFrame.addToPanel(l);
 				ViewEditFrame.this.exit();
 				
 			}
 		});
-		btnViewEditSave.setBounds(356, 429, 117, 30);
-		frmRegularLanguagesViewEdit.getContentPane().add(btnViewEditSave);
 		
 		JButton btnViewEditCancel = new JButton("Cancel");
 		btnViewEditCancel.addActionListener(new ActionListener() {
@@ -142,78 +114,78 @@ public class ViewEditFrame {
 			}
 		});
 		btnViewEditCancel.setVerticalAlignment(SwingConstants.BOTTOM);
-		btnViewEditCancel.setBounds(234, 429, 117, 30);
 		btnViewEditCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ViewEditFrame.this.exit();
 			}
 		});
 		
-		frmRegularLanguagesViewEdit.getContentPane().add(btnViewEditSave);
-		frmRegularLanguagesViewEdit.getContentPane().add(btnViewEditCancel);
+		// Close Window action:
+
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				ViewEditFrame.this.exit();
+			}
+		});
+
+		// Layout definitions:
+		
+		GroupLayout groupLayout = new GroupLayout(getContentPane());
+		groupLayout.setHorizontalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(viewEditTabbedPane)
+						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+							.addComponent(btnViewEditCancel, GroupLayout.PREFERRED_SIZE, 117, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(btnViewEditSave, GroupLayout.PREFERRED_SIZE, 117, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap())
+		);
+		groupLayout.setVerticalGroup(
+			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(groupLayout.createSequentialGroup()
+					.addGap(12)
+					.addComponent(viewEditTabbedPane, GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
+					.addGap(12)
+					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+						.addComponent(btnViewEditSave, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnViewEditCancel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap())
+		);
+		getContentPane().setLayout(groupLayout);
 	}
 	
-	private void setRadioButtonListeners() {
-		rdbtnViewEditRG.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				clearPanes();
-				edpViewEditRG.setText(language.getDefinition());
-				edpViewEditRG.setEnabled(true);
-				edpViewEditRE.setEnabled(false);
-				edpViewEditFA.setEnabled(false);
-			}
-		});
-		
-		rdbtnViewEditRE.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				clearPanes();
-				edpViewEditRE.setText(language.getDefinition());
-				edpViewEditRE.setEnabled(true);
-				edpViewEditRG.setEnabled(false);
-				edpViewEditFA.setEnabled(false);
-			}
-		});
-		
-		rdbtnViewEditFA.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				clearPanes();
-				edpViewEditFA.setText(language.getDefinition());
-				edpViewEditRG.setEnabled(false);
-				edpViewEditRE.setEnabled(false);
-				edpViewEditFA.setEditable(false);
-			}
-		});
-	}
+//	private void setRadioButtonListeners() {
+//	}
 	
 	
 	private void enableTextPane() {
 		RegularLanguage.InputType type = language.getType();
 		if (type.equals(RegularLanguage.InputType.RG)) {
-			rdbtnViewEditRG.setSelected(true);
+			viewEditTabbedPane.setSelectedComponent(scpViewEditRG);
 			edpViewEditRG.setText(language.getDefinition());
 		} else if (type.equals(RegularLanguage.InputType.RE)) {
-			rdbtnViewEditRE.setSelected(true);
+			viewEditTabbedPane.setSelectedComponent(edpViewEditRE);
 			edpViewEditRE.setText(language.getDefinition());
 		} else {
-			rdbtnViewEditFA.setSelected(true);
+			viewEditTabbedPane.setSelectedComponent(edpViewEditFA);
 			edpViewEditFA.setText(language.getDefinition());
 		}
 	}
 	private String getPaneText() {
-		if (rdbtnViewEditRG.isSelected()) {
+		int selectedTabIndex = viewEditTabbedPane.getSelectedIndex();
+		String selectedTab = viewEditTabbedPane.getTitleAt(selectedTabIndex);
+		if (selectedTab.equals(strRG)) {
 			return edpViewEditRG.getText();
-		} else if (rdbtnViewEditRE.isSelected()) {
+		} else if (selectedTab.equals(strRE)) {
 			return edpViewEditRE.getText();
 		} else {
 			return edpViewEditFA.getText();
 		}
 	}
-	private void clearPanes() {
-		edpViewEditRG.setText("");
-		edpViewEditRE.setText("");
-		edpViewEditFA.setText("");
-	}
+
 }
