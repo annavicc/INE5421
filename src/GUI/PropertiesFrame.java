@@ -2,6 +2,7 @@ package GUI;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
@@ -10,12 +11,17 @@ import javax.swing.JButton;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import RegularLanguages.RegularLanguage;
+
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 
 public class PropertiesFrame {
 
 	private JFrame frmRegularLanguagesProperties;
+	private JComboBox<RegularLanguage> cbPrLR1;
+	private JComboBox<RegularLanguage> cbPrLR2;
 	private MainFrame mainFrame = null;
 
 	/**
@@ -74,7 +80,7 @@ public class PropertiesFrame {
 		
 		JPanel propertiesFramePanel = new JPanel();
 		
-		JComboBox cbPrLR1 = new JComboBox();
+		cbPrLR1 = new JComboBox<RegularLanguage>();
 		
 		JLabel lbPrSelectRL1 = new JLabel("Select LR 1");
 		
@@ -88,11 +94,14 @@ public class PropertiesFrame {
 		
 		JLabel lbPrSelectProperty = new JLabel("Select Property");
 		
-		JComboBox cbPrProperties = new JComboBox();
+		JComboBox<String> cbPrProperties = new JComboBox<String>();
+		cbPrProperties.addItem("Emptiness");
+		cbPrProperties.addItem("Finitness");
+		
 		
 		JButton btnPrVerify = new JButton("Verify");
 		
-		JComboBox cbPrLR2 = new JComboBox();
+		cbPrLR2 = new JComboBox<RegularLanguage>();
 		
 		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
 		GroupLayout gl_propertiesFramePanel = new GroupLayout(propertiesFramePanel);
@@ -140,6 +149,16 @@ public class PropertiesFrame {
 		);
 		propertiesFramePanel.setLayout(gl_propertiesFramePanel);
 		frmRegularLanguagesProperties.getContentPane().add(propertiesFramePanel);
+		this.populateComboBoxes();
+	}
+
+	// Populate combo boxes with regular languages from the list
+	public void populateComboBoxes() {
+		HashMap<String, RegularLanguage> languages = mainFrame.getLanguages();
+		for (String id : languages.keySet()) {
+			cbPrLR1.addItem(languages.get(id));
+			cbPrLR2.addItem(languages.get(id));
+		}
 	}
 
 }

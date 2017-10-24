@@ -11,16 +11,8 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JButton;
-import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
-import java.awt.List;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.event.ActionEvent;
 import javax.swing.ListSelectionModel;
@@ -96,6 +88,14 @@ public class MainFrame {
 		});
 		
 		JButton btnMainViewEdit = new JButton("View/Edit");
+		btnMainViewEdit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (isLanguageSelected()) {
+					String idSelected = jListMainRL.getSelectedValue();
+					new ViewEditFrame(MainFrame.this, languages.get(idSelected));
+				}
+			}
+		});
 		
 		JButton btnMainRemoveRL = new JButton("Remove");
 		btnMainRemoveRL.addActionListener(new ActionListener() {
@@ -178,7 +178,7 @@ public class MainFrame {
 	
 	// Add Regular Language to JList
 	public void addToPanel(RegularLanguage rl) {
-		this.languages.put(rl.getId(), rl);
+		this.languages.put(rl.toString(), rl);
 		this.updateJList();
 	}
 	
@@ -226,4 +226,19 @@ public class MainFrame {
 			}
 		}
 	}
+	
+	// Verifies if a language was selected
+	private boolean isLanguageSelected() {
+		if (jListMainRL.isSelectionEmpty()) {
+			JOptionPane.showMessageDialog(this.mainFrame, "No language selected!");
+			return false;
+		}
+		return true;
+	}
+	
+	// Return the Regular Language list
+	public HashMap<String, RegularLanguage> getLanguages() {
+		return this.languages;
+	}
+	
 }

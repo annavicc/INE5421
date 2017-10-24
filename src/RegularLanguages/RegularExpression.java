@@ -8,7 +8,8 @@ public class RegularExpression extends RegularLanguage {
 	}
 
 	public static boolean isValidRE(String inp) {
-		return true;
+//		return true;
+		return false;
 	}
 	
 	

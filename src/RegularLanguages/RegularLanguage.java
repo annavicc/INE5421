@@ -30,8 +30,8 @@ public class RegularLanguage {
 		return new RegularLanguage();
 	}
 	
-	public String getId() {
-		return this.id;
+	public String getDefinition() {
+		return this.input;
 	}
 	
 	public void setId(String id) {

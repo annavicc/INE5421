@@ -2,6 +2,7 @@ package GUI;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 
 import javax.swing.JFrame;
 import javax.swing.JComboBox;
@@ -11,14 +12,15 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import java.awt.CardLayout;
-import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
 import javax.swing.LayoutStyle.ComponentPlacement;
+
+import RegularLanguages.RegularLanguage;
 
 public class OperationsFrame {
 
 	private JFrame frmRegularLanguagesOperations;
+	private JComboBox<RegularLanguage> cbOpRL1;
+	private JComboBox<RegularLanguage> cbOpRL2;
 	private MainFrame mainFrame = null;
 
 	/**
@@ -80,11 +82,11 @@ public class OperationsFrame {
 		JPanel operationsFramePanel = new JPanel();
 		frmRegularLanguagesOperations.getContentPane().add(operationsFramePanel, BorderLayout.CENTER);
 		
-		JComboBox cbOpRL1 = new JComboBox();
+		cbOpRL1 = new JComboBox<RegularLanguage>();
 		
-		JComboBox cbOpRL2 = new JComboBox();
+		cbOpRL2 = new JComboBox<RegularLanguage>();
 		
-		JComboBox cbOpOperations = new JComboBox();
+		JComboBox<String> cbOpOperations = new JComboBox<String>();
 		
 		cbOpOperations.addItem("Union");
 		cbOpOperations.addItem("Intersection");
@@ -159,5 +161,15 @@ public class OperationsFrame {
 					.addContainerGap())
 		);
 		operationsFramePanel.setLayout(gl_operationsFramePanel);
+		this.populateComboBoxes();
+	}
+	
+	// Populate combo boxes with regular languages from the list
+	public void populateComboBoxes() {
+		HashMap<String, RegularLanguage> languages = mainFrame.getLanguages();
+		for (String id : languages.keySet()) {
+			cbOpRL1.addItem(languages.get(id));
+			cbOpRL2.addItem(languages.get(id));
+		}
 	}
 }
