@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -14,10 +15,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import RegularLanguages.RegularLanguage;
+
 public class OperationsFrame extends JFrame {
 
-	private MainFrame mainFrame;
-
+	private JFrame frmRegularLanguagesOperations;
+	private JComboBox<RegularLanguage> cbOpRL1;
+	private JComboBox<RegularLanguage> cbOpRL2;
+	private MainFrame mainFrame = null;
 	
 	/**
 	 * Exit back to main frame
@@ -56,14 +61,8 @@ public class OperationsFrame extends JFrame {
 		this.getContentPane().add(operationsFramePanel, BorderLayout.CENTER);
 		
 		// JComboBoxes:
-		
-		JComboBox<String> cbOpRL1 = new JComboBox<String>();
-		JComboBox<String> cbOpRL2 = new JComboBox<String>();
-		String[] languages = mainFrame.getLanguagesNames();
-		for (String lang : languages) {
-			cbOpRL1.addItem(lang);
-			cbOpRL2.addItem(lang);
-		}
+		cbOpRL1 = new JComboBox<RegularLanguage>();
+		cbOpRL2 = new JComboBox<RegularLanguage>();
 		
 		JComboBox<String> cbOpOperations = new JComboBox<String>();
 		cbOpOperations.addItem("Union");
@@ -154,5 +153,15 @@ public class OperationsFrame extends JFrame {
 					.addContainerGap())
 		);
 		operationsFramePanel.setLayout(gl_operationsFramePanel);
+		this.populateComboBoxes();
+	}
+	
+	// Populate combo boxes with regular languages from the list
+	public void populateComboBoxes() {
+		HashMap<String, RegularLanguage> languages = mainFrame.getLanguages();
+		for (String id : languages.keySet()) {
+			cbOpRL1.addItem(languages.get(id));
+			cbOpRL2.addItem(languages.get(id));
+		}
 	}
 }

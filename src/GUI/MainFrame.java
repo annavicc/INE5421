@@ -82,9 +82,9 @@ public class MainFrame extends JFrame {
 		JButton btnMainViewEdit = new JButton("View/Edit");
 		btnMainViewEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				RegularLanguage selected = MainFrame.this.getSelected();
-				if (selected != null) {
-					new ViewEditFrame(MainFrame.this, selected);
+				if (isLanguageSelected()) {
+					String idSelected = jListMainRL.getSelectedValue();
+					new ViewEditFrame(MainFrame.this, languages.get(idSelected));
 				}
 			}
 		});
@@ -240,9 +240,7 @@ public class MainFrame extends JFrame {
 	
 	// Remove language selected on JList
 	private void removeSelected() {
-		if (jListMainRL.isSelectionEmpty()) {
-			JOptionPane.showMessageDialog(this, "No language selected!");
-		} else {
+		if (isLanguageSelected()) {
 			String id = jListMainRL.getSelectedValue();
 			if (this.confirm("Remove \"" + id + '"') == JOptionPane.YES_OPTION) {
 				MainFrame.this.languages.remove(id);
@@ -250,4 +248,19 @@ public class MainFrame extends JFrame {
 			}
 		}
 	}
+	
+	// Verifies if a language was selected
+	private boolean isLanguageSelected() {
+		if (jListMainRL.isSelectionEmpty()) {
+			JOptionPane.showMessageDialog(this, "No language selected!");
+			return false;
+		}
+		return true;
+	}
+	
+	// Return the Regular Language list
+	public HashMap<String, RegularLanguage> getLanguages() {
+		return this.languages;
+	}
+	
 }

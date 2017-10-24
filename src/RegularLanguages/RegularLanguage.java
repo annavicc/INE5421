@@ -34,6 +34,10 @@ public abstract class RegularLanguage {
 		return this.id;
 	}
 	
+	public String getDefinition() {
+		return this.input;
+	}
+	
 	public String getInput() {
 		return this.input;
 	}
@@ -63,7 +67,11 @@ public abstract class RegularLanguage {
 		return true;
 	}
 	
-	public abstract String toString();
+	public String toString() {
+		return this.id;
+	}
+	
+//	public abstract GetDefinition();
 	
 	public abstract RegularGrammar getRG();
 	public abstract RegularExpression getRE();

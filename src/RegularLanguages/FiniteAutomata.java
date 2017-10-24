@@ -11,12 +11,6 @@ public class FiniteAutomata extends RegularLanguage {
 		return null;
 	}
 	
-	/*
-	 * Get string representation
-	 */
-	public String toString() {
-		return this.getInput();
-	}
 	
 	/*
 	 * Convert AF to RG

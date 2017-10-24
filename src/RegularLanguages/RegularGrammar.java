@@ -22,13 +22,6 @@ public class RegularGrammar extends RegularLanguage {
 	}
 	
 	/*
-	 * Get string representation
-	 */
-	public String toString() {
-		return this.getInput();
-	}
-	
-	/*
 	 * Get RG
 	 */
 	public RegularGrammar getRG() {
@@ -49,6 +42,7 @@ public class RegularGrammar extends RegularLanguage {
 	 */
 	public RegularExpression getRE() {
 		return null;
+//		return false;
 	}
 	
 }

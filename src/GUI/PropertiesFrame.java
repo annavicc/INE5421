@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.HashMap;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -11,12 +12,19 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.LayoutStyle.ComponentPlacement;
+
+import RegularLanguages.RegularLanguage;
+
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class PropertiesFrame extends JFrame {
 
 	private MainFrame mainFrame;
+	private JFrame frmRegularLanguagesProperties;
+	private JComboBox<RegularLanguage> cbPrLR1;
+	private JComboBox<RegularLanguage> cbPrLR2;
 
 	/**
 	 * Exit back to main frame
@@ -49,29 +57,21 @@ public class PropertiesFrame extends JFrame {
 		this.setBounds(100, 200, 750, 190);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		frmRegularLanguagesProperties = new JFrame();
+		
 		JPanel propertiesFramePanel = new JPanel();
 		this.getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		// JLabels:
+		cbPrLR1 = new JComboBox<RegularLanguage>();
+		cbPrLR2 = new JComboBox<RegularLanguage>();
 
+		// JLabels:
 		JLabel lbPrSelectRL1 = new JLabel("Select LR 1");
 		JLabel lbPrSelectProperty = new JLabel("Select Property");
 		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
 
-		// JComboBoxes:
-		
-		JComboBox<String> cbPrLR1 = new JComboBox<String>();
-		JComboBox<String> cbPrLR2 = new JComboBox<String>();
-		String[] languages = mainFrame.getLanguagesNames();
-		for (String lang : languages) {
-			cbPrLR1.addItem(lang);
-			cbPrLR2.addItem(lang);
-		}
-		
-		JComboBox<String> cbPrProperties = new JComboBox<String>();
 		
 		// JButtons:
-		
 		JButton btnPrCancel = new JButton("Cancel");
 		btnPrCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -82,14 +82,17 @@ public class PropertiesFrame extends JFrame {
 		JButton btnPrVerify = new JButton("Verify");
 		
 		// Close Window action:
+		JComboBox<String> cbPrProperties = new JComboBox<String>();
+		cbPrProperties.addItem("Emptiness");
+		cbPrProperties.addItem("Finitness");
 		
-				this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-				this.addWindowListener(new WindowAdapter() {
-					@Override
-					public void windowClosing(WindowEvent e) {
-						PropertiesFrame.this.exit();
-					}
-				});
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				PropertiesFrame.this.exit();
+			}
+		});
 		
 		// Layout definitions:
 		
@@ -139,6 +142,16 @@ public class PropertiesFrame extends JFrame {
 		propertiesFramePanel.setLayout(gl_propertiesFramePanel);
 		this.getContentPane().add(propertiesFramePanel);
 		
+		this.populateComboBoxes();
+	}
+
+	// Populate combo boxes with regular languages from the list
+	public void populateComboBoxes() {
+		HashMap<String, RegularLanguage> languages = mainFrame.getLanguages();
+		for (String id : languages.keySet()) {
+			cbPrLR1.addItem(languages.get(id));
+			cbPrLR2.addItem(languages.get(id));
+		}
 	}
 
 }
