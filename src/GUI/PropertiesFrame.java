@@ -1,62 +1,40 @@
 package GUI;
-import java.awt.EventQueue;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.JFrame;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JButton;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.BorderLayout;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class PropertiesFrame {
+public class PropertiesFrame extends JFrame {
 
-	private JFrame frmRegularLanguagesProperties;
-	private MainFrame mainFrame = null;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					PropertiesFrame window = new PropertiesFrame();
-					window.frmRegularLanguagesProperties.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private MainFrame mainFrame;
 
 	/**
-	 * Hide properties frame.
+	 * Exit back to main frame
 	 */
-	public void hide() {
-		if (mainFrame != null) {
-			mainFrame.display();
-		}
-		frmRegularLanguagesProperties.setVisible(false);
+	public void exit() {
+		mainFrame.setVisible(true);
+		this.dispose();
 	}
 	
 	/**
 	 * Create the application.
 	 */
-	public PropertiesFrame() {
-		initialize();
-	}
-	
 	public PropertiesFrame(MainFrame mainFrame) {
 		try {
 			this.mainFrame = mainFrame;
 			initialize();
-			this.frmRegularLanguagesProperties.setVisible(true);
-			mainFrame.hide();
+			this.setVisible(true);
+			mainFrame.setVisible(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -66,35 +44,55 @@ public class PropertiesFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmRegularLanguagesProperties = new JFrame();
-		frmRegularLanguagesProperties.setTitle("Regular Languages Properties");
-		frmRegularLanguagesProperties.setResizable(false);
-		frmRegularLanguagesProperties.setBounds(100, 100, 600, 180);
-		frmRegularLanguagesProperties.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("Regular Languages Properties");
+		this.setResizable(false);
+		this.setBounds(100, 200, 750, 190);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel propertiesFramePanel = new JPanel();
+		this.getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		JComboBox cbPrLR1 = new JComboBox();
-		
+		// JLabels:
+
 		JLabel lbPrSelectRL1 = new JLabel("Select LR 1");
+		JLabel lbPrSelectProperty = new JLabel("Select Property");
+		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
+
+		// JComboBoxes:
+		
+		JComboBox<String> cbPrLR1 = new JComboBox<String>();
+		JComboBox<String> cbPrLR2 = new JComboBox<String>();
+		String[] languages = mainFrame.getLanguagesNames();
+		for (String lang : languages) {
+			cbPrLR1.addItem(lang);
+			cbPrLR2.addItem(lang);
+		}
+		
+		JComboBox<String> cbPrProperties = new JComboBox<String>();
+		
+		// JButtons:
 		
 		JButton btnPrCancel = new JButton("Cancel");
 		btnPrCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				PropertiesFrame.this.hide();
+				PropertiesFrame.this.exit();
 			}
 		});
-		frmRegularLanguagesProperties.getContentPane().setLayout(new BorderLayout(0, 0));
-		
-		JLabel lbPrSelectProperty = new JLabel("Select Property");
-		
-		JComboBox cbPrProperties = new JComboBox();
 		
 		JButton btnPrVerify = new JButton("Verify");
 		
-		JComboBox cbPrLR2 = new JComboBox();
+		// Close Window action:
 		
-		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
+				this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				this.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						PropertiesFrame.this.exit();
+					}
+				});
+		
+		// Layout definitions:
+		
 		GroupLayout gl_propertiesFramePanel = new GroupLayout(propertiesFramePanel);
 		gl_propertiesFramePanel.setHorizontalGroup(
 			gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
@@ -139,7 +137,8 @@ public class PropertiesFrame {
 					.addContainerGap())
 		);
 		propertiesFramePanel.setLayout(gl_propertiesFramePanel);
-		frmRegularLanguagesProperties.getContentPane().add(propertiesFramePanel);
+		this.getContentPane().add(propertiesFramePanel);
+		
 	}
 
 }

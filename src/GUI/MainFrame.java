@@ -1,39 +1,30 @@
 package GUI;
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.HashMap;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JButton;
-import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
-
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
-import java.awt.List;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.awt.event.ActionEvent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 
 import RegularLanguages.RegularLanguage;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JScrollPane;
 
-public class MainFrame {
+public class MainFrame extends JFrame {
 
-	private JFrame mainFrame;
-	private JList<String> jListMainRL = new JList<String>();
+	private JList<String> jListMainRL;
 	private HashMap<String, RegularLanguage> languages = new HashMap<String, RegularLanguage>();
 
 	/**
@@ -41,7 +32,7 @@ public class MainFrame {
 	 */
 	public static void main(String[] args) {
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());  // Set native window theme
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -50,7 +41,7 @@ public class MainFrame {
 			public void run() {
 				try {
 					MainFrame window = new MainFrame();
-					window.mainFrame.setVisible(true);
+					window.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -64,29 +55,22 @@ public class MainFrame {
 	public MainFrame() {
 		initialize();
 	}
-	
-	public void display() {
-		mainFrame.setVisible(true);
-	}
-
-	public void hide() {
-		mainFrame.setVisible(false);
-	}
 
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		mainFrame = new JFrame();
-		mainFrame.setTitle("LR Manager");
-//		mainFrame.setResizable(false);
-		mainFrame.setBounds(100, 100, 500, 400);
-        mainFrame.setMinimumSize(new Dimension(400, 300));
-		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setTitle("RL Manager");
+//		this.setResizable(false);
+		this.setBounds(100, 100, 500, 400);
+		this.setMinimumSize(new Dimension(400, 300));
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JPanel mainPanel = new JPanel();
-		mainFrame.getContentPane().add(mainPanel, BorderLayout.CENTER);
+		this.getContentPane().add(mainPanel, BorderLayout.CENTER);
+		
+		// JButtons:
 		
 		JButton btnMainAddRL = new JButton("Add a RL");
 		btnMainAddRL.addActionListener(new ActionListener() {
@@ -96,6 +80,14 @@ public class MainFrame {
 		});
 		
 		JButton btnMainViewEdit = new JButton("View/Edit");
+		btnMainViewEdit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RegularLanguage selected = MainFrame.this.getSelected();
+				if (selected != null) {
+					new ViewEditFrame(MainFrame.this, selected);
+				}
+			}
+		});
 		
 		JButton btnMainRemoveRL = new JButton("Remove");
 		btnMainRemoveRL.addActionListener(new ActionListener() {
@@ -119,8 +111,34 @@ public class MainFrame {
 		});
 		
 		JButton btnMainVerifications = new JButton("RL Properties");
+		btnMainVerifications.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	new PropertiesFrame(MainFrame.this);
+		    }
+		});
+		
+		// Scrollable JList:
+		
+		jListMainRL = new JList<String>();
+		jListMainRL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		updateJList();
 		
 		JScrollPane scrollPaneMainRL = new JScrollPane();
+		scrollPaneMainRL.setViewportView(jListMainRL);
+		
+		// Close Window action:
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (MainFrame.this.confirm("Quit") == JOptionPane.YES_OPTION) {
+					MainFrame.this.dispose();
+				}
+			}
+		});
+		
+		// Layout definitions:
+		
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
 		gl_mainPanel.setHorizontalGroup(
 			gl_mainPanel.createParallelGroup(Alignment.LEADING)
@@ -164,15 +182,7 @@ public class MainFrame {
 					.addContainerGap())
 		);
 		
-		updateJList();
-		scrollPaneMainRL.setViewportView(jListMainRL);
-		jListMainRL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		mainPanel.setLayout(gl_mainPanel);
-		btnMainVerifications.addActionListener(new ActionListener() {
-		    public void actionPerformed(ActionEvent e) {
-		    	new PropertiesFrame(MainFrame.this);
-		    }
-		});
 
 	}
 	
@@ -182,24 +192,38 @@ public class MainFrame {
 		this.updateJList();
 	}
 	
-	// Return Regular Language by name
+	// Get Regular Language by name
 	public RegularLanguage getLanguage(String name) {
 		return this.languages.get(name);
+	}
+
+	// Get selected Regular Language
+	private RegularLanguage getSelected() {
+		if (jListMainRL.isSelectionEmpty()) {
+			JOptionPane.showMessageDialog(this, "No language selected!");
+			return null;
+		} else {
+			return getLanguage(jListMainRL.getSelectedValue());
+			
+		}
+	}
+	
+	// Get Regular Languages names array
+	public String[] getLanguagesNames() {
+		return this.languages.keySet()
+				.stream()
+				.toArray(size -> new String[size]);
 	}
 	
 	// Update JList elements
 	private void updateJList() {
-		String[] listData = languages.keySet()
-			.stream()
-			.toArray(size -> new String[size]);
-		
-		this.jListMainRL.setListData(listData);
-	}
+		this.jListMainRL.setListData(this.getLanguagesNames());
+	}	
 	
 	// Ask for action confirmation
 	private int confirm (String action) {
 		return JOptionPane.showConfirmDialog(
-				this.mainFrame,
+				this,
 				"Are you sure you want to " + action + "?",
 				action + '?',
 				JOptionPane.YES_NO_OPTION
@@ -208,7 +232,7 @@ public class MainFrame {
 	
 	// Clear languages list on confirmation
 	private void clearList() {
-		if (confirm("Clear List") == JOptionPane.YES_OPTION) {
+		if (this.confirm("Clear List") == JOptionPane.YES_OPTION) {
 			MainFrame.this.languages.clear();
 	    	updateJList();
 		}
@@ -217,10 +241,10 @@ public class MainFrame {
 	// Remove language selected on JList
 	private void removeSelected() {
 		if (jListMainRL.isSelectionEmpty()) {
-			JOptionPane.showMessageDialog(this.mainFrame, "No language selected!");
+			JOptionPane.showMessageDialog(this, "No language selected!");
 		} else {
 			String id = jListMainRL.getSelectedValue();
-			if (confirm("Remove \"" + id + '"') == JOptionPane.YES_OPTION) {
+			if (this.confirm("Remove \"" + id + '"') == JOptionPane.YES_OPTION) {
 				MainFrame.this.languages.remove(id);
 		    	updateJList();
 			}

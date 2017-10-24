@@ -1,65 +1,41 @@
 package GUI;
-import java.awt.EventQueue;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-import javax.swing.JFrame;
-import javax.swing.JComboBox;
-import java.awt.BorderLayout;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JPanel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import java.awt.CardLayout;
-import java.awt.FlowLayout;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
-public class OperationsFrame {
+public class OperationsFrame extends JFrame {
 
-	private JFrame frmRegularLanguagesOperations;
-	private MainFrame mainFrame = null;
+	private MainFrame mainFrame;
 
+	
 	/**
-	 * Launch the application.
+	 * Exit back to main frame
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					OperationsFrame window = new OperationsFrame();
-					window.frmRegularLanguagesOperations.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-		
-	/**
-	 * Hide operations frame.
-	 */
-	public void hide() {
-		if (mainFrame != null) {
-			mainFrame.display();
-		}
-		frmRegularLanguagesOperations.setVisible(false);
+	public void exit() {
+		mainFrame.setVisible(true);
+		this.dispose();
 	}
 
 	/**
 	 * Create the application.
 	 */
-	public OperationsFrame() {
-		initialize();
-	}
-
 	public OperationsFrame(MainFrame mainFrame) {
 		try {
 			this.mainFrame = mainFrame;
 			initialize();
-			this.frmRegularLanguagesOperations.setVisible(true);
-			mainFrame.hide();
+			this.setVisible(true);
+			mainFrame.setVisible(false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -70,43 +46,62 @@ public class OperationsFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frmRegularLanguagesOperations = new JFrame();
-		frmRegularLanguagesOperations.setTitle("Regular Languages Operations");
-		frmRegularLanguagesOperations.setResizable(false);
-		frmRegularLanguagesOperations.setBounds(100, 100, 600, 180);
-		frmRegularLanguagesOperations.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmRegularLanguagesOperations.getContentPane().setLayout(new BorderLayout(0, 0));
+		this.setTitle("Regular Languages Operations");
+		this.setResizable(false);
+		this.setBounds(100, 200, 750, 190);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.getContentPane().setLayout(new BorderLayout(0, 0));
 		
 		JPanel operationsFramePanel = new JPanel();
-		frmRegularLanguagesOperations.getContentPane().add(operationsFramePanel, BorderLayout.CENTER);
+		this.getContentPane().add(operationsFramePanel, BorderLayout.CENTER);
 		
-		JComboBox cbOpRL1 = new JComboBox();
+		// JComboBoxes:
 		
-		JComboBox cbOpRL2 = new JComboBox();
+		JComboBox<String> cbOpRL1 = new JComboBox<String>();
+		JComboBox<String> cbOpRL2 = new JComboBox<String>();
+		String[] languages = mainFrame.getLanguagesNames();
+		for (String lang : languages) {
+			cbOpRL1.addItem(lang);
+			cbOpRL2.addItem(lang);
+		}
 		
-		JComboBox cbOpOperations = new JComboBox();
-		
+		JComboBox<String> cbOpOperations = new JComboBox<String>();
 		cbOpOperations.addItem("Union");
 		cbOpOperations.addItem("Intersection");
 		cbOpOperations.addItem("Difference");
 		cbOpOperations.addItem("Concatenation");
 		
+		// JLabels:
+		
 		JLabel lbOpSelectRL1 = new JLabel("Select RL 1");
-		
 		JLabel lbOpSelectOp = new JLabel("Select Operation");
-		
 		JLabel lbOpSelectRL2 = new JLabel("Select RL 2");
+		
+		// JButtons:
 		
 		JButton btnOpCancel = new JButton("Cancel");
 		btnOpCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				OperationsFrame.this.hide();
+				OperationsFrame.this.exit();
 			}
 		});
 		
 		JButton btnOpSave = new JButton("Save");
 		
 		JButton btnOpView = new JButton("View");
+		
+		// Close Window action:
+		
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				OperationsFrame.this.exit();
+			}
+		});
+	
+		// Layout definitions:
+		
 		GroupLayout gl_operationsFramePanel = new GroupLayout(operationsFramePanel);
 		gl_operationsFramePanel.setHorizontalGroup(
 			gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
@@ -116,7 +111,7 @@ public class OperationsFrame {
 						.addGroup(gl_operationsFramePanel.createSequentialGroup()
 							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
 								.addGroup(gl_operationsFramePanel.createSequentialGroup()
-									.addComponent(cbOpRL1, 0, 138, Short.MAX_VALUE)
+									.addComponent(cbOpRL1, 0, 283, Short.MAX_VALUE)
 									.addPreferredGap(ComponentPlacement.UNRELATED))
 								.addGroup(gl_operationsFramePanel.createSequentialGroup()
 									.addGap(6)
@@ -128,13 +123,13 @@ public class OperationsFrame {
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(lbOpSelectRL2)
-								.addComponent(cbOpRL2, 0, 138, Short.MAX_VALUE)))
+								.addComponent(cbOpRL2, 0, 283, Short.MAX_VALUE)))
 						.addGroup(gl_operationsFramePanel.createSequentialGroup()
-							.addComponent(btnOpCancel)
+							.addComponent(btnOpCancel, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnOpView)
+							.addComponent(btnOpView, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnOpSave)))
+							.addComponent(btnOpSave, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap())
 		);
 		gl_operationsFramePanel.setVerticalGroup(
@@ -151,11 +146,11 @@ public class OperationsFrame {
 							.addComponent(cbOpRL1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 							.addComponent(cbOpOperations, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 						.addComponent(cbOpRL2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
 					.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnOpView)
-						.addComponent(btnOpCancel)
-						.addComponent(btnOpSave))
+						.addComponent(btnOpView, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnOpCancel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnOpSave, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
 		);
 		operationsFramePanel.setLayout(gl_operationsFramePanel);

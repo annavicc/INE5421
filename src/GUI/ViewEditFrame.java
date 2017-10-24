@@ -1,6 +1,8 @@
 package GUI;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
 import javax.swing.JRadioButton;
@@ -8,31 +10,45 @@ import javax.swing.JEditorPane;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 
+import RegularLanguages.RegularExpression;
+import RegularLanguages.RegularLanguage;
+
 public class ViewEditFrame {
 
+	private MainFrame mainFrame;
+	private JEditorPane edpViewEditRE, edpViewEditRG;
 	private JFrame frmRegularLanguagesOperations;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					ViewEditFrame window = new ViewEditFrame();
-					window.frmRegularLanguagesOperations.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
+	/**
+	 * Exit back to main frame
+	 */
+	public void exit() {
+		mainFrame.setVisible(true);
+		this.frmRegularLanguagesOperations.dispose();
+	}
+	
 	/**
 	 * Create the application.
 	 */
 	public ViewEditFrame() {
 		initialize();
+	}
+	
+	/**
+	 * Create the application.
+	 */
+	public ViewEditFrame(MainFrame mainFrame, RegularLanguage language) {
+		this.mainFrame = mainFrame;
+		initialize();
+		edpViewEditRG.setText(language.getRG().toString());
+		RegularExpression re = language.getRE();
+		if (re != null) {
+			edpViewEditRE.setText(re.toString());
+		}
+		
+		this.frmRegularLanguagesOperations.setVisible(true);
+		mainFrame.setVisible(false);
 	}
 
 	/**
@@ -58,7 +74,7 @@ public class ViewEditFrame {
 		rdbtnViewEditRG.setBounds(330, 77, 170, 23);
 		frmRegularLanguagesOperations.getContentPane().add(rdbtnViewEditRG);
 		
-		JEditorPane edpViewEditRE = new JEditorPane();
+		edpViewEditRE = new JEditorPane();
 		edpViewEditRE.setBounds(24, 108, 141, 268);
 		frmRegularLanguagesOperations.getContentPane().add(edpViewEditRE);
 		
@@ -66,7 +82,7 @@ public class ViewEditFrame {
 		edpViewEditFA.setBounds(176, 108, 141, 268);
 		frmRegularLanguagesOperations.getContentPane().add(edpViewEditFA);
 		
-		JEditorPane edpViewEditRG = new JEditorPane();
+		edpViewEditRG = new JEditorPane();
 		edpViewEditRG.setBounds(328, 108, 141, 268);
 		frmRegularLanguagesOperations.getContentPane().add(edpViewEditRG);
 		
@@ -77,6 +93,12 @@ public class ViewEditFrame {
 		JButton btnViewEditCancel = new JButton("Cancel");
 		btnViewEditCancel.setVerticalAlignment(SwingConstants.BOTTOM);
 		btnViewEditCancel.setBounds(234, 429, 117, 30);
+		btnViewEditCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ViewEditFrame.this.exit();
+			}
+		});
+		
 		frmRegularLanguagesOperations.getContentPane().add(btnViewEditCancel);
 	}
 }
