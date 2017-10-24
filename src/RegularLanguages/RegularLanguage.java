@@ -2,9 +2,11 @@ package RegularLanguages;
 
 public class RegularLanguage {
 
+	public enum InputType {RE, RG, UNDEFINED};
+	public enum Operation {UNION, CONCATENATION, INTERSECTION, DIFFERENCE};
+	
 	private String input;
 	private String id;
-	public enum InputType {RE, RG, UNDEFINED};
 	private InputType type = InputType.UNDEFINED;
 	
 	
@@ -29,8 +31,7 @@ public class RegularLanguage {
 	}
 	
 	public String getId() {
-//		return this.id;
-		return "fasd";
+		return this.id;
 	}
 	
 	public void setId(String id) {
@@ -38,8 +39,7 @@ public class RegularLanguage {
 	}
 	
 	public String toString() {
-//		return this.id;
-		return "32132";
+		return this.id;
 	}
 	
 	public InputType getType() {

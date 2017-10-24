@@ -7,6 +7,11 @@ import javax.swing.JFrame;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JButton;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 public class PropertiesFrame {
 
@@ -63,46 +68,78 @@ public class PropertiesFrame {
 	private void initialize() {
 		frmRegularLanguagesProperties = new JFrame();
 		frmRegularLanguagesProperties.setTitle("Regular Languages Properties");
-		frmRegularLanguagesProperties.setBounds(100, 100, 450, 270);
+		frmRegularLanguagesProperties.setResizable(false);
+		frmRegularLanguagesProperties.setBounds(100, 100, 600, 180);
 		frmRegularLanguagesProperties.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmRegularLanguagesProperties.getContentPane().setLayout(null);
+		
+		JPanel propertiesFramePanel = new JPanel();
 		
 		JComboBox cbPrLR1 = new JComboBox();
-		cbPrLR1.setBounds(12, 55, 127, 24);
-		frmRegularLanguagesProperties.getContentPane().add(cbPrLR1);
-		
-		JComboBox cbPrLR2 = new JComboBox();
-		cbPrLR2.setBounds(290, 55, 127, 24);
-		frmRegularLanguagesProperties.getContentPane().add(cbPrLR2);
-		
-		JComboBox cbPrProperties = new JComboBox();
-		cbPrProperties.setBounds(151, 55, 127, 24);
-		frmRegularLanguagesProperties.getContentPane().add(cbPrProperties);
 		
 		JLabel lbPrSelectRL1 = new JLabel("Select LR 1");
-		lbPrSelectRL1.setBounds(32, 28, 80, 15);
-		frmRegularLanguagesProperties.getContentPane().add(lbPrSelectRL1);
-		
-		JLabel lbPrSelectProperty = new JLabel("Select Property");
-		lbPrSelectProperty.setBounds(151, 28, 120, 15);
-		frmRegularLanguagesProperties.getContentPane().add(lbPrSelectProperty);
-		
-		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
-		lbPrSelectRL2.setBounds(320, 28, 80, 15);
-		frmRegularLanguagesProperties.getContentPane().add(lbPrSelectRL2);
 		
 		JButton btnPrCancel = new JButton("Cancel");
-		btnPrCancel.setBounds(215, 162, 90, 30);
-		frmRegularLanguagesProperties.getContentPane().add(btnPrCancel);
 		btnPrCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				PropertiesFrame.this.hide();
 			}
 		});
+		frmRegularLanguagesProperties.getContentPane().setLayout(new BorderLayout(0, 0));
+		
+		JLabel lbPrSelectProperty = new JLabel("Select Property");
+		
+		JComboBox cbPrProperties = new JComboBox();
 		
 		JButton btnPrVerify = new JButton("Verify");
-		btnPrVerify.setBounds(321, 161, 90, 30);
-		frmRegularLanguagesProperties.getContentPane().add(btnPrVerify);
+		
+		JComboBox cbPrLR2 = new JComboBox();
+		
+		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
+		GroupLayout gl_propertiesFramePanel = new GroupLayout(propertiesFramePanel);
+		gl_propertiesFramePanel.setHorizontalGroup(
+			gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_propertiesFramePanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_propertiesFramePanel.createSequentialGroup()
+							.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(cbPrLR1, 0, 200, Short.MAX_VALUE)
+								.addComponent(lbPrSelectRL1))
+							.addGap(14)
+							.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lbPrSelectProperty, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE)
+								.addComponent(cbPrProperties, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(cbPrLR2, 0, 200, Short.MAX_VALUE)
+								.addComponent(lbPrSelectRL2, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(gl_propertiesFramePanel.createSequentialGroup()
+							.addComponent(btnPrCancel, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(btnPrVerify, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)))
+					.addGap(12))
+		);
+		gl_propertiesFramePanel.setVerticalGroup(
+			gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_propertiesFramePanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lbPrSelectProperty)
+						.addComponent(lbPrSelectRL2)
+						.addComponent(lbPrSelectRL1))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(cbPrProperties, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(cbPrLR2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(cbPrLR1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btnPrVerify, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnPrCancel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap())
+		);
+		propertiesFramePanel.setLayout(gl_propertiesFramePanel);
+		frmRegularLanguagesProperties.getContentPane().add(propertiesFramePanel);
 	}
 
 }

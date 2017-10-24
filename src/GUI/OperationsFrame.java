@@ -8,6 +8,13 @@ import javax.swing.JComboBox;
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.Alignment;
+import java.awt.CardLayout;
+import java.awt.FlowLayout;
+import javax.swing.BoxLayout;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class OperationsFrame {
 
@@ -66,37 +73,31 @@ public class OperationsFrame {
 		frmRegularLanguagesOperations = new JFrame();
 		frmRegularLanguagesOperations.setTitle("Regular Languages Operations");
 		frmRegularLanguagesOperations.setResizable(false);
-		frmRegularLanguagesOperations.setBounds(100, 100, 450, 270);
+		frmRegularLanguagesOperations.setBounds(100, 100, 600, 180);
 		frmRegularLanguagesOperations.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frmRegularLanguagesOperations.getContentPane().setLayout(null);
+		frmRegularLanguagesOperations.getContentPane().setLayout(new BorderLayout(0, 0));
+		
+		JPanel operationsFramePanel = new JPanel();
+		frmRegularLanguagesOperations.getContentPane().add(operationsFramePanel, BorderLayout.CENTER);
 		
 		JComboBox cbOpRL1 = new JComboBox();
-		cbOpRL1.setBounds(12, 55, 127, 24);
-		frmRegularLanguagesOperations.getContentPane().add(cbOpRL1);
 		
 		JComboBox cbOpRL2 = new JComboBox();
-		cbOpRL2.setBounds(290, 55, 127, 24);
-		frmRegularLanguagesOperations.getContentPane().add(cbOpRL2);
 		
 		JComboBox cbOpOperations = new JComboBox();
-		cbOpOperations.setBounds(151, 55, 127, 24);
-		frmRegularLanguagesOperations.getContentPane().add(cbOpOperations);
+		
+		cbOpOperations.addItem("Union");
+		cbOpOperations.addItem("Intersection");
+		cbOpOperations.addItem("Difference");
+		cbOpOperations.addItem("Concatenation");
 		
 		JLabel lbOpSelectRL1 = new JLabel("Select RL 1");
-		lbOpSelectRL1.setBounds(32, 28, 80, 15);
-		frmRegularLanguagesOperations.getContentPane().add(lbOpSelectRL1);
 		
 		JLabel lbOpSelectOp = new JLabel("Select Operation");
-		lbOpSelectOp.setBounds(151, 28, 120, 15);
-		frmRegularLanguagesOperations.getContentPane().add(lbOpSelectOp);
 		
 		JLabel lbOpSelectRL2 = new JLabel("Select RL 2");
-		lbOpSelectRL2.setBounds(320, 28, 80, 15);
-		frmRegularLanguagesOperations.getContentPane().add(lbOpSelectRL2);
 		
 		JButton btnOpCancel = new JButton("Cancel");
-		btnOpCancel.setBounds(123, 172, 90, 30);
-		frmRegularLanguagesOperations.getContentPane().add(btnOpCancel);
 		btnOpCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				OperationsFrame.this.hide();
@@ -104,16 +105,59 @@ public class OperationsFrame {
 		});
 		
 		JButton btnOpSave = new JButton("Save");
-		btnOpSave.setBounds(327, 172, 90, 30);
-		frmRegularLanguagesOperations.getContentPane().add(btnOpSave);
 		
 		JButton btnOpView = new JButton("View");
-		btnOpView.setBounds(225, 172, 90, 30);
-		frmRegularLanguagesOperations.getContentPane().add(btnOpView);
-		
-		cbOpOperations.addItem("Union");
-		cbOpOperations.addItem("Intersection");
-		cbOpOperations.addItem("Difference");
-		cbOpOperations.addItem("Concatenation");
+		GroupLayout gl_operationsFramePanel = new GroupLayout(operationsFramePanel);
+		gl_operationsFramePanel.setHorizontalGroup(
+			gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_operationsFramePanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.TRAILING)
+						.addGroup(gl_operationsFramePanel.createSequentialGroup()
+							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_operationsFramePanel.createSequentialGroup()
+									.addComponent(cbOpRL1, 0, 138, Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.UNRELATED))
+								.addGroup(gl_operationsFramePanel.createSequentialGroup()
+									.addGap(6)
+									.addComponent(lbOpSelectRL1)
+									.addGap(41)))
+							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lbOpSelectOp)
+								.addComponent(cbOpOperations, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lbOpSelectRL2)
+								.addComponent(cbOpRL2, 0, 138, Short.MAX_VALUE)))
+						.addGroup(gl_operationsFramePanel.createSequentialGroup()
+							.addComponent(btnOpCancel)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnOpView)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnOpSave)))
+					.addContainerGap())
+		);
+		gl_operationsFramePanel.setVerticalGroup(
+			gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_operationsFramePanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lbOpSelectRL1)
+						.addComponent(lbOpSelectOp)
+						.addComponent(lbOpSelectRL2))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.BASELINE)
+							.addComponent(cbOpRL1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addComponent(cbOpOperations, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(cbOpRL2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
+					.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btnOpView)
+						.addComponent(btnOpCancel)
+						.addComponent(btnOpSave))
+					.addContainerGap())
+		);
+		operationsFramePanel.setLayout(gl_operationsFramePanel);
 	}
 }

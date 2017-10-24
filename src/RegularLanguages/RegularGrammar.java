@@ -18,7 +18,8 @@ public class RegularGrammar extends RegularLanguage {
 	}
 
 	public static boolean isValidRG(String inp) {
-		return true;
+//		return true;
+		return false;
 	}
 	
 }
