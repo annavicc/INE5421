@@ -3,8 +3,6 @@ package RegularLanguages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import RegularLanguages.RegularLanguage.InputType;
-
 
 public class RegularGrammar extends RegularLanguage {
 	

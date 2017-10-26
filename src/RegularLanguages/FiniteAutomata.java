@@ -1,28 +1,24 @@
 package RegularLanguages;
 
 import java.util.ArrayList;
+import java.util.TreeSet;
+
+import RegularLanguages.Transition.TransitionBuilder;
+
 
 public class FiniteAutomata extends RegularLanguage {
-	private String initial;
-	private ArrayList<String> states;
-	private ArrayList<String> finals;
-	private ArrayList<String> alphabet;
+		
+	private State initial;
+	private ArrayList<State> states;
+	private ArrayList<State> finals;
+	private ArrayList<Character> alphabet;
 	private ArrayList<Transition> transitions;
 	
-
+	// TODO remove
 	public FiniteAutomata() {}
 	
-	public FiniteAutomata(String initial, String[] states, String[] finals, String[] alphabet, Transition[] transitions) {
-		this.initial = initial;
-		this.states = new ArrayList<String>();
-		this.finals = new ArrayList<String>();
-		this.alphabet = new ArrayList<String>();
-		this.transitions = new ArrayList<Transition>();
+	private FiniteAutomata(FiniteAutomataBuilder builder) {
 		
-		for (String s : states) { this.states.add(s); }
-		for (String f : finals) { this.finals.add(f); }
-		for (String l : alphabet) { this.alphabet.add(l); }
-		for (Transition t : transitions) { this.transitions.add(t); }
 	}
 	
 	public FiniteAutomata determinize() {
@@ -34,7 +30,7 @@ public class FiniteAutomata extends RegularLanguage {
 	}
 	
 	
-	/*
+	/**
 	 * Convert AF to RG
 	 * TODO implement
 	 */
@@ -42,14 +38,14 @@ public class FiniteAutomata extends RegularLanguage {
 		return new RegularGrammar("");
 	}
 	
-	/*
+	/**
 	 * Get AF
 	 */
 	public FiniteAutomata getAF() {
 		return this;
 	}
 	
-	/*
+	/**
 	 * Convert AF to RE
 	 * Out of scope
 	 */
@@ -57,4 +53,35 @@ public class FiniteAutomata extends RegularLanguage {
 		return null;
 	}
 	
+	/**
+	 * Builder class 
+	 *
+	 */
+	public class FiniteAutomataBuilder {
+		
+		private State initial;
+		private TreeSet<State> states;
+		private TreeSet<State> finals;
+		private TreeSet<Character> alphabet;
+		// TODO find a better representation
+		private TreeSet<TransitionBuilder> transitions;
+		
+		public State newState() {
+			State s = new State();
+			states.add(s);
+			return s;
+		}
+		
+		public boolean addTransition(State in, char symbol, State out) {
+			// TODO NOW WHAT?
+			return false;
+		}
+		
+		private FiniteAutomata build() {
+			return new FiniteAutomata(this);
+		}
+	}
+	
+	
 }
+

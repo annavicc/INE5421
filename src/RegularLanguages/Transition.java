@@ -1,30 +1,54 @@
 package RegularLanguages;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Transition {
-	private String state;
-	private String value;
-	private ArrayList<String> next;
 	
-	public Transition(String state, String value, String[] next) {
-		this.state = state;
-		this.value = value;
-		this.next = new ArrayList<String>();
-		for (String n : next) {
-			this.next.add(n);
+	private final State origin;
+	private final char symbol;
+	private final Set<State> next;
+	
+	private Transition(TransitionBuilder builder) {
+		this.origin = builder.origin;
+		this.symbol = builder.symbol;
+		this.next = Collections.unmodifiableSet(builder.next);
+	}
+	
+	public State getOrigin() {
+		return this.origin;
+	}
+	
+	public char getSymbol() {
+		return this.symbol;
+	}
+	
+	public Set<State> getNext() {
+		return (TreeSet<State>) this.next;
+	}
+	
+	
+	public static class TransitionBuilder {
+
+		private final State origin;
+		private final char symbol;
+		private TreeSet<State> next;
+		
+		public TransitionBuilder(State origin, char symbol) {
+			this.origin = origin;
+			this.symbol = symbol;
+			this.next = new TreeSet<State>();
 		}
-	}
-	
-	public String getState() {
-		return this.state;
-	}
-	
-	public String getValue() {
-		return this.value;
-	}
-	
-	public ArrayList<String> getNext() {
-		return this.next;
+		
+		public TransitionBuilder addNext(State next) {
+			this.next.add(next);
+			return this;
+		}
+		
+		public Transition build() {
+			return new Transition(this);
+		}
+		
 	}
 }
