@@ -167,14 +167,14 @@ public class ViewEditFrame extends JFrame{
 		RegularLanguage.InputType type = language.getType();
 		if (type.equals(RegularLanguage.InputType.RG)) {
 			viewEditTabbedPane.setSelectedComponent(scpViewEditRG);
-			edpViewEditRG.setText(language.getDefinition());
 		} else if (type.equals(RegularLanguage.InputType.RE)) {
 			viewEditTabbedPane.setSelectedComponent(edpViewEditRE);
-			edpViewEditRE.setText(language.getDefinition());
 		} else {
 			viewEditTabbedPane.setSelectedComponent(edpViewEditFA);
-			edpViewEditFA.setText(language.getDefinition());
 		}
+		edpViewEditRG.setText(language.getRG().getDefinition());
+		edpViewEditRE.setText(language.getRE().getDefinition());
+		edpViewEditFA.setText(language.getAF().getDefinition());
 	}
 	private String getPaneText() {
 		int selectedTabIndex = viewEditTabbedPane.getSelectedIndex();

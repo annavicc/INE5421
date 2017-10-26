@@ -2,15 +2,17 @@ package RegularLanguages;
 
 public abstract class RegularLanguage {
 
-	public enum InputType {RE, RG, UNDEFINED};
+	public enum InputType {RE, RG, AF, UNDEFINED};
 	public enum Operation {UNION, CONCATENATION, INTERSECTION, DIFFERENCE};
 	
-	private String input;
+	protected String input;
 	private String id;
 	private InputType type = InputType.UNDEFINED;
 	
 	
-	public RegularLanguage() {}
+	public RegularLanguage(InputType type) {
+		this.type = type;
+	}
 	
 	public RegularLanguage(String input, InputType type) {
 		this.input = input;
@@ -32,10 +34,6 @@ public abstract class RegularLanguage {
 	
 	public String getId() {
 		return this.id;
-	}
-	
-	public String getDefinition() {
-		return this.input;
 	}
 	
 	public String getInput() {
@@ -71,7 +69,7 @@ public abstract class RegularLanguage {
 		return this.id;
 	}
 	
-//	public abstract GetDefinition();
+	public abstract String getDefinition();
 	
 	public abstract RegularGrammar getRG();
 	public abstract RegularExpression getRE();

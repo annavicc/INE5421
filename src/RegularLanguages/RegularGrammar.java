@@ -3,6 +3,8 @@ package RegularLanguages;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import RegularLanguages.FiniteAutomata.FiniteAutomataBuilder;
+
 
 public class RegularGrammar extends RegularLanguage {
 	
@@ -19,6 +21,10 @@ public class RegularGrammar extends RegularLanguage {
 		return true;
 	}
 	
+	public String getDefinition() {
+		return super.input;
+	}
+	
 	/*
 	 * Get RG
 	 */
@@ -31,7 +37,17 @@ public class RegularGrammar extends RegularLanguage {
 	 * TODO implement
 	 */
 	public FiniteAutomata getAF() {
-		return new FiniteAutomata();
+		FiniteAutomataBuilder builder = new FiniteAutomataBuilder();
+		FiniteAutomata.State q0 = builder.newState();
+		FiniteAutomata.State q1 = builder.newState();
+		FiniteAutomata.State q2 = builder.newState();
+		builder.setInitial(q0);
+		builder.setFinal(q1);
+		builder.addTransition(q0, 'a', q0);
+		builder.addTransition(q0, 'b', q0);
+		builder.addTransition(q0, 'b', q1);
+		builder.addTransition(q1, 'a', q2);
+		return builder.build();
 	}
 	
 	/*
@@ -39,8 +55,8 @@ public class RegularGrammar extends RegularLanguage {
 	 * Out of scope
 	 */
 	public RegularExpression getRE() {
-		return null;
-//		return false;
+//		return null;
+		return new RegularExpression("UNDEFINED RE");
 	}
 	
 }
