@@ -11,7 +11,7 @@ public class RegularGrammar extends RegularLanguage {
 	private HashSet<Character> vt;	// terminal symbols
 	private HashMap<Character, HashSet<String>> productions;	// production rules S -> aA | a
 	private char s;	// initial S
-
+	private char d;
 	public RegularGrammar(String inp) {
 		super(inp, InputType.RG);
 		vn = new HashSet<Character>();
