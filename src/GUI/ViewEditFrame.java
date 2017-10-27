@@ -169,10 +169,10 @@ public class ViewEditFrame extends JFrame{
 			viewEditTabbedPane.setSelectedComponent(scpViewEditRG);
 			edpViewEditRG.setText(language.getDefinition());
 		} else if (type.equals(RegularLanguage.InputType.RE)) {
-			viewEditTabbedPane.setSelectedComponent(scpViewEditRE);
+			viewEditTabbedPane.setSelectedComponent(edpViewEditRE);
 			edpViewEditRE.setText(language.getDefinition());
 		} else {
-			viewEditTabbedPane.setSelectedComponent(scpViewEditFA);
+			viewEditTabbedPane.setSelectedComponent(edpViewEditFA);
 			edpViewEditFA.setText(language.getDefinition());
 		}
 	}
