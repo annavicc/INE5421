@@ -1,6 +1,7 @@
 package GUI;
 
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -14,6 +15,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 
@@ -22,8 +25,8 @@ import RegularLanguages.RegularLanguage;
 public class ViewEditFrame extends JFrame{
 	
 	private MainFrame mainFrame;
-	private JEditorPane edpViewEditRE, edpViewEditRG, edpViewEditFA;
 	private JScrollPane scpViewEditRE, scpViewEditRG, scpViewEditFA;
+	private JTextArea txtaViewEditRE, txtaViewEditRG, txtaViewEditFA;
 	private JTabbedPane viewEditTabbedPane;
 	
 	private RegularLanguage language = null;
@@ -71,19 +74,18 @@ public class ViewEditFrame extends JFrame{
 		
 		viewEditTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		
-		edpViewEditRE = MainFrame.newScrollableEditorPane();
-		scpViewEditRE = new JScrollPane();
-		scpViewEditRE.setViewportView(edpViewEditRE);
+		txtaViewEditRE = new JTextArea();
+		scpViewEditRE = new JScrollPane(txtaViewEditRE);
 		viewEditTabbedPane.addTab(strRE, null, scpViewEditRE, null);
 		
-		edpViewEditFA = MainFrame.newScrollableEditorPane();
-		scpViewEditFA = new JScrollPane();
-		scpViewEditFA.setViewportView(edpViewEditFA);
+		txtaViewEditFA = new JTextArea();
+		txtaViewEditFA.setFont(new Font("Courier New", Font.PLAIN, 14));
+		txtaViewEditFA.setEditable(false);
+		scpViewEditFA = new JScrollPane(txtaViewEditFA);
 		viewEditTabbedPane.addTab(strFA, null, scpViewEditFA, null);
 		
-		edpViewEditRG = MainFrame.newScrollableEditorPane();
-		scpViewEditRG = new JScrollPane();
-		scpViewEditRG.setViewportView(edpViewEditRG);
+		txtaViewEditRG = new JTextArea();
+		scpViewEditRG = new JScrollPane(txtaViewEditRG);
 		viewEditTabbedPane.addTab(strRG, null, scpViewEditRG, null);
 		
 		enableTextPane();
@@ -94,6 +96,10 @@ public class ViewEditFrame extends JFrame{
 		btnViewEditSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String input = getPaneText(); // Gets text from pane
+				if (input == null) {
+					JOptionPane.showMessageDialog(ViewEditFrame.this, "Can't save " + strFA + "!");
+					return;
+				}
 				RegularLanguage l = RegularLanguage.validate(input); // Gets RL object
 				if(l == null) { // If type is not valid
 					JOptionPane.showMessageDialog(ViewEditFrame.this, "Invalid input!");
@@ -168,23 +174,26 @@ public class ViewEditFrame extends JFrame{
 		if (type.equals(RegularLanguage.InputType.RG)) {
 			viewEditTabbedPane.setSelectedComponent(scpViewEditRG);
 		} else if (type.equals(RegularLanguage.InputType.RE)) {
-			viewEditTabbedPane.setSelectedComponent(edpViewEditRE);
+			viewEditTabbedPane.setSelectedComponent(scpViewEditRE);
 		} else {
-			viewEditTabbedPane.setSelectedComponent(edpViewEditFA);
+			viewEditTabbedPane.setSelectedComponent(scpViewEditFA);
 		}
-		edpViewEditRG.setText(language.getRG().getDefinition());
-		edpViewEditRE.setText(language.getRE().getDefinition());
-		edpViewEditFA.setText(language.getAF().getDefinition());
+		txtaViewEditRG.setText(language.getRG().getDefinition());
+		txtaViewEditRG.setCaretPosition(0);
+		txtaViewEditRE.setText(language.getRE().getDefinition());
+		txtaViewEditRE.setCaretPosition(0);
+		txtaViewEditFA.setText(language.getAF().getDefinition());
+		txtaViewEditFA.setCaretPosition(0);
 	}
 	private String getPaneText() {
 		int selectedTabIndex = viewEditTabbedPane.getSelectedIndex();
 		String selectedTab = viewEditTabbedPane.getTitleAt(selectedTabIndex);
 		if (selectedTab.equals(strRG)) {
-			return edpViewEditRG.getText();
+			return txtaViewEditRG.getText();
 		} else if (selectedTab.equals(strRE)) {
-			return edpViewEditRE.getText();
+			return txtaViewEditRE.getText();
 		} else {
-			return edpViewEditFA.getText();
+			return null;
 		}
 	}
 

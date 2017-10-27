@@ -7,8 +7,12 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
+import com.bethecoder.ascii_table.ASCIITable;
+
 import RegularLanguages.FiniteAutomata;
+import RegularLanguages.FiniteAutomata.State;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
 
@@ -73,7 +77,7 @@ class FiniteAutomataTest {
 	}
 	
 	@Test
-	void testBuildValidation() throws IncompleteAutomataException, InvalidStateException {
+	void testBuildValidation() throws IncompleteAutomataException, InvalidStateException, InvalidBuilderException {
 		setUpBuilders();
 		// Try to build automata without states
 		FiniteAutomata.FABuilder b0 = new FiniteAutomata.FABuilder();
@@ -91,7 +95,8 @@ class FiniteAutomataTest {
 			// Build complete automata
 			FiniteAutomata fa = builders[pos].build();
 			assertNotNull(fa);
-			
+			assertThrows(InvalidBuilderException.class,
+					() -> builders[pos].build());
 		}
 		
 	}
@@ -120,7 +125,7 @@ class FiniteAutomataTest {
 	}
 	
 	@Test
-	void testInvalidSymbols() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException {
+	void testInvalidSymbols() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
 		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
 		FiniteAutomata.State q0 = builder.newState();
 		for (char c = 0; c < (char) -1; c++) {
@@ -138,13 +143,13 @@ class FiniteAutomataTest {
 		for (char c = 'a'; c <= 'z'; c++) {
 			assertTrue(alphabet.contains(c));
 		}
-		assertFalse(alphabet.contains('&'));  // TODO should it contain '&'?
+		assertTrue(alphabet.contains('&'));  // TODO should it contain '&'?
 		assertFalse(alphabet.contains('A'));
 		
 	}
 	
 	@Test
-	void testTransitions() throws InvalidStateException, IncompleteAutomataException, InvalidSymbolException {
+	void testTransitions() throws InvalidStateException, IncompleteAutomataException, InvalidSymbolException, InvalidBuilderException {
 		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
 		FiniteAutomata.State q0 = builder.newState();
 		FiniteAutomata.State q1 = builder.newState();
@@ -187,6 +192,50 @@ class FiniteAutomataTest {
 		
 	}
 	
+	@Test
+	void testAutomataRepresentation() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
+		String smallDelta = "\u03B4";
+		String[] topRow = {smallDelta, "&", "a", "b", "c"};
+		String[][] data = {
+				{"->q0",  "q0",  "q1, q2",          "",    "q5"},
+				{"q1",    "",    "",                "q4",  "q4"},
+				{"*q2",   "",    "",                "q4",  "q4"},
+				{"q3",    "",    "q1, q2, q3, q4",  "",    ""  },
+				{"q4",    "",    "q3",              "q3",  ""  },
+				{"*q5",   "",    "",                "",    ""  }
+		};
+		
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+		FiniteAutomata.State[] q = new FiniteAutomata.State[6];
+		for (int i = 0; i < 6; i++) {
+			q[i] = builder.newState();
+		}
+		builder.setInitial(q[0])
+			.setFinal(q[2])
+			.setFinal(q[5])
+			.addTransition(q[0], '&', q[0])
+			.addTransition(q[0], 'a', q[1])
+			.addTransition(q[0], 'a', q[2])
+			.addTransition(q[0], 'c', q[5])
+			.addTransition(q[1], 'b', q[4])
+			.addTransition(q[1], 'c', q[4])
+			.addTransition(q[2], 'b', q[4])
+			.addTransition(q[2], 'c', q[4])
+			.addTransition(q[3], 'a', q[4])
+			.addTransition(q[3], 'a', q[3])
+			.addTransition(q[3], 'a', q[2])
+			.addTransition(q[3], 'a', q[1])
+			.addTransition(q[4], 'b', q[3])
+			.addTransition(q[4], 'a', q[3]);
+		
+		
+		String def = builder.build().getDefinition();
+		String table = ASCIITable.getInstance().getTable(topRow, data).toString();
+		assertEquals(table, def);
+		
+		
+		
+	}
 	
 
 }

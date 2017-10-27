@@ -2,7 +2,6 @@ package GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -11,12 +10,12 @@ import java.awt.event.WindowEvent;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
@@ -70,12 +69,12 @@ public class AddRLFrame extends JFrame {
 		
 		// Scrollable RL input box:
 		
-		JEditorPane edpAddRL = MainFrame.newScrollableEditorPane();
+		JTextArea txtaAddRL = new JTextArea();
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setViewportView(edpAddRL);
-		edpAddRL.setToolTipText("");
+		scrollPane.setViewportView(txtaAddRL);
+		txtaAddRL.setToolTipText("");
 		
-		edpAddRL.setToolTipText("<html>RE format.: a*(b?c|d)*<br>"
+		txtaAddRL.setToolTipText("<html>RE format.: a*(b?c|d)*<br>"
 				+ "RG format: S->aS|b</html>");
 
 		
@@ -107,7 +106,7 @@ public class AddRLFrame extends JFrame {
 						return;
 					}
 				}
-				String input = edpAddRL.getText(); // Gets text from pane
+				String input = txtaAddRL.getText(); // Gets text from pane
 				RegularLanguage l = RegularLanguage.validate(input); // Gets RL object
 				if(l == null) { // If type is not valid
 					JOptionPane.showMessageDialog(AddRLFrame.this, "Invalid input!");
