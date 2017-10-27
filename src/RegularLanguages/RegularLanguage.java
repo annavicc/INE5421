@@ -19,9 +19,7 @@ public abstract class RegularLanguage {
 	
 	public static RegularLanguage validate(String inp) {
 		if (inp.contains("->")) {
-			if (RegularGrammar.isValidRG(inp)) {
-				return new RegularGrammar(inp);
-			}
+			return RegularGrammar.isValidRG(inp);
 		} else {
 			if (RegularExpression.isValidRE(inp)) {
 				return new RegularExpression(inp);

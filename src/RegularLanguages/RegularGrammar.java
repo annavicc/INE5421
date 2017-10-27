@@ -1,6 +1,5 @@
 package RegularLanguages;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -10,7 +9,7 @@ public class RegularGrammar extends RegularLanguage {
 	
 	private HashSet<Character> vn;	// non terminal symbols
 	private HashSet<Character> vt;	// terminal symbols
-	private HashMap<Character, HashSet<String>> productions;	// production rules
+	private HashMap<Character, HashSet<String>> productions;	// production rules S -> aA | a
 	private char s;	// initial S
 
 	public RegularGrammar(String inp) {
@@ -20,9 +19,9 @@ public class RegularGrammar extends RegularLanguage {
 		productions = new HashMap<Character, HashSet<String>>();
 	}
 	
-	public static RegularLanguage isValid(String inp) {
+	public static RegularLanguage isValidRG(String inp) {
 		RegularGrammar rg = new RegularGrammar(inp);
-		// Lexical Analysis
+		// Verify invalid symbols
 		if (!lexicalValidation(inp)) {
 			return null;
 		}
@@ -30,25 +29,27 @@ public class RegularGrammar extends RegularLanguage {
 		// Get productions with no blanks for every vn
 		String[] productions = getProductions(inp);
 
+		// Verify productions correctness
 		validateProductions(productions, rg);
 		// Validate non terminals
 		if (rg.vn.isEmpty()) {
 			return null;
 		}
 		
-		System.out.println(rg.toString());
-		
 		return rg;
 	}
 	
-	public static boolean isValidRG(String inp) {
-		if (isValid(inp) == null) {
-			return false;
-		}
-		return true;
-	}
+//	public static boolean isValidRG(String inp) {
+//		if (isValid(inp) == null) {
+//			return false;
+//		}
+//		return true;
+//	}
 
-	
+
+	/*
+	 * Get Regular Grammar representation
+	 */
 	public String toString() {
 		String grammar = "";
 		String aux = "";
@@ -70,6 +71,7 @@ public class RegularGrammar extends RegularLanguage {
 		}
 		return grammar;
 	}
+	
 	/* TODO implement
 	 */
 	public FiniteAutomata getAF() {
@@ -88,18 +90,17 @@ public class RegularGrammar extends RegularLanguage {
 
 	@Override
 	public RegularGrammar getRG() {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	/*
 	 * Return productions for each vN
 	 */
 	private static String[] getProductions(String str) {
-		String[] prod = str.split("[\\r\\n]+");
+		String[] prod = str.split("[\\r\\n]+");	// Split by line break
 		int i = 0;
 		for (String s : prod) {
-			prod[i++] = s.replaceAll("\\s+", "");
+			prod[i++] = s.replaceAll("\\s+", ""); // Remove spaces
 		}
 		return prod;
 	}
@@ -113,6 +114,9 @@ public class RegularGrammar extends RegularLanguage {
 		return true;
 	}
 	
+	/*
+	 * Validate productions
+	 */
 	private static RegularGrammar validateProductions(String[] nt, RegularGrammar rg) {
 		Scanner vnScan = null;
 		String vn = "";
@@ -133,10 +137,12 @@ public class RegularGrammar extends RegularLanguage {
 				if (vn.length() > 1
 						|| Character.isLowerCase(vn.charAt(0)) ||
 						!Character.isLetter(vn.charAt(0))) { // if |vn| > 1
+					rg.vn.clear();
 					return null;
 				} else {
 					rg.vn.add(vn.charAt(0));
 					if (!validateProduction(vn.charAt(0), prod, pr, rg)) {
+						rg.vn.clear();
 						return null;
 					}
 					if (!isSDefined) {
@@ -150,30 +156,37 @@ public class RegularGrammar extends RegularLanguage {
 		return rg;
 	}
 	
+	/*
+	 * Validate productions rule for a vN
+	 */
 	private static boolean validateProduction(Character vn, String productions, HashSet<String> prodList, RegularGrammar rg) {
-		Scanner prodScan = null;
 		String prod = "";
 		
 		// Iterate every production for every vN
 		prod = productions.substring(productions.indexOf("->")+2);
 		int prodLength = 0;
 		char first, second;
-		prodScan = new Scanner(prod);
+		Scanner prodScan = new Scanner(prod);
 		prodScan.useDelimiter("[|]");
 		
 		while (prodScan.hasNext()) {
 			prod = prodScan.next();
 			prodLength = prod.length();
-			if (prodLength < 1 || prodLength > 2) {
+			if (prodLength < 1 || prodLength > 2) { // |prod| = 0 || |prod| = 2
 				return false;
 			} else { // |prod| = 1 or 2
 				first = prod.charAt(0);
-				if (Character.isLetterOrDigit(first)) {
-					rg.vt.add(first);
+				if (Character.isUpperCase(first)){
+					return false;
 				}
+				if (Character.isDigit(first)
+						|| Character.isLetter(first)) { // if first symbol is terminal
+					rg.vt.add(first); // &A valid?
+				}
+				
 				if (prodLength == 2) { // |prod| = 2
 					second = prod.charAt(1);
-					if (Character.isUpperCase(first) || Character.isDigit(first)) {
+					if (Character.isUpperCase(first)) { // if first symbol is vN
 						return false;
 					} else if (Character.isLowerCase(second)
 							|| Character.isDigit(second)
@@ -186,11 +199,11 @@ public class RegularGrammar extends RegularLanguage {
 					prodList.add(prod);
 					rg.productions.put(vn, prodList);
 				} else { // |prod| = 1
-					prodList.add(prod);
-					rg.productions.put(vn, prodList);
 					if (Character.isUpperCase(first)) { // if S -> A
 						return false;
 					}
+					prodList.add(prod);
+					rg.productions.put(vn, prodList);
 				}
 			}
 		}
