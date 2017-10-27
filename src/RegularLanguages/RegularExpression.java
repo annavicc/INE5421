@@ -1,6 +1,6 @@
 package RegularLanguages;
 
-import RegularLanguages.FiniteAutomata.FiniteAutomataBuilder;
+import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
 
 public class RegularExpression extends RegularLanguage {
 
@@ -30,10 +30,15 @@ public class RegularExpression extends RegularLanguage {
 	 * TODO implement
 	 */
 	public FiniteAutomata getAF() {
-		FiniteAutomataBuilder builder = new FiniteAutomataBuilder();
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
 		FiniteAutomata.State q0 = builder.newState();
-		builder.setInitial(q0);
-		return builder.build();
+		try {
+			builder.setInitial(q0);
+			return builder.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/*

@@ -19,7 +19,7 @@ public class FiniteAutomata extends RegularLanguage {
 	private final Set<Character> alphabet;
 	private final Map<TransitionInput, Set<State>> transitions;
 	
-	private FiniteAutomata(FiniteAutomataBuilder builder) {
+	private FiniteAutomata(FABuilder builder) {
 		super(InputType.AF);
 		
 		this.initial = builder.initial;
@@ -40,6 +40,18 @@ public class FiniteAutomata extends RegularLanguage {
 		// Make external map immutable 
 		this.transitions = Collections.unmodifiableMap(temp);
 
+	}
+	
+	public Set<State> transition(State in, char c) {
+		Set<State> out = this.transitions.get(new TransitionInput(in, c));
+		if (out == null) {
+			return Collections.unmodifiableSet(new HashSet<State>());
+		}
+		return out;
+	}
+	
+	public Set<Character> getAlphabet() {
+		return this.alphabet;
 	}
 	
 	public String getDefinition() {
@@ -137,7 +149,7 @@ public class FiniteAutomata extends RegularLanguage {
 		State s;
 		char c;
 		
-		public TransitionInput(State s, char c) {
+		private TransitionInput(State s, char c) {
 			this.s = s;
 			this.c = c;
 		}
@@ -167,10 +179,10 @@ public class FiniteAutomata extends RegularLanguage {
 	}
 	
 	/**
-	 * AF Builder class 
+	 * FA Builder class 
 	 *
 	 */
-	public static class FiniteAutomataBuilder {
+	public static class FABuilder {
 		
 		private State initial;
 		private HashSet<State> states;
@@ -178,7 +190,7 @@ public class FiniteAutomata extends RegularLanguage {
 		private HashSet<Character> alphabet;
 		private HashMap<TransitionInput, HashSet<State>> transitions;
 		
-		public FiniteAutomataBuilder() {
+		public FABuilder() {
 			this.initial = null;
 			this.states = new HashSet<State>();
 			this.finals = new HashSet<State>();
@@ -192,43 +204,70 @@ public class FiniteAutomata extends RegularLanguage {
 			return s;
 		}
 		
-		public boolean setInitial(State s) {
-			if (states.contains(s)) {
-				initial = s;
-				return true;
+		public FABuilder setInitial(State s) throws InvalidStateException {
+			if (!states.contains(s)) {
+				throw new InvalidStateException("FABuilder.setInitial");
 			}
-			return false;
+			
+			initial = s;
+			return this;
 		}
 		
-		public boolean setFinal(State s) {
-			if (states.contains(s)) {
-				finals.add(s);
-				return true;
+		public FABuilder setFinal(State s) throws InvalidStateException{
+			if (!states.contains(s)) {
+				throw new InvalidStateException("FABuilder.setFinal");
 			}
-			return false;
+			
+			finals.add(s);
+			return this;
 		}
 		
-		public boolean addTransition(State in, char c, State out) {
+		public FABuilder addTransition(State in, char c, State out) throws InvalidStateException, InvalidSymbolException {
 			if (!this.states.contains(in) || !this.states.contains(out)) {
-				return false;
+				throw new InvalidStateException("FABuilder.addTransition");
 			}
-			TransitionInput input = new TransitionInput(in, c);
-			HashSet<State> outList = this.transitions.get(input);
-			if (outList == null) {
-				outList = new HashSet<State>();
+			if (!Character.toString(c).matches("[a-z&]")) {
+				throw new InvalidSymbolException("FABuilder.addTransition");
 			}
-			outList.add(out);
+			
+			TransitionInput tInput = new TransitionInput(in, c);
+			HashSet<State> tOutput = this.transitions.get(tInput);
+			
+			if (tOutput == null) {
+				tOutput = new HashSet<State>();
+			}
+			
+			tOutput.add(out);
 			this.alphabet.add(c);
-			this.transitions.put(input, outList);
-			return true;
+			this.transitions.put(tInput, tOutput);
+			return this;
 		}
 		
-		public FiniteAutomata build() {
+		public FiniteAutomata build() throws IncompleteAutomataException {
 			if (this.initial == null) {
-				return null;
+				throw new IncompleteAutomataException();
 			}
 			return new FiniteAutomata(this);
 		}
+		
+		public static class InvalidStateException extends Exception {
+			public InvalidStateException(String method) {
+		        super(method + ": Received State does not belong to this FABuilder!");
+		    }
+		}
+		
+		public static class InvalidSymbolException extends Exception {
+			public InvalidSymbolException(String method) {
+		        super(method + ": Received Symbol does not belong to this FABuilder!");
+		    }
+		}
+		
+		public static class IncompleteAutomataException extends Exception {
+			public IncompleteAutomataException() {
+		        super("FABuilder.build: Initial State not set!");
+		    }
+		}
+		
 	}
 	
 	
