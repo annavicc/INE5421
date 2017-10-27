@@ -19,13 +19,10 @@ public abstract class RegularLanguage {
 	
 	public static RegularLanguage validate(String inp) {
 		if (inp.contains("->")) {
-			return RegularGrammar.isValidRG(inp);
+			return (RegularLanguage)RegularGrammar.isValidRG(inp);
 		} else {
-			if (RegularExpression.isValidRE(inp)) {
-				return new RegularExpression(inp);
-			}
+			return (RegularLanguage)RegularExpression.isValidRE(inp);
 		}
-		return null;
 	}
 	
 	public String getId() {
