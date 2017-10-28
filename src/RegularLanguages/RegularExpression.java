@@ -1,5 +1,7 @@
 package RegularLanguages;
 
+import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
+
 public class RegularExpression extends RegularLanguage {
 
 
@@ -12,6 +14,9 @@ public class RegularExpression extends RegularLanguage {
 		return false;
 	}
 	
+	public String getDefinition() {
+		return super.input;
+	}
 	
 	/*
 	 * Convert RE to RG
@@ -25,7 +30,15 @@ public class RegularExpression extends RegularLanguage {
 	 * TODO implement
 	 */
 	public FiniteAutomata getAF() {
-		return new FiniteAutomata();
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+		FiniteAutomata.State q0 = builder.newState();
+		try {
+			builder.setInitial(q0);
+			return builder.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/*
