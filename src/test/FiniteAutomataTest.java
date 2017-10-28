@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
@@ -107,21 +108,36 @@ class FiniteAutomataTest {
 		for (int bA = 0; bA < length; bA++) {  // builder A index
 			for (int s1 = 0; s1 < length; s1++) {  // state 1 index
 				assertNotNull(q[bA][s1]);
-				assertFalse(q[bA][s1].equals("test string"));
-				assertFalse(q[bA][s1].equals(null));
+				assertNotEquals(q[bA][s1], "test string");
+				assertNotEquals(q[bA][s1], null);
 				for (int bB = 0; bB < length; bB++) {  // builder B index
 					for (int s2 = 0; s2 < length; s2++) {  // state 2 index
 						if (bA == bB && s1 == s2) {
-							assertTrue(q[bA][s1].equals(q[bB][s2]));
+							assertEquals(q[bA][s1], q[bB][s2]);
 							
 						}
 						else {
-							assertFalse(q[bA][s1].equals(q[bB][s2]));
+							assertNotEquals(q[bA][s1], q[bB][s2]);
 						}
 					}
 				}
 			}
 		}
+		
+		Set<FiniteAutomata.State> set1 = new TreeSet<FiniteAutomata.State>();
+		set1.add(q[0][1]);
+		set1.add(q[0][2]);
+		set1.add(q[0][0]);
+		set1.add(q[0][3]);
+		Set<FiniteAutomata.State> set2 = new TreeSet<FiniteAutomata.State>();
+		set2.add(q[0][3]);
+		set2.add(q[0][2]);
+		set2.add(q[0][0]);
+		set2.add(q[0][1]);
+		
+		assertEquals(set1, set2);
+		assertEquals(set1.hashCode(), set2.hashCode());
+		
 	}
 	
 	@Test
@@ -129,7 +145,7 @@ class FiniteAutomataTest {
 		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
 		FiniteAutomata.State q0 = builder.newState();
 		for (char c = 0; c < (char) -1; c++) {
-			if ((c < 'a' || c > 'z') && c != '&') {
+			if ((c < 'a' || c > 'z') && c != '&' && !(c >= '0' && c <= '9')) {
 				final char ch = c;
 				assertThrows(InvalidSymbolException.class,
 						() -> builder.addTransition(q0, ch, q0));
@@ -233,8 +249,68 @@ class FiniteAutomataTest {
 		String table = ASCIITable.getInstance().getTable(topRow, data).toString();
 		assertEquals(table, def);
 		
+	}
+	
+	@Test
+	void testDeterminize() throws IncompleteAutomataException, InvalidBuilderException, InvalidStateException, InvalidSymbolException {
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+		// Ex. Cap. III pg 4
+		State[] q = new State[4];
+		for (int i = 0; i < 4; i++) {
+			q[i] = builder.newState();
+		}
+		
+		FiniteAutomata ndfa = builder.setInitial(q[0])
+				.setFinal(q[3])
+				.addTransition(q[0], 'a', q[0])
+				.addTransition(q[0], 'a', q[1])
+				.addTransition(q[0], 'b', q[0])
+				.addTransition(q[1], 'b', q[2])
+				.addTransition(q[2], 'b', q[3])
+				.build();
+		
+		assertTrue(ndfa.isDeterministic());
+		
+		FiniteAutomata dfa = ndfa.determinize();
+		assertFalse(dfa.isDeterministic());
+		
+		System.out.println(ndfa.getDefinition());
+		System.out.println(dfa.getDefinition());
+		
+		// TODO Assert same language 
 		
 		
+		// Example from https://www.tutorialspoint.com/automata_theory/ndfa_to_dfa_conversion.htm
+		builder = new FiniteAutomata.FABuilder();
+		q = new State[5];
+		for (int i = 0; i < 5; i++) {
+			q[i] = builder.newState();
+		}
+		
+		ndfa = builder.setInitial(q[0])
+				.setFinal(q[4])
+				.addTransition(q[0], '0', q[0])
+				.addTransition(q[0], '0', q[1])
+				.addTransition(q[0], '0', q[2])
+				.addTransition(q[0], '0', q[3])
+				.addTransition(q[0], '0', q[4])
+				.addTransition(q[0], '1', q[3])
+				.addTransition(q[0], '1', q[4])
+				.addTransition(q[1], '0', q[2])
+				.addTransition(q[1], '1', q[4])
+				.addTransition(q[2], '1', q[1])
+				.addTransition(q[3], '0', q[4])
+				.build();
+		
+		assertTrue(ndfa.isDeterministic());
+		
+		dfa = ndfa.determinize();
+		assertFalse(dfa.isDeterministic());
+		
+		System.out.println(ndfa.getDefinition());
+		System.out.println(dfa.getDefinition());
+		
+		// TODO Assert same language
 	}
 	
 

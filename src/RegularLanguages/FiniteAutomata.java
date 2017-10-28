@@ -3,8 +3,10 @@ package RegularLanguages;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -128,11 +130,67 @@ public class FiniteAutomata extends RegularLanguage {
 	}
 	
 	/**
-	 * TODO IMPLEMENT
+	 * Check if FA is deterministic 
+	 * @return boolean whether it is deterministic
+	 */
+	public boolean isDeterministic() {
+		return this.transitions.values().stream().anyMatch(ts -> ts.size() > 1);
+	}
+	
+	/**
+	 * Determinizes NDFA to DFA
 	 * @return Determinized FA version
 	 */
 	public FiniteAutomata determinize() {
+		Map<SortedSet<State>, State> statesMap = new HashMap<SortedSet<State>, State>();
+		Set<SortedSet<State>> incompleteStates = new HashSet<SortedSet<State>>();
+
+		try {
+			FABuilder builder = new FABuilder();
+			SortedSet<State> initial = new TreeSet<State>();
+			initial.add(this.initial);
+			
+			statesMap.put(initial, builder.newState());
+			builder.setInitial(statesMap.get(initial));
+			incompleteStates.add(Collections.unmodifiableSortedSet(initial));
+		
+			while (!incompleteStates.isEmpty()) {
+				SortedSet<State> currentSet = incompleteStates.iterator().next();
+				State currentState = statesMap.get(currentSet);
+				
+				// if currentSet contains some final state 
+				if (currentSet.stream().anyMatch(st -> this.finals.contains(st))) {
+					builder.setFinal(currentState);
+				}
+				
+				for (char c : this.alphabet) {
+					// Get states reachable from currentSet through c
+					SortedSet<State> outputSet = new TreeSet<State>();
+					for (State st : currentSet) {
+						outputSet.addAll(this.transition(st, c));
+					}
+					
+					if (!outputSet.isEmpty()) {
+						// Get or create new state equivalent to the output set
+						State outputState = statesMap.get(outputSet);
+						if (outputState == null) {
+							outputState = builder.newState();
+							statesMap.put(outputSet, outputState);
+							incompleteStates.add(outputSet);
+						}
+											
+						builder.addTransition(currentState, c, outputState);
+					}
+					
+				}
+				incompleteStates.remove(currentSet);
+			}
+			return builder.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return null;
+		
 	}
 	
 	/**
@@ -384,7 +442,7 @@ public class FiniteAutomata extends RegularLanguage {
 			if (!this.states.contains(in) || !this.states.contains(out)) {
 				throw new InvalidStateException("FABuilder.addTransition");
 			}
-			if (!Character.toString(c).matches("[a-z&]")) {
+			if (!Character.toString(c).matches("[0-9a-z&]")) {
 				throw new InvalidSymbolException("FABuilder.addTransition");
 			}
 			
