@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
+/**
+ * Representation of a Regular Grammar
+ * Eg.: S -> aA | a
+ * 
+ */
 
 public class RegularGrammar extends RegularLanguage {
 	
@@ -11,7 +16,11 @@ public class RegularGrammar extends RegularLanguage {
 	private HashSet<Character> vt;	// terminal symbols
 	private HashMap<Character, HashSet<String>> productions;	// production rules S -> aA | a
 	private char s;	// initial S
-	private char d;
+
+	/**
+	 * Public constructor
+	 * @param inp the regular grammar entered by the user
+	 */
 	public RegularGrammar(String inp) {
 		super(inp, InputType.RG);
 		vn = new HashSet<Character>();
@@ -19,6 +28,11 @@ public class RegularGrammar extends RegularLanguage {
 		productions = new HashMap<Character, HashSet<String>>();
 	}
 	
+	/**
+	 * Verify if a given input is a valid RG
+	 * @param inp the input entered by the user
+	 * @return a Regular Language if valid, null if invalid
+	 */
 	public static RegularLanguage isValidRG(String inp) {
 		RegularGrammar rg = new RegularGrammar(inp);
 		// Verify invalid symbols
@@ -39,16 +53,10 @@ public class RegularGrammar extends RegularLanguage {
 		return rg;
 	}
 	
-//	public static boolean isValidRG(String inp) {
-//		if (isValid(inp) == null) {
-//			return false;
-//		}
-//		return true;
-//	}
 
-
-	/*
-	 * Get Regular Grammar representation
+	/**
+	 * String representation of a regular grammar
+	 * @return representation of a RG
 	 */
 	public String toString() {
 		String grammar = "";
@@ -93,8 +101,12 @@ public class RegularGrammar extends RegularLanguage {
 		return this;
 	}
 
-	/*
-	 * Return productions for each vN
+
+	/**
+	 * Private method to return the set of productions
+	 * for each non terminal VN
+	 * @param str the RG entered by the user
+	 * @return an array with the set of productions for each vN
 	 */
 	private static String[] getProductions(String str) {
 		String[] prod = str.split("[\\r\\n]+");	// Split by line break
@@ -105,6 +117,11 @@ public class RegularGrammar extends RegularLanguage {
 		return prod;
 	}
 	
+	/**
+	 * Validate if symbols in the RG are lexically valid
+	 * @param str the input entered by the user
+	 * @return true if lexically valid, or false otherwise
+	 */
 	private static boolean lexicalValidation(String str) {
 		String formatted =  str.replaceAll("\\s+", ""); // Remove white spaces
 		if (!formatted.matches("^[a-zA-Z0-9\\->|&]+")) { // Verify invalid symbols
@@ -114,8 +131,14 @@ public class RegularGrammar extends RegularLanguage {
 		return true;
 	}
 	
-	/*
-	 * Validate productions
+	
+	
+	/**
+	 * Verify uf every non terminal symbol vN
+	 * is valid in the context of a Regular Grammar
+	 * @param nt array with every non terminal of the grammar
+	 * @param rg the RegularGrammar object
+	 * @return null it is not valid, or a RegularGrammar object if valid
 	 */
 	private static RegularGrammar validateProductions(String[] nt, RegularGrammar rg) {
 		Scanner vnScan = null;
@@ -156,8 +179,14 @@ public class RegularGrammar extends RegularLanguage {
 		return rg;
 	}
 	
-	/*
-	 * Validate productions rule for a vN
+	
+	/**
+	 * Verify if every production of a vN is valid
+	 * @param vn the non terminal symbol the productions belong to
+	 * @param productions the productions of a given non terminal
+	 * @param prodList the set of all the productions from the grammar
+	 * @param rg the Regular Grammar object
+	 * @return true if all productions are valid
 	 */
 	private static boolean validateProduction(Character vn, String productions, HashSet<String> prodList, RegularGrammar rg) {
 		String prod = "";
@@ -207,10 +236,8 @@ public class RegularGrammar extends RegularLanguage {
 				}
 			}
 		}
-		
 		prodScan.close();
 		return true;
 	}
-	
 	
 }
