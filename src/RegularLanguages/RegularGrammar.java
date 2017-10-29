@@ -125,7 +125,6 @@ public class RegularGrammar extends RegularLanguage {
 	private static boolean lexicalValidation(String str) {
 		String formatted =  str.replaceAll("\\s+", ""); // Remove white spaces
 		if (!formatted.matches("^[a-zA-Z0-9\\->|&]+")) { // Verify invalid symbols
-			System.out.println("Invalid symbols.");
 			return false;
 		}
 		return true;
@@ -134,7 +133,7 @@ public class RegularGrammar extends RegularLanguage {
 	
 	
 	/**
-	 * Verify uf every non terminal symbol vN
+	 * Verify if every non terminal symbol vN
 	 * is valid in the context of a Regular Grammar
 	 * @param nt array with every non terminal of the grammar
 	 * @param rg the RegularGrammar object
@@ -189,14 +188,15 @@ public class RegularGrammar extends RegularLanguage {
 	 * @return true if all productions are valid
 	 */
 	private static boolean validateProduction(Character vn, String productions, HashSet<String> prodList, RegularGrammar rg) {
-		String prod = "";
-		
 		// Iterate every production for every vN
-		prod = productions.substring(productions.indexOf("->")+2);
+		String prod = productions.substring(productions.indexOf("->")+2);
 		int prodLength = 0;
 		char first, second;
 		Scanner prodScan = new Scanner(prod);
 		prodScan.useDelimiter("[|]");
+		if (prod.length() < 1) {
+			return false;
+		}
 		
 		while (prodScan.hasNext()) {
 			prod = prodScan.next();
