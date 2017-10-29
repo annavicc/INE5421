@@ -61,7 +61,6 @@ public class RegularExpression extends RegularLanguage {
 		return this;
 	}
 	
-
 	/**
 	 * 
 	 * Verify if a given input is a valid RE
@@ -79,7 +78,6 @@ public class RegularExpression extends RegularLanguage {
 		if (!syntaticAnalysis(formatted, re)) {
 			return null;
 		}
-		System.out.println(re.getFormattedRegex());
 		return re;
 	}
 	
@@ -89,7 +87,7 @@ public class RegularExpression extends RegularLanguage {
 	 * @return true if lexically valid, or false otherwise
 	 */
 	public static boolean lexicalValidation(String inp, RegularExpression re) {
-		if (!inp.matches("^[a-z0-9\\(\\)\\?\\*|&]+")) { // Verify invalid symbols
+		if (!inp.matches("^[a-z0-9\\(\\)\\?\\*|&\\+]+")) { // Verify invalid symbols
 			return false;
 		}
 		return true;
@@ -107,18 +105,25 @@ public class RegularExpression extends RegularLanguage {
 		char c, before, next;
 		if (!inp.isEmpty()) { // can't begin with * | ?
 			c = inp.charAt(0);
-			if (c == '*' || c == '|' || c == '?') {
+			if (c == '*' || c == '|' || c == '?' || c == '+') {
 				return false;
 			}
 		}
-		// Replace all '?'? '*'(('*')?('?')?)* for *
+		// Replace all '+'? '?'? '*'(('*')?('?')?('+')?)* for *
 		String formatted = inp.replaceAll("\\?+", "?");
 		formatted = formatted.replaceAll("\\*+", "*");
+		formatted = formatted.replaceAll("\\++", "+");
 		formatted = formatted.replaceAll("\\?\\*+", "*");
+		formatted = formatted.replaceAll("\\?\\+", "*");
+		formatted = formatted.replaceAll("\\+\\?", "*");
 		formatted = formatted.replaceAll("\\*+\\?", "*");
+		formatted = formatted.replaceAll("\\+\\*+", "*");
+		formatted = formatted.replaceAll("\\*+\\+", "*");
+		formatted = formatted.replaceAll("\\*+", "*");
 		re.formatted_regex = formatted;
 		for (int i = 0; i < formatted.length(); i++) {
 			c = formatted.charAt(i);
+			
 			if (Character.isLetterOrDigit(c)) {
 				re.vt.add(c);
 			}
@@ -138,20 +143,19 @@ public class RegularExpression extends RegularLanguage {
 			}
 			
 			// allowed: c*
-			// forbidden: |* |?
+			// forbidden: |* |? |+
 			if (i == 0) {
 				continue;
 			}
 			before = formatted.charAt(i-1);
-			if (c == '*' || c == '?') {
-				if (!Character.isLetter(before) && before != ')') { // if it's not c* )* )? c?
-					System.out.println(before + " " + c);
+			if (c == '*' || c == '?' || c == '+') {
+				if (!Character.isLetterOrDigit(before) && before != ')') { // if it's not c* )* )? c?
 					return false;
 				}
 			} else if (c == '|') {
 				if (i+1 < formatted.length()) {
 					next = formatted.charAt(i+1);
-					if (!Character.isLetter(next)
+					if (!Character.isLetterOrDigit(next)
 							&& (next != '(')) { // |* |? || 
 						return false;
 					}

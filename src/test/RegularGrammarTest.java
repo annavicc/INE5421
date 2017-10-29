@@ -6,14 +6,14 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import RegularLanguages.RegularGrammar;
 import RegularLanguages.RegularLanguage;
 
 public class RegularGrammarTest {
-	static String[] validRG;
-	static String[] invalidRG;
+	private static String[] validRG;
+	private static String[] invalidRG;
 	private static int lengthValid = 5;
 	private static int lengthInvalid = 12;
-	
 
 	/**
 	 * Possibilities of grammars that are valid
@@ -78,17 +78,18 @@ public class RegularGrammarTest {
 		// S -> 0s | 0
 		invalidRG[11] = "S -> 0s | 0";
 	}
-	
+
 	/**
+	 * 
 	 * Valid Grammar case
-	 * All objects are expected to be create normally
+	 * All objects are expected to be created normally
 	 */ 
 	@Test
 	public void testValidGrammar() {
 		RegularLanguage rg[] = new RegularLanguage[lengthValid]; 
 		int i = 0;
 		for (String grammar : validRG) {
-			rg[i++] = RegularLanguage.validate(grammar);
+			rg[i++] = RegularGrammar.isValidRG(grammar);
 		}
 		// Should be different than null:
 		for (RegularLanguage lr : rg) {
@@ -106,13 +107,12 @@ public class RegularGrammarTest {
 		RegularLanguage rg[] = new RegularLanguage[lengthInvalid];
 		int i = 0;
 		for (String grammar: invalidRG) {
-			rg[i++] = RegularLanguage.validate(grammar);
+			rg[i++] = RegularGrammar.isValidRG(grammar);
 		}
 		// Should be null:
 		for (RegularLanguage l : rg) {
 			assertNull(l);
 		}
-		
 	}
 	
 	
