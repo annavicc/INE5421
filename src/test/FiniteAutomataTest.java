@@ -12,6 +12,7 @@ import com.bethecoder.ascii_table.ASCIITable;
 
 import RegularLanguages.FiniteAutomata;
 import RegularLanguages.FiniteAutomata.State;
+import RegularLanguages.FiniteAutomata.FABuilder;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
@@ -63,14 +64,16 @@ class FiniteAutomataTest {
 						assertThrows(InvalidStateException.class,
 								() -> builders[b].setFinal(stB1));
 
-						for (int s2 = 0; s2 < length; s2++) {  // State 2 index
-							FiniteAutomata.State stA2 = q[bA][s2];
-							FiniteAutomata.State stB2 = q[bB][s2];
-							assertThrows(InvalidStateException.class,
-									() -> builders[b].addTransition(stA1, 'a', stB2));
-							assertThrows(InvalidStateException.class,
-									() -> builders[b].addTransition(stB1, 'a', stA2));
-						}
+						assertThrows(InvalidStateException.class,
+								() -> builders[b].addTransition(stA1, 'a', stB1));
+						assertThrows(InvalidStateException.class,
+								() -> builders[b].addTransition(stB1, 'a', stA1));
+						
+						builders[b].addTransition(stA1, 'a', stA1);
+					
+						builders[b].importState(stB1);
+						builders[b].setInitial(stB1);
+						
 					}
 				}
 			}
@@ -103,7 +106,7 @@ class FiniteAutomataTest {
 	}
 	
 	@Test
-	void testStateComparison() {
+	void testStateComparison() throws InvalidStateException, IncompleteAutomataException, InvalidBuilderException, InvalidSymbolException {
 		setUpBuilders();
 		for (int bA = 0; bA < length; bA++) {  // builder A index
 			for (int s1 = 0; s1 < length; s1++) {  // state 1 index
@@ -123,6 +126,23 @@ class FiniteAutomataTest {
 				}
 			}
 		}
+		
+		assertThrows(InvalidStateException.class, 
+				() -> builders[0].setInitial(q[1][0]));
+		
+		FiniteAutomata fa = builders[0].importState(q[1][0])
+				.setInitial(q[1][0])
+				.addTransition(q[0][0], 'x', q[1][0])
+				.build();
+		
+		State qA = fa.getInitial();
+		State qB = fa.transition(q[0][0], 'x').first();
+		
+		assertEquals(qA, qB);
+		assertNotEquals(q[1][0], qA);
+		assertNotEquals(q[1][0].hashCode(), qB.hashCode());
+		
+		
 		
 		Set<FiniteAutomata.State> set1 = new TreeSet<FiniteAutomata.State>();
 		set1.add(q[0][1]);
@@ -269,11 +289,13 @@ class FiniteAutomataTest {
 				.addTransition(q[2], 'b', q[3])
 				.build();
 		
-		assertTrue(ndfa.isDeterministic());
+		assertFalse(ndfa.isDeterministic());
 		
 		FiniteAutomata dfa = ndfa.determinize();
-		assertFalse(dfa.isDeterministic());
+		assertTrue(dfa.isDeterministic());
 		
+		System.out.println("--------------------------------------------------");
+		System.out.println("testDeterminize:");
 		System.out.println(ndfa.getDefinition());
 		System.out.println(dfa.getDefinition());
 		
@@ -302,10 +324,10 @@ class FiniteAutomataTest {
 				.addTransition(q[3], '0', q[4])
 				.build();
 		
-		assertTrue(ndfa.isDeterministic());
+		assertFalse(ndfa.isDeterministic());
 		
 		dfa = ndfa.determinize();
-		assertFalse(dfa.isDeterministic());
+		assertTrue(dfa.isDeterministic());
 		
 		System.out.println(ndfa.getDefinition());
 		System.out.println(dfa.getDefinition());
@@ -313,5 +335,209 @@ class FiniteAutomataTest {
 		// TODO Assert same language
 	}
 	
+	@Test
+	void testUselessStates() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
+		System.out.println("--------------------------------------------------");
+		System.out.println("testUselessStates:");
+		
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+		State[] q = new State[6];
+		for (int i = 0; i < 6; i++) {
+			q[i] = builder.newState();
+		}
+		
+		builder.setInitial(q[0])
+				.addTransition(q[0], 'a', q[1])
+				.addTransition(q[0], 'a', q[2])
+				.addTransition(q[0], 'a', q[5])
+				.addTransition(q[0], 'b', q[2])
+				.addTransition(q[1], 'a', q[3])
+				.addTransition(q[4], 'a', q[3])
+				.addTransition(q[5], 'a', q[3])
+				.setFinal(q[3]);
+		
+		FiniteAutomata fa = builder.build();
+		assertFalse(fa.getDeadStates().isEmpty());
+		assertFalse(fa.getUnreachableStates().isEmpty());
+		
+		FiniteAutomata faNoDeadStates = fa.removeStates(fa.getDeadStates());
+		assertTrue(faNoDeadStates.getDeadStates().isEmpty());
+		assertFalse(faNoDeadStates.getUnreachableStates().isEmpty());
+		
+		FiniteAutomata faNoUnreachableStates = fa.removeStates(fa.getUnreachableStates());
+		assertFalse(faNoUnreachableStates.getDeadStates().isEmpty());
+		assertTrue(faNoUnreachableStates.getUnreachableStates().isEmpty());		
+		
+		
+		System.out.println(fa.getDefinition());
+		System.out.println(faNoDeadStates.getDefinition());
+		System.out.println(faNoUnreachableStates.getDefinition());
+		
+		// TODO assert same language
+
+	}
+	
+	@Test
+	void testMinimize() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
+		System.out.println("--------------------------------------------------");
+		System.out.println("testMinimize:");
+		
+		// Cap. III - pg. 8 - ex. 2
+		{
+			FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+			
+			State qS = builder.newState();
+			State qA = builder.newState();
+			State qB = builder.newState();
+			State qC = builder.newState();
+			State qD = builder.newState();
+			State qE = builder.newState();
+			
+			FiniteAutomata fa = builder.setInitial(qS)
+					.setFinal(qE)
+					
+					.addTransition(qS, '0', qA)
+					.addTransition(qS, '0', qD)
+					.addTransition(qS, '1', qE)
+					
+					.addTransition(qA, '0', qA)
+					.addTransition(qA, '0', qB)
+					.addTransition(qA, '1', qC)
+					.addTransition(qA, '1', qE)
+	
+					.addTransition(qB, '0', qB)
+					
+					.addTransition(qC, '0', qA)
+					.addTransition(qC, '0', qB)
+					
+					.addTransition(qD, '0', qB)
+					.addTransition(qD, '0', qD)
+					.addTransition(qD, '1', qC)
+					
+					.addTransition(qE, '0', qE)
+					.addTransition(qE, '1', qE)
+					
+					.build();
+			
+			System.out.println(fa.getDefinition());
+			
+			FiniteAutomata faMin = fa.minimize();
+			System.out.println(faMin.getDefinition());
+			
+			assertFalse(fa.isDeterministic());
+			assertTrue(faMin.isDeterministic());
+			assertTrue(faMin.getDeadStates().isEmpty());
+			assertTrue(faMin.getUnreachableStates().isEmpty());
+			
+			assertEquals(
+					"+------+----+----+\n" +
+					"|   δ  |  0 |  1 |\n" +
+					"+------+----+----+\n" +
+					"|  *q0 | q0 | q0 |\n" +
+					"| ->q1 | q1 | q0 |\n" +
+					"+------+----+----+\n",
+					faMin.getDefinition());
+			
+			// TODO assert same language
+			
+		}
+
+		// Empty language test
+		{
+			FABuilder builder = new FABuilder();
+			FiniteAutomata fa = builder.setInitial(builder.newState()).build();
+			
+			FABuilder builder2 = new FABuilder();
+			State[] q = new State[5];
+			for (int i = 0; i < 5; i++) {
+				q[i] = builder2.newState();
+			}
+			
+			FiniteAutomata fa2 = builder2.setInitial(q[0])
+					.setFinal(q[4])
+					.addTransition(q[0], 'a', q[1])
+					.addTransition(q[0], 'a', q[2])
+					.addTransition(q[0], 'b', q[0])
+					.addTransition(q[1], 'b', q[2])
+					.addTransition(q[2], 'c', q[3])
+					.addTransition(q[4], 'd', q[4])
+					.build();
+	
+			
+			System.out.println(fa.getDefinition());
+			System.out.println(fa.minimize().getDefinition());
+			
+			System.out.println(fa2.getDefinition());
+			System.out.println(fa2.minimize().getDefinition());
+			
+			assertEquals(fa.getDefinition(), fa.minimize().getDefinition());
+			assertEquals(fa.getDefinition(), fa2.minimize().getDefinition());
+			assertNotEquals(fa2.getDefinition(), fa2.minimize().getDefinition());
+			
+			// TODO assert same language
+		}
+
+		// Cap. III - pg. 8 - ex. 1
+		{
+			FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+			
+			State qS = builder.newState();
+			State qA = builder.newState();
+			State qB = builder.newState();
+			State qC = builder.newState();
+			State qF = builder.newState();
+			
+			FiniteAutomata fa = builder.setInitial(qS)
+					.setFinal(qS)
+					.setFinal(qF)
+					
+					.addTransition(qS, 'a', qA)
+					.addTransition(qS, 'b', qB)
+					.addTransition(qS, 'b', qF)
+					.addTransition(qS, 'c', qS)
+					.addTransition(qS, 'c', qF)
+					
+					.addTransition(qA, 'a', qS)
+					.addTransition(qA, 'a', qF)
+					.addTransition(qA, 'b', qC)
+					.addTransition(qA, 'c', qA)
+					
+					.addTransition(qB, 'a', qA)
+					.addTransition(qB, 'c', qB)
+					.addTransition(qB, 'c', qS)
+					.addTransition(qB, 'c', qF)
+					
+					.addTransition(qC, 'a', qS)
+					.addTransition(qC, 'a', qF)
+					.addTransition(qC, 'c', qA)
+					.addTransition(qC, 'c', qC)
+					
+					.build();
+			
+			System.out.println(fa.getDefinition());
+			
+			FiniteAutomata faMin = fa.minimize();
+			System.out.println(faMin.getDefinition());
+			
+			assertFalse(fa.isDeterministic());
+			assertTrue(faMin.isDeterministic());
+			assertTrue(faMin.getDeadStates().isEmpty());
+			assertTrue(faMin.getUnreachableStates().isEmpty());
+			
+			assertEquals(
+					"+-------+----+----+----+\n" +
+					"|   δ   |  a |  b |  c |\n" +
+					"+-------+----+----+----+\n" +
+					"| *->q0 | q1 | q2 | q0 |\n" +
+					"|    q1 | q0 | q3 | q1 |\n" +
+					"|   *q2 | q1 |    | q0 |\n" +
+					"|    q3 | q0 |    | q1 |\n" +
+					"+-------+----+----+----+\n",
+					faMin.getDefinition());
+			
+			// TODO assert same language
+			
+		}		
+	}
 
 }
