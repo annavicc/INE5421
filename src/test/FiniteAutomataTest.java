@@ -1,7 +1,11 @@
 package test;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -11,12 +15,12 @@ import org.junit.jupiter.api.Test;
 import com.bethecoder.ascii_table.ASCIITable;
 
 import RegularLanguages.FiniteAutomata;
-import RegularLanguages.FiniteAutomata.State;
 import RegularLanguages.FiniteAutomata.FABuilder;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
+import RegularLanguages.FiniteAutomata.State;
 
 class FiniteAutomataTest {
 	FiniteAutomata.FABuilder[] builders;
