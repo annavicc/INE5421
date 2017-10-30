@@ -1,21 +1,27 @@
 package RegularLanguages;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.params.shadow.com.univocity.parsers.annotations.helpers.AnnotationHelper;
-
 import com.bethecoder.ascii_table.ASCIITable;
+
+import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
 
 
 /**
@@ -25,6 +31,7 @@ import com.bethecoder.ascii_table.ASCIITable;
  */
 public class FiniteAutomata extends RegularLanguage {
 	
+	private final UUID uuid;
 	private final State initial;
 	private final SortedSet<State> states;
 	private final SortedSet<State> finals;
@@ -40,18 +47,19 @@ public class FiniteAutomata extends RegularLanguage {
 		super(InputType.AF);
 		
 		this.initial = builder.initial;
+		this.uuid = builder.uuid;
 		
-		// Make Sets immutable 
-		this.states = Collections.unmodifiableSortedSet(builder.states);
-		this.finals = Collections.unmodifiableSortedSet(builder.finals);
-		this.alphabet = Collections.unmodifiableSortedSet(builder.alphabet);
+		// Make sets unmodifiable
+		this.states = Collections.unmodifiableSortedSet(new TreeSet<State>(builder.states.values()));
+		this.finals = Collections.unmodifiableSortedSet(new TreeSet<State>(builder.finals));
+		this.alphabet = Collections.unmodifiableSortedSet(new TreeSet<Character>(builder.alphabet));
 
 		// Make internal Sets immutable
 		Map<TransitionInput, SortedSet<State>> temp;
 		temp = builder.transitions.entrySet().stream()
 				.collect(Collectors.toMap(
 						e -> e.getKey(),
-						e -> Collections.unmodifiableSortedSet(e.getValue())
+						e -> Collections.unmodifiableSortedSet(new TreeSet<State>(e.getValue()))
 				));
 		
 		// Make external map immutable 
@@ -79,6 +87,14 @@ public class FiniteAutomata extends RegularLanguage {
 	 */
 	public SortedSet<Character> getAlphabet() {
 		return this.alphabet;
+	}
+	
+	/**
+	 * Get AF initial state
+	 * @return initial state
+	 */
+	public State getInitial() {
+		return this.initial;
 	}
 	
 	/**
@@ -134,7 +150,8 @@ public class FiniteAutomata extends RegularLanguage {
 	 * @return boolean whether it is deterministic
 	 */
 	public boolean isDeterministic() {
-		return this.transitions.values().stream().anyMatch(ts -> ts.size() > 1);
+		// Check if any transition output has size greater than 1
+		return this.transitions.values().stream().noneMatch(ts -> ts.size() > 1);
 	}
 	
 	/**
@@ -143,7 +160,7 @@ public class FiniteAutomata extends RegularLanguage {
 	 */
 	public FiniteAutomata determinize() {
 		Map<SortedSet<State>, State> statesMap = new HashMap<SortedSet<State>, State>();
-		Set<SortedSet<State>> incompleteStates = new HashSet<SortedSet<State>>();
+		List<SortedSet<State>> incompleteStates = new ArrayList<SortedSet<State>>();
 
 		try {
 			FABuilder builder = new FABuilder();
@@ -155,7 +172,7 @@ public class FiniteAutomata extends RegularLanguage {
 			incompleteStates.add(Collections.unmodifiableSortedSet(initial));
 		
 			while (!incompleteStates.isEmpty()) {
-				SortedSet<State> currentSet = incompleteStates.iterator().next();
+				SortedSet<State> currentSet = incompleteStates.get(0);
 				State currentState = statesMap.get(currentSet);
 				
 				// if currentSet contains some final state 
@@ -183,7 +200,7 @@ public class FiniteAutomata extends RegularLanguage {
 					}
 					
 				}
-				incompleteStates.remove(currentSet);
+				incompleteStates.remove(0);
 			}
 			return builder.build();
 		} catch (Exception e) {
@@ -194,11 +211,289 @@ public class FiniteAutomata extends RegularLanguage {
 	}
 	
 	/**
-	 * TODO IMPLEMENT
+	 * Remove states from AF
+	 * Obs. initial state is never removed 
+	 * @param states Set of states to be removed
+	 * @return copy of this AF without states received
+	 * @throws InvalidStateException 
+	 */
+	public FiniteAutomata removeStates(Set<State> rmStates) throws InvalidStateException {
+		if (rmStates.stream().anyMatch(st -> st.owner != this.uuid)) {
+			throw new InvalidStateException("removeStates");
+		}
+		
+		FABuilder builder = new FABuilder();
+		
+		try {
+			// Copy initial
+			builder.importState(this.initial)
+					.setInitial(this.initial);
+			
+			// Copy states not removed
+			this.states.stream()
+					.filter(st -> !rmStates.contains(st))
+					.forEach(st -> builder.importState(st));
+
+			// Copy final states not removed
+			this.finals.stream()
+					.filter(st -> !rmStates.contains(st))
+					.forEach(st -> {
+						try {
+							builder.setFinal(st);
+						} catch (InvalidStateException e) {
+							e.printStackTrace();
+						}
+					});
+			
+			// Copy transitions from not removed input states
+			this.transitions.entrySet().stream()
+					.filter(e -> !rmStates.contains(e.getKey().getState()))
+					.forEach(e -> {
+						final TransitionInput in = e.getKey();
+						
+						// Copy transitions to not removed output states
+						e.getValue().stream()
+								.filter(out -> !rmStates.contains(out))
+								.forEach(out -> {
+									try {
+										builder.addTransition(in.getState(), in.getSymbol(), out);
+									} catch (InvalidStateException | InvalidSymbolException e1) {
+										e1.printStackTrace();
+									}
+								});
+					});;
+			
+			return builder.build();
+			
+		} catch (InvalidStateException | IncompleteAutomataException | InvalidBuilderException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	/**
+	 * Get unreachable states
+	 * @return Set of unreachable states
+	 */
+	public Set<State> getUnreachableStates() {
+		Set<State> reachable = new HashSet<State>();
+		reachable.add(this.initial);
+
+		int sizeLastIteration = 0;
+				
+		while (reachable.size() != sizeLastIteration) {
+			sizeLastIteration = reachable.size();
+			
+			// Find states with transitions from reachable
+			this.transitions.entrySet().stream()
+					.filter(e -> reachable.contains(e.getKey().getState()))
+					.forEach(e -> e.getValue().stream()
+							.filter(st -> !reachable.contains(st))
+							.forEach(st -> reachable.add(st)));
+			
+		}
+			
+		// Return not reachable
+		return this.states.stream()
+				.filter(st -> !reachable.contains(st))
+				.collect(Collectors.toSet());
+		
+	}
+
+	/**
+	 * Get dead states
+	 * @return Set of dead states
+	 */
+	public Set<State> getDeadStates() {
+		Set<State> alive = new HashSet<State>();
+		int sizeLastIteration = 0;
+		
+		alive.addAll(this.finals);
+		
+		while (alive.size() != sizeLastIteration) {
+			sizeLastIteration = alive.size();
+			
+			// Find states with transitions to alive states
+			this.states.stream()
+					.filter(st -> !alive.contains(st))
+					.forEach(in -> {
+						boolean isAlive = this.alphabet.stream()
+							.anyMatch(c -> this.transition(in, c).stream()
+									.anyMatch(out -> alive.contains(out)));
+						
+						if (isAlive) {
+							alive.add(in);
+						}
+					});
+		}
+
+		// Return not alive
+		return this.states.stream()
+				.filter(st -> !alive.contains(st))
+				.collect(Collectors.toSet());
+	}
+	
+	/**
+	 * Minimizes FA
 	 * @return Minimized FA version
 	 */
 	public FiniteAutomata minimize() {
-		return null;
+		// Determinize
+		if (!this.isDeterministic()) {
+			return this.determinize().minimize();
+		}
+		// Remove unreachable states
+		Set<State> unreachable = this.getUnreachableStates();
+		if(!unreachable.isEmpty()) {
+			try {
+				return this.removeStates(unreachable).minimize();
+			} catch (InvalidStateException e) {
+				e.printStackTrace();
+			}
+		}
+		// Remove dead states
+		Set<State> dead = this.getDeadStates();
+		if (!dead.isEmpty()) {
+			if (!(dead.size() == 1 && dead.contains(this.initial))) {
+				try {
+					return this.removeStates(dead).minimize();
+				} catch (InvalidStateException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+				
+		ArrayList<SortedSet<State>> eqClasses = new ArrayList<SortedSet<State>>();
+		Map<State, Integer> stateMap = new HashMap<State, Integer>();
+		
+		State phi = new State(this.uuid, -2);
+		Map<State, Integer> newStateMap = new HashMap<State, Integer>();
+		ArrayList<SortedSet<State>> newEqClasses = new ArrayList<SortedSet<State>>();
+		final ArrayList<SortedSet<State>> initEqClasses = newEqClasses;
+		
+		// Initialize first two classes (0: non-finals, 1: finals)
+		newEqClasses.add(0, new TreeSet<State>());
+		if (!this.finals.isEmpty()) {
+			newEqClasses.add(1, new TreeSet<State>());
+		}
+		this.states.stream().forEach(st -> {
+			int eqClass = 0;
+			if (this.finals.contains(st) ) {
+				eqClass = 1;
+			}
+			newStateMap.put(st, eqClass);
+			initEqClasses.get(eqClass).add(st);
+		});
+		newStateMap.put(phi, 0);
+		newEqClasses.get(0).add(phi);
+		
+		// Function to get output class map from state
+		final Function<State, Map<Character, Integer>> getClassMap = st -> alphabet.stream()
+				.collect(Collectors.toMap(
+						c -> c,
+						c -> {
+							SortedSet<State> out = this.transition(st, c);
+							if (out.isEmpty()) {
+								return stateMap.get(phi);
+							}
+							return stateMap.get(out.first());
+						}));
+		
+		
+		// Subdivide classes
+		while (!eqClasses.equals(newEqClasses)) {
+			eqClasses = new ArrayList<SortedSet<State>>();
+			for (SortedSet<State> eqClass : newEqClasses) {
+				eqClasses.add(new TreeSet<State>(eqClass));
+			}
+			newStateMap.entrySet().stream().forEach(e -> stateMap.put(e.getKey(), e.getValue()));
+			
+			// For each class
+			for (SortedSet<State> eqClass : eqClasses) {
+				State first = eqClass.first();
+				
+				Map<Character, Integer> firstOutputClass = getClassMap.apply(first);
+				
+				// For each state in current class
+				for (State st : eqClass) {
+					
+					if (!st.equals(first)) {
+						Map<Character, Integer> stOutputClass = getClassMap.apply(st);
+						
+						// If current state output classes differs from first
+						if (!stOutputClass.equals(firstOutputClass)) {
+							
+							// Check if it belongs to another class
+							int newClass = -1;
+							for (SortedSet<State> eqClass2 : newEqClasses) {
+								State st2 = eqClass2.first();
+								Map<Character, Integer> st2OutputClass = getClassMap.apply(st2);
+								if (stOutputClass.equals(st2OutputClass)) {
+									newClass = newStateMap.get(st2);
+								}
+							}
+					
+							// Create new class if needed
+							if (newClass == -1) {
+								newClass = newEqClasses.size();
+								newEqClasses.add(new TreeSet<State>());
+							}
+							
+							// Change state to new class
+							int oldClass = stateMap.get(st);
+							newEqClasses.get(oldClass).remove(st);
+							newEqClasses.get(newClass).add(st);
+							newStateMap.put(st, newClass);
+												}
+					}
+				}
+			}
+		}
+
+		
+		eqClasses = newEqClasses;
+		final ArrayList<SortedSet<State>> endEqClasses = eqClasses;
+		
+		// Build minimized FA version from eqClasses 
+		try {
+			FABuilder builder = new FABuilder();
+			// Import one state per eqClass, except phi
+			for (SortedSet<State> eqClass : endEqClasses) {
+				State first = eqClass.first();
+				// If class doesn't contains only phi
+				if (!(first.equals(phi) && eqClasses.size() > 1)) {
+					builder.importState(first);
+					if (eqClass.contains(this.initial)) {
+						builder.setInitial(first);
+					}
+					if (this.finals.contains(first)) {
+						builder.setFinal(first);
+					}
+				}
+			}
+
+			// Map transitions to new FA 
+			this.transitions.entrySet().stream().forEach(e -> {
+				int inClass = stateMap.get(e.getKey().getState());
+				State inSt = endEqClasses.get(inClass).first();
+				int outClass = stateMap.get(e.getValue().first());
+				State outSt = endEqClasses.get(outClass).first();
+				
+				try {
+					builder.addTransition(inSt, e.getKey().getSymbol(), outSt);
+				} catch (InvalidStateException | InvalidSymbolException e1) {
+					e1.printStackTrace();
+				}
+			});
+			
+			return builder.build();
+		
+		} catch (InvalidStateException | IncompleteAutomataException | InvalidBuilderException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 	
 	
@@ -237,34 +532,37 @@ public class FiniteAutomata extends RegularLanguage {
 	public static class State implements Comparable<State> {
 
 		private final UUID uuid;
+		private final UUID owner;
 		private final int index;
-		private final int copy;
 		
+		// State instances comparator
 		private static final Comparator<State> comparator = Comparator
 				.comparingInt((State s) -> s.index)
-				.thenComparing(s -> s.uuid)
-				.thenComparing(s -> s.copy);
+				.thenComparing(s -> s.owner)
+				.thenComparing(s -> s.uuid);
 		
 		/**
 		 * Default constructor
+		 * @param owner UUID of the owner FA
 		 * @param index State index in current FA
 		 */
-		private State(int index) {
+		private State(UUID owner, int index) {
 			this.uuid = UUID.randomUUID();
 			this.index = index;
-			this.copy = 0;
+			this.owner = owner;
 		}
 
 		/**
 		 * Copy constructor
 		 * Create different copy based on another state 
 		 * @param st Origin state
+		 * @param owner UUID of the owner FA
 		 * @param index new index in new FA
 		 */
-		private State(State st, int index) {
+		private State(State st, UUID owner, int index) {
 			this.uuid = st.uuid;
 			this.index = index;
-			this.copy = st.copy + 1;
+			this.owner = owner;
 		}
 		
 		/**
@@ -284,7 +582,7 @@ public class FiniteAutomata extends RegularLanguage {
 		        return false;
 		    }
 		    final State s = (State) obj;
-			return this.uuid.equals(s.uuid) && this.copy == s.copy;
+			return this.uuid.equals(s.uuid) && this.owner == s.owner;
 		}
 		
 		/**
@@ -292,7 +590,7 @@ public class FiniteAutomata extends RegularLanguage {
 		 */
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.uuid, copy);
+			return Objects.hash(this.uuid, this.owner);
 		}
 
 		/**
@@ -370,23 +668,25 @@ public class FiniteAutomata extends RegularLanguage {
 	 */
 	public static class FABuilder {
 		
+		private final UUID uuid;
 		private boolean built;
 		private State initial;
-		private TreeSet<State> states;
-		private TreeSet<State> finals;
-		private TreeSet<Character> alphabet;
-		private HashMap<TransitionInput, TreeSet<State>> transitions;
+		private Map<State, State> states;
+		private Set<State> finals;
+		private Set<Character> alphabet;
+		private HashMap<TransitionInput, Set<State>> transitions;
 		
 		/**
 		 * Default constructor
 		 */
 		public FABuilder() {
+			this.uuid = UUID.randomUUID();
 			this.built = false;
 			this.initial = null;
-			this.states = new TreeSet<State>();
-			this.finals = new TreeSet<State>();
-			this.alphabet = new TreeSet<Character>();
-			this.transitions = new HashMap<TransitionInput, TreeSet<State>>();
+			this.states = new HashMap<State, State>();
+			this.finals = new HashSet<State>();
+			this.alphabet = new HashSet<Character>();
+			this.transitions = new HashMap<TransitionInput, Set<State>>();
 		}
 		
 		/**
@@ -394,9 +694,24 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @return New state
 		 */
 		public State newState() {
-			State s = new State(states.size());
-			states.add(s);
-			return s;
+			State s0 = new State(this.uuid, -1);
+			State s1 = new State(s0, this.uuid, states.size());
+			states.put(s0, s1);
+			return s1;
+		}
+		
+		/**
+		 * Import state from another FA
+		 * @param st State to be imported
+		 * @return this
+		 */
+		public FABuilder importState(State st) {
+			State s0 = new State(st, this.uuid, -1);
+			if (this.states.get(s0) == null) {
+				State s1 = new State(s0, this.uuid, states.size());
+				states.put(s0, s1);
+			}
+			return this;
 		}
 		
 		/**
@@ -406,9 +721,7 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @throws InvalidStateException
 		 */
 		public FABuilder setInitial(State s) throws InvalidStateException {
-			if (!states.contains(s)) {
-				throw new InvalidStateException("FABuilder.setInitial");
-			}
+			s = this.validateState(s);
 			
 			initial = s;
 			return this;
@@ -421,9 +734,7 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @throws InvalidStateException
 		 */
 		public FABuilder setFinal(State s) throws InvalidStateException{
-			if (!states.contains(s)) {
-				throw new InvalidStateException("FABuilder.setFinal");
-			}
+			s = this.validateState(s);
 			
 			finals.add(s);
 			return this;
@@ -439,18 +750,17 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @throws InvalidSymbolException
 		 */
 		public FABuilder addTransition(State in, char c, State out) throws InvalidStateException, InvalidSymbolException {
-			if (!this.states.contains(in) || !this.states.contains(out)) {
-				throw new InvalidStateException("FABuilder.addTransition");
-			}
+			in = this.validateState(in);
+			out = this.validateState(out);
 			if (!Character.toString(c).matches("[0-9a-z&]")) {
 				throw new InvalidSymbolException("FABuilder.addTransition");
 			}
 			
 			TransitionInput tInput = new TransitionInput(in, c);
-			TreeSet<State> tOutput = this.transitions.get(tInput);
+			Set<State> tOutput = this.transitions.get(tInput);
 			
 			if (tOutput == null) {
-				tOutput = new TreeSet<State>();
+				tOutput = new HashSet<State>();
 			}
 			
 			tOutput.add(out);
@@ -472,8 +782,27 @@ public class FiniteAutomata extends RegularLanguage {
 			if (this.built) {
 				throw new InvalidBuilderException();
 			}
+			
 			this.built = true;
 			return new FiniteAutomata(this);
+		}
+		
+		/**
+		 * Check if state belongs to this FA
+		 * @param st State to be validate
+		 * @return State representation in this FA
+		 * @throws InvalidStateException 
+		 */
+		private State validateState(State st) throws InvalidStateException {
+			if (!st.owner.equals(this.uuid)) {
+				State imported = this.states.get(new State(st, this.uuid, -1));
+				if (imported == null) {
+					String caller = Thread.currentThread().getStackTrace()[2].getMethodName();
+					throw new InvalidStateException(caller); 
+				}
+				return imported;
+			}
+			return this.states.get(st);
 		}
 		
 		public static class InvalidStateException extends Exception {
