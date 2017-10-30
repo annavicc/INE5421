@@ -15,8 +15,8 @@ class RegularExpressionTest {
 	private static String[] validRE;
 	private static String[] invalidRE;
 	private static String[] toFormatRE;
-	private static int lengthValid = 11;
-	private static int lengthInvalid = 11;
+	private static int lengthValid = 13;
+	private static int lengthInvalid = 10;
 	private static int lengthToFormatRE = 7;
 
 	
@@ -64,6 +64,10 @@ class RegularExpressionTest {
 		validRE[9] = "(a | (ab | cd)+)+";
 		// 0 (01 | (02) * | (03)++) | (1?01?)
 		validRE[10] = "0 (01 | (02) * | (03)++) | (a?01?)";
+		// a | &
+		validRE[11] = "a | &";
+		// &*
+		validRE[12] = "&*";
 	}
 	
 	/**
@@ -90,10 +94,8 @@ class RegularExpressionTest {
 		invalidRE[7] = "a | b | ?c";
 		// a | b | | c
 		invalidRE[8] = "a | b | | c";
-		// invalid symbols
-		invalidRE[9] = "a | b | &";
 		// uneven parenthesis
-		invalidRE[10] = "(a(b(c(d)*)+)*";
+		invalidRE[9] = "(a(b(c(d)*)+)*";
 		// TODO empty parenthesis ()
 	}
 	

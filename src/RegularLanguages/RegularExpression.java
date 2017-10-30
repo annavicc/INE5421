@@ -3,6 +3,7 @@ package RegularLanguages;
 import java.util.HashSet;
 import java.util.Stack;
 
+
 /**
  * Representation of a Regular Expression
  * Eg.: a*(b?c|d)*
@@ -27,8 +28,8 @@ public class RegularExpression extends RegularLanguage {
 	 * Representation of the regular expression
 	 * @return the regex as a string
 	 */
-	public String toString() {
-		return this.regex;
+	public String getDefinition() {
+		return this.input;
 	}
 	
 	/**
@@ -51,7 +52,15 @@ public class RegularExpression extends RegularLanguage {
 	 * TODO implement
 	 */
 	public FiniteAutomata getAF() {
-		return new FiniteAutomata();
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+		FiniteAutomata.State q0 = builder.newState();
+		try {
+			builder.setInitial(q0);
+			return builder.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/*
@@ -124,7 +133,7 @@ public class RegularExpression extends RegularLanguage {
 		for (int i = 0; i < formatted.length(); i++) {
 			c = formatted.charAt(i);
 			
-			if (Character.isLetterOrDigit(c)) {
+			if (Character.isLetterOrDigit(c) || c == '&') {
 				re.vt.add(c);
 			}
 			// Parenthesis check
@@ -149,14 +158,16 @@ public class RegularExpression extends RegularLanguage {
 			}
 			before = formatted.charAt(i-1);
 			if (c == '*' || c == '?' || c == '+') {
-				if (!Character.isLetterOrDigit(before) && before != ')') { // if it's not c* )* )? c?
+				if (!Character.isLetterOrDigit(before) && before != ')'
+						&& before != '&') { // if it's not c* )* )? c?
 					return false;
 				}
 			} else if (c == '|') {
 				if (i+1 < formatted.length()) {
 					next = formatted.charAt(i+1);
 					if (!Character.isLetterOrDigit(next)
-							&& (next != '(')) { // |* |? || 
+							&& (next != '(')
+							&& next != '&') { // |* |? || 
 						return false;
 					}
 				}

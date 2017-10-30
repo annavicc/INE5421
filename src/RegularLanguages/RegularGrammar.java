@@ -9,7 +9,6 @@ import java.util.Scanner;
  * Eg.: S -> aA | a
  * 
  */
-
 public class RegularGrammar extends RegularLanguage {
 	
 	private HashSet<Character> vn;	// non terminal symbols
@@ -53,12 +52,11 @@ public class RegularGrammar extends RegularLanguage {
 		return rg;
 	}
 	
-
 	/**
 	 * String representation of a regular grammar
 	 * @return representation of a RG
 	 */
-	public String toString() {
+	public String getDefinition() {
 		String grammar = "";
 		String aux = "";
 		HashSet<String> prodList;
@@ -83,7 +81,39 @@ public class RegularGrammar extends RegularLanguage {
 	/* TODO implement
 	 */
 	public FiniteAutomata getAF() {
-		return new FiniteAutomata();
+		// test automata:
+		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
+		FiniteAutomata.State q0 = builder.newState();
+		FiniteAutomata.State q1 = builder.newState();
+		FiniteAutomata.State q2 = builder.newState();
+		try {
+			for (int i = 0; i < 100; i++) {
+				FiniteAutomata.State q = builder.newState();
+				builder.addTransition(q, 'c', q);
+				if (i == 1) {
+					for (char c = 'a'; c < 'k'; c++) {
+						builder.addTransition(q, c, q);
+					}
+				}
+			}
+			FiniteAutomata.State q = builder.newState();
+			builder.addTransition(q, 'c', q0)
+					.addTransition(q, 'c', q1)
+					.addTransition(q, 'c', q2)
+					.addTransition(q, '&', q0)
+					.setFinal(q);
+			
+			return builder.setInitial(q0)
+				.setFinal(q1)
+				.addTransition(q0, 'a', q0)
+				.addTransition(q0, 'b', q0)
+				.addTransition(q0, 'b', q1)
+				.addTransition(q1, 'a', q2)
+				.build();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/*
@@ -91,8 +121,8 @@ public class RegularGrammar extends RegularLanguage {
 	 * Out of scope
 	 */
 	public RegularExpression getRE() {
-		return null;
-//		return false;
+//		return null;
+		return new RegularExpression("UNDEFINED RE");
 	}
 	
 

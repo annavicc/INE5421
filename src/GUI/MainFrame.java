@@ -11,7 +11,6 @@ import java.util.HashMap;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -263,18 +262,5 @@ public class MainFrame extends JFrame {
 	public HashMap<String, RegularLanguage> getLanguages() {
 		return this.languages;
 	}
-	
-	/**
-	 * Create scroll-friendly JEditorPane
-	 */
-	public static JEditorPane newScrollableEditorPane() {
-		return new JEditorPane() {
-		    @Override
-		    public boolean getScrollableTracksViewportWidth()
-		    {
-		        return true;
-		    }
-		};
-	}
-	
+		
 }

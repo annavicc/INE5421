@@ -6,18 +6,24 @@ package RegularLanguages;
  */
 public abstract class RegularLanguage {
 
-	public enum InputType {RE, RG, UNDEFINED}; // RL can be represented by a Regular Expression or Regular Grammar
-	public enum Operation {UNION, CONCATENATION, INTERSECTION, DIFFERENCE}; // Operations allowed in a RL
+	// RL can be represented by a Regular Expression, a Regular Grammar or a Finite Automata
+	public enum InputType {RE, RG, AF, UNDEFINED};
+
+	// Operations allowed in a RL
+	public enum Operation {UNION, CONCATENATION, INTERSECTION, DIFFERENCE};
 	
-	private String input; // The input entered by the user
+	protected String input; // The input entered by the user
 	private String id; // an unique ID for the RL
 	private InputType type = InputType.UNDEFINED; // the type that the RL is represented
 	
 	
 	/**
-	 * Default Constructor
+	 * Public constructor
+	 * @param type the type of the RL
 	 */
-	public RegularLanguage() {}
+	public RegularLanguage(InputType type) {
+		this.type = type;
+	}
 	
 	/**
 	 * Public constructor
@@ -52,15 +58,6 @@ public abstract class RegularLanguage {
 		return this.id;
 	}
 	
-	
-	/**
-	 * Return the String representation of the RL
-	 * in the format according to its type
-	 * @return the RL String representation
-	 */
-	public String getDefinition() {
-		return this.input;
-	}
 	
 	/**
 	 * Return the input entered by the user
@@ -132,30 +129,17 @@ public abstract class RegularLanguage {
 		return this.id;
 	}
 	
-//	public abstract GetDefinition();
+	/**
+	 * Return the String representation of the RL
+	 * in the format according to its type
+	 * @return the RL String representation
+	 */
+	public abstract String getDefinition();
+	
 	
 	public abstract RegularGrammar getRG();
 	public abstract RegularExpression getRE();
 	public abstract FiniteAutomata getAF();
-	/*
-	 * Converts AF to RG
-	public RegularGrammar AFToRG(FiniteAutomata fa) {
-		
-	}
-	*/
-	
-	/*
-	 * Converts RE to FA
-	public FiniteAutomata REToFA(RegularExpression fa) {
-		
-	}
-	*/
-	
-	/*
-	 * Converts RG to FA
-	public FiniteAutomata RGToFA(RegularGrammar fa) {
-	}
-	*/
 	
 	
 }
