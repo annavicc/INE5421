@@ -306,10 +306,12 @@ public final class FAOperator {
 							int newClass = -1;
 							for (SortedSet<State> eqClass2 : newEqClasses) {
 								State st2 = eqClass2.first();
-								Map<Character, Integer> st2OutputClass = getClassMap.apply(st2);
-								if (stOutputClass.equals(st2OutputClass)) {
-									// set equivalent class found as new
-									newClass = newStateMap.get(st2);
+								if (stateMap.get(st).equals(stateMap.get(st2))) {
+									Map<Character, Integer> st2OutputClass = getClassMap.apply(st2);
+									if (stOutputClass.equals(st2OutputClass)) {
+										// set equivalent class found as new
+										newClass = newStateMap.get(st2);
+									}
 								}
 							}
 					
@@ -443,10 +445,65 @@ public final class FAOperator {
 	
 	/**
 	 * Convert RG to FA
+	 * @param rg Regular Grammar
+	 * @return Equivalent Finite Automata
+	 */
+	public static FiniteAutomata RGtoFA(RegularGrammar rg) {
+		try {
+			FABuilder builder = new FABuilder();
+			
+			// Map from symbols to new AF state
+			Map<Character, State> statesMap = rg.getVn().stream()
+					.collect(Collectors.toMap(vn -> vn, vn -> builder.newState()));
+			
+			// Add new non terminal symbol
+			char newSymbol = '@';
+			Stream<Character> newVn = Stream.concat(Stream.of(newSymbol), rg.getVn().stream());
+			statesMap.put(newSymbol, builder.newState());
+			
+			// Set initial symbol as initial state
+			builder.setInitial(statesMap.get(rg.getInitial()));
+			
+			// Set finals state
+			builder.setFinal(statesMap.get(newSymbol));
+			if (rg.getProductions(rg.getInitial()).contains("&")) {
+				builder.setFinal(statesMap.get(rg.getInitial()));
+			}
+			
+			// Create transitions
+			for (char vn : rg.getVn()) {
+				for (String rule : rg.getProductions(vn)) {
+					char vt = rule.charAt(0);
+					if (vt != '&') {
+						State input = statesMap.get(vn);
+						State output;
+						if (rule.length() == 1) {
+							output = statesMap.get(newSymbol);
+						}
+						else {
+							output = statesMap.get(rule.charAt(1));
+						}
+						builder.addTransition(input, vt, output);
+					}
+				}
+			}
+			
+			return builder.build();
+			
+			
+		} catch (InvalidStateException | InvalidSymbolException | IncompleteAutomataException | InvalidBuilderException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Convert RE to FA
 	 * TODO implement
 	 * @return empty FA
 	 */
-	public static FiniteAutomata RGtoFA(RegularGrammar rg) {
+	public static FiniteAutomata REtoFA(RegularExpression re) {
 		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
 		FiniteAutomata.State q0 = builder.newState();
 		try {
@@ -456,15 +513,6 @@ public final class FAOperator {
 			e.printStackTrace();
 			return null;
 		}
-	}
-	
-	/**
-	 * Convert RE to FA
-	 * TODO implement
-	 * @return empty FA
-	 */
-	public static FiniteAutomata REtoFA(RegularExpression re) {
-		return RGtoFA(null);
 	}
 	
 }

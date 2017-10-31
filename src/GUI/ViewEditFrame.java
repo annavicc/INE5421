@@ -79,7 +79,7 @@ public class ViewEditFrame extends JFrame{
 		viewEditTabbedPane.addTab(strRE, null, scpViewEditRE, null);
 		
 		txtaViewEditFA = new JTextArea();
-		txtaViewEditFA.setFont(new Font("Courier New", Font.PLAIN, 14));
+		txtaViewEditFA.setFont(new Font("monospaced", Font.PLAIN, 14));
 		txtaViewEditFA.setEditable(false);
 		scpViewEditFA = new JScrollPane(txtaViewEditFA);
 		viewEditTabbedPane.addTab(strFA, null, scpViewEditFA, null);

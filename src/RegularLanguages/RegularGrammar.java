@@ -1,8 +1,10 @@
 package RegularLanguages;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 import RegularLanguages.Operators.FAOperator;
 
@@ -52,6 +54,43 @@ public class RegularGrammar extends RegularLanguage {
 		}
 		
 		return rg;
+	}
+	
+	/**
+	 * Get set of non terminal symbols (Vn)
+	 * @return Vn
+	 */
+	public Set<Character> getVn() {
+		return Collections.unmodifiableSet(vn);
+	}
+	
+	/**
+	 * Get set of terminal symbols (Vt)
+	 * @return Vt
+	 */
+	public Set<Character> getVt() {
+		return Collections.unmodifiableSet(vt);
+	}
+	
+	/**
+	 * Get initial non terminal symbol
+	 * @return Vt
+	 */
+	public char getInitial() {
+		return s;
+	}
+	
+	/**
+	 * Get production rules from non terminal
+	 * @param vn production rule input
+	 * @return production rules output set
+	 */
+	public Set<String> getProductions(char vn) {
+		Set<String> prod = productions.get(vn);
+		if (prod == null) {
+			prod = new HashSet<String>();
+		}
+		return Collections.unmodifiableSet(prod);
 	}
 	
 	/**
@@ -164,13 +203,13 @@ public class RegularGrammar extends RegularLanguage {
 					return null;
 				} else {
 					rg.vn.add(vn.charAt(0));
-					if (!validateProduction(vn.charAt(0), prod, pr, rg)) {
-						rg.vn.clear();
-						return null;
-					}
 					if (!isSDefined) {
 						rg.s = vn.charAt(0);
 						isSDefined = true;
+					}
+					if (!validateProduction(vn.charAt(0), prod, pr, rg)) {
+						rg.vn.clear();
+						return null;
 					}
 				}
 			}
@@ -211,7 +250,7 @@ public class RegularGrammar extends RegularLanguage {
 				}
 				if (Character.isDigit(first)
 						|| Character.isLetter(first)) { // if first symbol is terminal
-					rg.vt.add(first); // &A valid?
+					rg.vt.add(first); //
 				}
 				
 				if (prodLength == 2) { // |prod| = 2
@@ -219,10 +258,13 @@ public class RegularGrammar extends RegularLanguage {
 					if (Character.isUpperCase(first)) { // if first symbol is vN
 						return false;
 					} else if (Character.isLowerCase(second)
-							|| Character.isDigit(second)
-							|| (first == '&')) { // if both are lower case or digit
+							|| Character.isDigit(second)) { // if both are lower case or digit
 						return false;
-					} else if (first == '&' && second == '&') {
+					} else if (first == '&' || second == '&') {
+						return false;
+					}
+
+					if (second == rg.s && rg.vt.contains('&')) {
 						return false;
 					}
 					rg.vn.add(second);
@@ -231,6 +273,12 @@ public class RegularGrammar extends RegularLanguage {
 				} else { // |prod| = 1
 					if (Character.isUpperCase(first)) { // if S -> A
 						return false;
+					}
+					if (first == '&') {
+						rg.vt.add(first);
+						if (vn != rg.s) {
+							return false;
+						}
 					}
 					prodList.add(prod);
 					rg.productions.put(vn, prodList);

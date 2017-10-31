@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import RegularLanguages.RegularGrammar;
 import RegularLanguages.RegularLanguage;
+import RegularLanguages.Operators.FAOperator;
 
 public class RegularGrammarTest {
 	private static String[] validRG;
@@ -30,9 +31,10 @@ public class RegularGrammarTest {
 				+ "C -> cC | c";
 		// L(G) = { abcd e^n | n > 0 }
 		validRG[2] = "S -> aA\n"
-				+ "A -> bB\n"
+				+ "A -> bB | bE\n"
 				+ "B -> cC\n"
-				+ "D -> dD\n"
+				+ "E -> cC\n"
+				+ "C -> dD\n"
 				+ "D -> eD | e";
 		// L(G) = { a^n | n > 0 }
 		validRG[3] = "S -> aA | bB | cC | dD | eE\n"
@@ -40,7 +42,7 @@ public class RegularGrammarTest {
 				+ "B -> bB | b\n"
 				+ "C -> cC | c\n"
 				+ "D -> dD | d\n"
-				+ "E -> eE | e";
+				+ "E- >e E|e";
 		// L(G) = (a,b)*
 		validRG[4] = "S -> aA | bA | &\n"
 				+ "A -> aA | bA | a | b";
@@ -77,6 +79,9 @@ public class RegularGrammarTest {
 		invalidRG[10] = "S -> 0S | A | 1";
 		// S -> 0s | 0
 		invalidRG[11] = "S -> 0s | 0";
+		// S -> 0A    A -> ... | &   (& in non initial)
+		invalidRG[11] = "S -> 0A\n"
+				+ "A -> aA | bA | & | a | b";
 	}
 
 	/**
@@ -94,7 +99,19 @@ public class RegularGrammarTest {
 		// Should be different than null:
 		for (RegularLanguage lr : rg) {
 			assertNotNull(lr);
+			System.out.println("RG:");
+			System.out.println(lr.getDefinition());
+			System.out.println("FA:");
+			System.out.println(lr.getFA().getDefinition());
+			System.out.println("-----");
 		}
+		// TODO assertion tests
+		
+		// L(G) = { abcd e^n | n > 0 }
+		System.out.println(rg[2].getFA().getDefinition());
+		System.out.println(FAOperator.determinize(rg[2].getFA()).getDefinition());
+		System.out.println(FAOperator.minimize(rg[2].getFA()).getDefinition());
+		
 	}
 	
 	
