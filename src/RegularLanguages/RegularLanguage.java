@@ -139,7 +139,7 @@ public abstract class RegularLanguage {
 	
 	public abstract RegularGrammar getRG();
 	public abstract RegularExpression getRE();
-	public abstract FiniteAutomata getAF();
+	public abstract FiniteAutomata getFA();
 	
 	
 }
