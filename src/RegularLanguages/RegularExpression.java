@@ -3,6 +3,8 @@ package RegularLanguages;
 import java.util.HashSet;
 import java.util.Stack;
 
+import RegularLanguages.Operators.FAOperator;
+
 
 /**
  * Representation of a Regular Expression
@@ -44,23 +46,15 @@ public class RegularExpression extends RegularLanguage {
 	 * Convert RE to RG
 	 */
 	public RegularGrammar getRG() {
-		return this.getAF().getRG();
+		return this.getFA().getRG();
 	}
 	
 	/*
-	 * Convert RE to AF
+	 * Convert RE to FA
 	 * TODO implement
 	 */
-	public FiniteAutomata getAF() {
-		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
-		FiniteAutomata.State q0 = builder.newState();
-		try {
-			builder.setInitial(q0);
-			return builder.build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
+	public FiniteAutomata getFA() {
+		return FAOperator.REtoFA(this);
 	}
 	
 	/*

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.bethecoder.ascii_table.ASCIITable;
 
+import RegularLanguages.Operators.FAOperator;
 import RegularLanguages.FiniteAutomata;
 import RegularLanguages.FiniteAutomata.FABuilder;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
@@ -293,10 +294,10 @@ class FiniteAutomataTest {
 				.addTransition(q[2], 'b', q[3])
 				.build();
 		
-		assertFalse(ndfa.isDeterministic());
+		assertFalse(FAOperator.isDeterministic(ndfa));
 		
-		FiniteAutomata dfa = ndfa.determinize();
-		assertTrue(dfa.isDeterministic());
+		FiniteAutomata dfa = FAOperator.determinize(ndfa);
+		assertTrue(FAOperator.isDeterministic(dfa));
 		
 		System.out.println("--------------------------------------------------");
 		System.out.println("testDeterminize:");
@@ -328,10 +329,10 @@ class FiniteAutomataTest {
 				.addTransition(q[3], '0', q[4])
 				.build();
 		
-		assertFalse(ndfa.isDeterministic());
+		assertFalse(FAOperator.isDeterministic(ndfa));
 		
-		dfa = ndfa.determinize();
-		assertTrue(dfa.isDeterministic());
+		dfa = FAOperator.determinize(ndfa);
+		assertTrue(FAOperator.isDeterministic(dfa));
 		
 		System.out.println(ndfa.getDefinition());
 		System.out.println(dfa.getDefinition());
@@ -361,16 +362,17 @@ class FiniteAutomataTest {
 				.setFinal(q[3]);
 		
 		FiniteAutomata fa = builder.build();
-		assertFalse(fa.getDeadStates().isEmpty());
-		assertFalse(fa.getUnreachableStates().isEmpty());
+		assertFalse(FAOperator.getDeadStates(fa).isEmpty());
+		assertFalse(FAOperator.getUnreachableStates(fa).isEmpty());
 		
-		FiniteAutomata faNoDeadStates = fa.removeStates(fa.getDeadStates());
-		assertTrue(faNoDeadStates.getDeadStates().isEmpty());
-		assertFalse(faNoDeadStates.getUnreachableStates().isEmpty());
+		FiniteAutomata faNoDeadStates = FAOperator.removeStates(fa, FAOperator.getDeadStates(fa));
+		assertTrue(FAOperator.getDeadStates(faNoDeadStates).isEmpty());
+		assertFalse(FAOperator.getUnreachableStates(faNoDeadStates).isEmpty());
 		
-		FiniteAutomata faNoUnreachableStates = fa.removeStates(fa.getUnreachableStates());
-		assertFalse(faNoUnreachableStates.getDeadStates().isEmpty());
-		assertTrue(faNoUnreachableStates.getUnreachableStates().isEmpty());		
+		
+		FiniteAutomata faNoUnreachableStates = FAOperator.removeStates(fa, FAOperator.getUnreachableStates(fa));
+		assertTrue(FAOperator.getUnreachableStates(faNoUnreachableStates).isEmpty());
+		assertFalse(FAOperator.getDeadStates(faNoUnreachableStates).isEmpty());
 		
 		
 		System.out.println(fa.getDefinition());
@@ -425,13 +427,13 @@ class FiniteAutomataTest {
 			
 			System.out.println(fa.getDefinition());
 			
-			FiniteAutomata faMin = fa.minimize();
+			FiniteAutomata faMin = FAOperator.minimize(fa);
 			System.out.println(faMin.getDefinition());
 			
-			assertFalse(fa.isDeterministic());
-			assertTrue(faMin.isDeterministic());
-			assertTrue(faMin.getDeadStates().isEmpty());
-			assertTrue(faMin.getUnreachableStates().isEmpty());
+			assertFalse(FAOperator.isDeterministic(fa));
+			assertTrue(FAOperator.isDeterministic(faMin));
+			assertTrue(FAOperator.getDeadStates(faMin).isEmpty());
+			assertTrue(FAOperator.getUnreachableStates(faMin).isEmpty());
 			
 			assertEquals(
 					"+------+----+----+\n" +
@@ -469,14 +471,14 @@ class FiniteAutomataTest {
 	
 			
 			System.out.println(fa.getDefinition());
-			System.out.println(fa.minimize().getDefinition());
+			System.out.println(FAOperator.minimize(fa).getDefinition());
 			
 			System.out.println(fa2.getDefinition());
-			System.out.println(fa2.minimize().getDefinition());
+			System.out.println(FAOperator.minimize(fa2).getDefinition());
 			
-			assertEquals(fa.getDefinition(), fa.minimize().getDefinition());
-			assertEquals(fa.getDefinition(), fa2.minimize().getDefinition());
-			assertNotEquals(fa2.getDefinition(), fa2.minimize().getDefinition());
+			assertEquals(fa.getDefinition(), FAOperator.minimize(fa).getDefinition());
+			assertEquals(fa.getDefinition(), FAOperator.minimize(fa2).getDefinition());
+			assertNotEquals(fa2.getDefinition(), FAOperator.minimize(fa2).getDefinition());
 			
 			// TODO assert same language
 		}
@@ -520,13 +522,13 @@ class FiniteAutomataTest {
 			
 			System.out.println(fa.getDefinition());
 			
-			FiniteAutomata faMin = fa.minimize();
+			FiniteAutomata faMin = FAOperator.minimize(fa);
 			System.out.println(faMin.getDefinition());
 			
-			assertFalse(fa.isDeterministic());
-			assertTrue(faMin.isDeterministic());
-			assertTrue(faMin.getDeadStates().isEmpty());
-			assertTrue(faMin.getUnreachableStates().isEmpty());
+			assertFalse(FAOperator.isDeterministic(fa));
+			assertTrue(FAOperator.isDeterministic(faMin));
+			assertTrue(FAOperator.getDeadStates(faMin).isEmpty());
+			assertTrue(FAOperator.getUnreachableStates(faMin).isEmpty());
 			
 			assertEquals(
 					"+-------+----+----+----+\n" +

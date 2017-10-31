@@ -150,6 +150,8 @@ class RegularExpressionTest {
 		for (RegularLanguage lr : rl) {
 			assertNotNull(lr);
 		}
+		
+		
 	}
 	/**
 	 * Invalid Regular Expression case

@@ -1,4 +1,4 @@
-package RegularLanguages;
+package RegularLanguages.Operators;
 
 import java.util.ArrayList;
 

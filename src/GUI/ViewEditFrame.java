@@ -79,7 +79,7 @@ public class ViewEditFrame extends JFrame{
 		viewEditTabbedPane.addTab(strRE, null, scpViewEditRE, null);
 		
 		txtaViewEditFA = new JTextArea();
-		txtaViewEditFA.setFont(new Font("Courier New", Font.PLAIN, 14));
+		txtaViewEditFA.setFont(new Font("monospaced", Font.PLAIN, 14));
 		txtaViewEditFA.setEditable(false);
 		scpViewEditFA = new JScrollPane(txtaViewEditFA);
 		viewEditTabbedPane.addTab(strFA, null, scpViewEditFA, null);
@@ -182,7 +182,7 @@ public class ViewEditFrame extends JFrame{
 		txtaViewEditRG.setCaretPosition(0);
 		txtaViewEditRE.setText(language.getRE().getDefinition());
 		txtaViewEditRE.setCaretPosition(0);
-		txtaViewEditFA.setText(language.getAF().getDefinition());
+		txtaViewEditFA.setText(language.getFA().getDefinition());
 		txtaViewEditFA.setCaretPosition(0);
 	}
 	private String getPaneText() {
