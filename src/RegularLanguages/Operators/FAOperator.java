@@ -378,7 +378,139 @@ public final class FAOperator {
 	}
 	
 	/**
-	 * Get AF transitions table
+	 * Get FA equivalent to the union of another two
+	 * @param fa1 FA1
+	 * @param fa2 FA2
+	 * @return New FA = FA1 union FA2 
+	 */
+	public static FiniteAutomata union(FiniteAutomata fa1, FiniteAutomata fa2) {
+		FABuilder builder = new FABuilder();
+		if (fa1.getUUID().equals(fa2.getUUID())) {
+			fa2 = fa2.clone();
+		}
+		
+		try {
+			// Create new initial state
+			State initial = builder.newState();
+			builder.setInitial(initial);
+
+			// Import states from FA 1
+			for (State st : fa1.getStates()) {
+				builder.importState(st);
+				if (fa1.getFinals().contains(st)) {
+					builder.setFinal(st);
+				}
+			}
+
+			// Import states from FA 2
+			for (State st : fa2.getStates()) {
+				builder.importState(st);
+				if (fa2.getFinals().contains(st)) {
+					builder.setFinal(st);
+				}
+			}
+			
+			// Import transitions from FA1
+			for (TransitionInput in : fa1.getTransitions().keySet()) {
+				for (State out : fa1.getTransitions().get(in)) {
+					builder.addTransition(in.getState(), in.getSymbol(), out);
+					if (in.getState().equals(fa1.getInitial())) {
+						builder.addTransition(initial, in.getSymbol(), out);
+					}
+				}
+			}
+			
+			// Import transitions from FA2
+			for (TransitionInput in : fa2.getTransitions().keySet()) {
+				for (State out : fa2.getTransitions().get(in)) {
+					builder.addTransition(in.getState(), in.getSymbol(), out);
+					if (in.getState().equals(fa2.getInitial())) {
+						builder.addTransition(initial, in.getSymbol(), out);
+					}
+				}
+			}
+			
+			return builder.build();
+
+		
+		} catch (InvalidStateException | InvalidSymbolException | IncompleteAutomataException | InvalidBuilderException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Get FA equivalent to the complement of another
+	 * @param fa FA
+	 * @return New FA = complement(FA) 
+	 */
+	public static FiniteAutomata complement(FiniteAutomata fa) {
+		if (!isDeterministic(fa)) {
+			complement(determinize(fa));
+		}
+		
+		FABuilder builder = new FABuilder();
+		
+		try {
+			// Create new dead state
+			State dead = builder.newState();
+			
+			
+			for (State st : fa.getStates()) {
+				builder.importState(st);
+				// Invert terminal and non-terminal sets
+				if (!fa.getFinals().contains(st)) {
+					builder.setFinal(st);
+				}
+			}
+			builder.setFinal(dead);
+			builder.setInitial(fa.getInitial());
+			
+			for (char c : fa.getAlphabet()) {
+				builder.addTransition(dead, c, dead);
+				
+				for (State in : fa.getStates()) {
+					SortedSet<State> outSet = fa.transition(in, c);
+					State out;
+					if (outSet.isEmpty()) {
+						// Map indefinitions to dead state
+						out = dead;
+					} else {
+						// Copy transitions
+						out = outSet.first();
+					}
+					
+					builder.addTransition(in, c, out);
+				}
+			}
+			
+			return builder.build();
+		
+		} catch (InvalidStateException | InvalidSymbolException | IncompleteAutomataException | InvalidBuilderException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Chech if the language accepted by an FA is empty
+	 * @param fa FA to be verified
+	 * @return boolean wether it is empty
+	 */
+	public static boolean isEmptyLanguage(FiniteAutomata fa) {
+		try {
+			return removeStates(fa, getUnreachableStates(fa)).getFinals().isEmpty();
+		} catch (InvalidStateException e) {
+			e.printStackTrace();
+			return true;
+		}
+	}
+	
+	/**
+	 * Get FA formatted transitions table
+	 * @param fa FA to be formatted
 	 * @return Transitions table formatted as String
 	 */
 	public static String getTransitionsTable(FiniteAutomata fa) {

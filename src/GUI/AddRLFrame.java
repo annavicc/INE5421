@@ -91,8 +91,9 @@ public class AddRLFrame extends JFrame {
 		btnAddRLAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String name = txtAddRLName.getText(); // Gets name from txtField
-				if (name.equals("")) {
-					JOptionPane.showMessageDialog(AddRLFrame.this, "Empty name!");
+				if (name.equals("") || name.contains("(") || name.contains(")")) {
+					JOptionPane.showMessageDialog(AddRLFrame.this, "Invalid name!\n"
+							+ "Name must not be empty.\nThe characters '(' and ')' are not allowed.");
 					return;
 				}
 				else if (AddRLFrame.this.mainFrame.getLanguage(name) != null) {

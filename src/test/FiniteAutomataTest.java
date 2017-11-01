@@ -462,7 +462,6 @@ class FiniteAutomataTest {
 			FiniteAutomata fa2 = builder2.setInitial(q[0])
 					.setFinal(q[4])
 					.addTransition(q[0], 'a', q[1])
-					.addTransition(q[0], 'a', q[2])
 					.addTransition(q[0], 'b', q[0])
 					.addTransition(q[1], 'b', q[2])
 					.addTransition(q[2], 'c', q[3])
@@ -572,4 +571,74 @@ class FiniteAutomataTest {
 		}
 	}
 
+	@Test
+	void testUnion() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
+		System.out.println("--------------------------------------------------");
+		System.out.println("testUnion:");
+		
+		FABuilder builder1 = new FABuilder();
+		FABuilder builder2 = new FABuilder();
+		State[] q = new State[5];
+		
+		for (int i = 0; i < 5; i++) {
+			q[i] = builder1.newState();
+			builder2.importState(q[i]);
+		}
+		
+		FiniteAutomata fa1 = builder1.setInitial(q[0])
+				.setFinal(q[4])
+				.addTransition(q[0], 'a', q[1])
+				.addTransition(q[1], 'b', q[2])
+				.addTransition(q[2], 'c', q[3])
+				.addTransition(q[3], 'd', q[4])
+				.build();
+		
+		FiniteAutomata fa2 = builder2.setInitial(q[0])
+				.setFinal(q[4])
+				.addTransition(q[0], 'd', q[1])
+				.addTransition(q[1], 'c', q[2])
+				.addTransition(q[2], 'b', q[3])
+				.addTransition(q[3], 'a', q[4])
+				.build();
+		
+		FiniteAutomata fa3 = FAOperator.union(fa1, fa2);
+		
+		System.out.println(fa1.getDefinition());
+		System.out.println(fa2.getDefinition());
+		System.out.println(fa3.getDefinition());
+		
+		FiniteAutomata fa4 = FAOperator.minimize(FAOperator.union(fa1, fa1));
+		
+		// TODO assert same language (fa1 && fa4)
+		System.out.println(fa4.getDefinition());
+	}
+	
+	@Test
+	void testComplement() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
+		System.out.println("--------------------------------------------------");
+		System.out.println("testComplement:");
+		
+		FABuilder builder = new FABuilder();
+		State[] q = new State[4];
+		
+		for (int i = 0; i < 4; i++) {
+			q[i] = builder.newState();
+		}
+		
+		FiniteAutomata fa = builder.setInitial(q[0])
+				.setFinal(q[3])
+				.addTransition(q[0], 'a', q[1])
+				.addTransition(q[1], 'b', q[2])
+				.addTransition(q[2], 'c', q[3])
+				.build();
+		
+		
+		FiniteAutomata fa2 = FAOperator.complement(fa);
+		System.out.println(fa.getDefinition());
+		System.out.println(fa2.getDefinition());
+
+		
+		// TODO create assertions
+	}
+	
 }
