@@ -88,6 +88,7 @@ public class ViewEditFrame extends JFrame{
 		scpViewEditRG = new JScrollPane(txtaViewEditRG);
 		viewEditTabbedPane.addTab(strRG, null, scpViewEditRG, null);
 		
+		
 		enableTextPane();
 		
 		// JButtons:
@@ -96,11 +97,13 @@ public class ViewEditFrame extends JFrame{
 		btnViewEditSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String input = getPaneText(); // Gets text from pane
+				RegularLanguage l; // Gets RL object
 				if (input == null) {
-					JOptionPane.showMessageDialog(ViewEditFrame.this, "Can't save " + strFA + "!");
-					return;
+					l = ViewEditFrame.this.language.getFA();
 				}
-				RegularLanguage l = RegularLanguage.validate(input); // Gets RL object
+				else {
+					l = RegularLanguage.validate(input);
+				}
 				if(l == null) { // If type is not valid
 					JOptionPane.showMessageDialog(ViewEditFrame.this, "Invalid input!");
 					return;
@@ -173,15 +176,17 @@ public class ViewEditFrame extends JFrame{
 		RegularLanguage.InputType type = language.getType();
 		if (type.equals(RegularLanguage.InputType.RG)) {
 			viewEditTabbedPane.setSelectedComponent(scpViewEditRG);
+			viewEditTabbedPane.setEnabledAt(0, false);
 		} else if (type.equals(RegularLanguage.InputType.RE)) {
 			viewEditTabbedPane.setSelectedComponent(scpViewEditRE);
+			txtaViewEditRE.setText(language.getRE().getDefinition());
+			txtaViewEditRE.setCaretPosition(0);
 		} else {
 			viewEditTabbedPane.setSelectedComponent(scpViewEditFA);
+			viewEditTabbedPane.setEnabledAt(0, false);
 		}
 		txtaViewEditRG.setText(language.getRG().getDefinition());
 		txtaViewEditRG.setCaretPosition(0);
-		txtaViewEditRE.setText(language.getRE().getDefinition());
-		txtaViewEditRE.setCaretPosition(0);
 		txtaViewEditFA.setText(language.getFA().getDefinition());
 		txtaViewEditFA.setCaretPosition(0);
 	}

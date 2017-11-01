@@ -5,16 +5,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.Stack;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import com.bethecoder.ascii_table.ASCIITable;
-
+import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
 import RegularLanguages.Operators.FAOperator;
 
 
@@ -34,11 +37,11 @@ public class FiniteAutomata extends RegularLanguage {
 	
 	/**
 	 * Private constructor
-	 * FiniteAutomata must be created by a FABuilder
+	 * New FiniteAutomata must be created by a FABuilder
 	 * @param builder
 	 */
 	private FiniteAutomata(FABuilder builder) {
-		super(InputType.AF);
+		super(InputType.FA);
 		
 		this.initial = builder.initial;
 		this.uuid = builder.uuid;
@@ -59,6 +62,35 @@ public class FiniteAutomata extends RegularLanguage {
 		// Make external map immutable 
 		this.transitions = Collections.unmodifiableMap(temp);
 
+	}
+	
+	/**
+	 * Clone FA
+	 * @return cloned FA
+	 */
+	public FiniteAutomata clone() {
+		FABuilder builder = new FABuilder();
+		
+		try {
+			for (State st : this.states) {
+				builder.importState(st);
+			}
+			for (State st : this.finals) {
+				builder.setFinal(st);
+			}
+			builder.setInitial(this.initial);
+			
+			for (TransitionInput in : this.transitions.keySet()) {
+				for (State out : this.transitions.get(in)) {
+					builder.addTransition(in.getState(), in.getSymbol(), out);
+				}
+			}
+
+			return builder.build();
+		} catch (IncompleteAutomataException | InvalidBuilderException | InvalidStateException | InvalidSymbolException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	/**
@@ -133,8 +165,7 @@ public class FiniteAutomata extends RegularLanguage {
 	
 	/**
 	 * Convert FA to RG
-	 * TODO implement
-	 * @return empty grammar
+	 * @return equivalent grammar
 	 */
 	public RegularGrammar getRG() {
 		return FAOperator.FAtoRG(this);
@@ -166,13 +197,13 @@ public class FiniteAutomata extends RegularLanguage {
 	public static class State implements Comparable<State> {
 
 		private final UUID uuid;
-		private final UUID owner;
+		private final Stack<UUID> owners;
 		private final int index;
 		
 		// State instances comparator
 		private static final Comparator<State> comparator = Comparator
 				.comparingInt((State s) -> s.index)
-				.thenComparing(s -> s.owner)
+				.thenComparing(s -> s.owners.peek())
 				.thenComparing(s -> s.uuid);
 		
 		/**
@@ -183,7 +214,8 @@ public class FiniteAutomata extends RegularLanguage {
 		public State(UUID owner, int index) {
 			this.uuid = UUID.randomUUID();
 			this.index = index;
-			this.owner = owner;
+			this.owners = new Stack<UUID>();
+			owners.push(owner);
 		}
 
 		/**
@@ -193,17 +225,18 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @param owner UUID of the owner FA
 		 * @param index new index in new FA
 		 */
-		private State(State st, UUID owner, int index) {
+		private State(State st, UUID newOwner, int index) {
 			this.uuid = st.uuid;
 			this.index = index;
-			this.owner = owner;
+			this.owners = (Stack<UUID>) st.owners.clone();
+			owners.push(newOwner);
 		}	
 		
 		/**
 		 * Get owner FA UUID
 		 */
 		public UUID getOwner() {
-			return this.owner;
+			return this.owners.peek();
 		}
 		
 		/**
@@ -222,7 +255,8 @@ public class FiniteAutomata extends RegularLanguage {
 		        return false;
 		    }
 		    final State s = (State) obj;
-			return this.uuid.equals(s.uuid) && this.owner == s.owner;
+		    
+		    return this.uuid.equals(s.uuid) && this.owners.equals(s.owners);
 		}
 		
 		/**
@@ -230,7 +264,7 @@ public class FiniteAutomata extends RegularLanguage {
 		 */
 		@Override
 		public int hashCode() {
-			return Objects.hash(this.uuid, this.owner);
+			return Objects.hash(this.uuid, this.owners);
 		}
 
 		/**
@@ -334,10 +368,9 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @return New state
 		 */
 		public State newState() {
-			State s0 = new State(this.uuid, -1);
-			State s1 = new State(s0, this.uuid, states.size());
-			states.put(s0, s1);
-			return s1;
+			State st = new State(this.uuid, states.size());
+			states.put(st, st);
+			return st;
 		}
 		
 		/**
@@ -346,10 +379,10 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @return this
 		 */
 		public FABuilder importState(State st) {
-			State s0 = new State(st, this.uuid, -1);
-			if (this.states.get(s0) == null) {
-				State s1 = new State(s0, this.uuid, states.size());
-				states.put(s0, s1);
+			State imported = new State(st, this.uuid, states.size());
+			if (this.states.get(imported) == null) {
+				State s1 = new State(st, this.uuid, states.size());
+				states.put(imported, imported);
 			}
 			return this;
 		}
@@ -434,7 +467,7 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @throws InvalidStateException 
 		 */
 		private State validateState(State st) throws InvalidStateException {
-			if (!st.owner.equals(this.uuid)) {
+			if (!st.getOwner().equals(this.uuid)) {
 				State imported = this.states.get(new State(st, this.uuid, -1));
 				if (imported == null) {
 					String caller = Thread.currentThread().getStackTrace()[2].getMethodName();

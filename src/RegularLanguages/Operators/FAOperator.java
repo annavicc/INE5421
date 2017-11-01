@@ -440,7 +440,64 @@ public final class FAOperator {
 	 * @return empty grammar
 	 */
 	public static RegularGrammar FAtoRG(FiniteAutomata fa) {
-		return new RegularGrammar("");
+		if (!isDeterministic(fa)) {
+			return FAtoRG(determinize(fa));
+		}
+		
+		char nextVn = 'A';
+		
+		// Map from state to new non-terminal symbol
+		Map<State, Character> vnMap = new HashMap<State, Character>();
+		for (State st : fa.getStates()) {
+			vnMap.put(st, nextVn++);
+		}
+			
+		String rgString = "";
+		
+		if (fa.getAlphabet().isEmpty()) {
+			// Add infertile non terminal
+			rgString = Character.toString(nextVn) + "-> a" + nextVn++;
+		}
+		
+		for (State in : fa.getStates()) {
+			for (char c : fa.getAlphabet()) {
+				SortedSet<State> outSet = fa.transition(in, c);
+				
+				// if transition(B,a) = C 
+				if (!outSet.isEmpty()) {
+					State out = outSet.first();
+					
+					// add B -> aC
+					if (fa.getInitial().equals(in)) {
+						// s (first) = q0
+						rgString = vnMap.get(in) + "->" + c + vnMap.get(out) + '\n' + rgString;
+					} else {
+						rgString += vnMap.get(in) + "->" + c + vnMap.get(out) + '\n';
+					}
+					
+					// if C belongs to fa.finals
+					if (fa.getFinals().contains(out)) {
+						// add B -> a
+						rgString += vnMap.get(in) + "->" + c + '\n';
+					}
+				}
+			}
+		}
+		
+
+		// Add & to language if needed
+		if (fa.getFinals().contains(fa.getInitial())) {
+			// Group productions from same vn
+			String formatted = RegularGrammar.isValidRG(rgString).getDefinition();
+			
+			// Create new initial vn
+			String initialProd = formatted.substring(1, formatted.indexOf('\n'));
+			initialProd = nextVn + initialProd + "| & \n";
+			
+			rgString = initialProd + formatted;
+		}
+		
+		return RegularGrammar.isValidRG(rgString);
 	}
 	
 	/**
