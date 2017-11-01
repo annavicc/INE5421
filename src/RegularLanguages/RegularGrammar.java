@@ -203,6 +203,7 @@ public class RegularGrammar extends RegularLanguage {
 						|| Character.isLowerCase(vn.charAt(0)) ||
 						!Character.isLetter(vn.charAt(0))) { // if |vn| > 1
 					rg.vn.clear();
+					vnScan.close();
 					return null;
 				} else {
 					rg.vn.add(vn.charAt(0));
@@ -212,6 +213,7 @@ public class RegularGrammar extends RegularLanguage {
 					}
 					if (!validateProduction(vn.charAt(0), prod, pr, rg)) {
 						rg.vn.clear();
+						vnScan.close();
 						return null;
 					}
 				}
@@ -266,7 +268,6 @@ public class RegularGrammar extends RegularLanguage {
 					} else if (first == '&' || second == '&') {
 						return false;
 					}
-
 					if (second == rg.s && rg.vt.contains('&')) {
 						return false;
 					}
@@ -280,6 +281,10 @@ public class RegularGrammar extends RegularLanguage {
 					if (first == '&') {
 						rg.vt.add(first);
 						if (vn != rg.s) {
+							return false;
+						} else if (prodList.stream().anyMatch(
+								pr -> pr.length() > 1 && pr.charAt(1) == vn
+						)) {  // if S -> aS | &
 							return false;
 						}
 					}

@@ -15,7 +15,7 @@ public class RegularGrammarTest {
 	private static String[] validRG;
 	private static String[] invalidRG;
 	private static int lengthValid = 5;
-	private static int lengthInvalid = 15;
+	private static int lengthInvalid = 17;
 
 	/**
 	 * Possibilities of grammars that are valid
@@ -84,8 +84,12 @@ public class RegularGrammarTest {
 		invalidRG[12] = "S -> 0&";
 		// S -> &A
 		invalidRG[13] = "S -> &A";
+		// S -> aS | a | &
+		invalidRG[14] = "S -> aS | a | &";
+		// S -> & | a | aS
+		invalidRG[15] = "S -> & | a | aS";
 		// S -> 0A | &    A -> aS   (A => S => &)
-		invalidRG[14] = "S -> 0A | &\n"
+		invalidRG[16] = "S -> 0A | &\n"
 				+ "A -> aS";
 	}
 
