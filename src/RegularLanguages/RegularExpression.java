@@ -90,7 +90,7 @@ public class RegularExpression extends RegularLanguage {
 	 * @return true if lexically valid, or false otherwise
 	 */
 	public static boolean lexicalValidation(String inp, RegularExpression re) {
-		if (!inp.matches("^[a-z0-9\\(\\)\\?\\*|&\\+]+")) { // Verify invalid symbols
+		if (!inp.matches("^[a-z0-9\\(\\)\\?\\*|&\\+]*")) { // Verify invalid symbols
 			return false;
 		}
 		return true;

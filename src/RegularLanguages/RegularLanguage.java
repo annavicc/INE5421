@@ -7,7 +7,7 @@ package RegularLanguages;
 public abstract class RegularLanguage {
 
 	// RL can be represented by a Regular Expression, a Regular Grammar or a Finite Automata
-	public enum InputType {RE, RG, AF, UNDEFINED};
+	public enum InputType {RE, RG, FA, UNDEFINED};
 
 	// Operations allowed in a RL
 	public enum Operation {UNION, CONCATENATION, INTERSECTION, DIFFERENCE};

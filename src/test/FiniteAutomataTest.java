@@ -545,5 +545,31 @@ class FiniteAutomataTest {
 			
 		}		
 	}
+	
+	@Test
+	void testCloneFiniteAutomata() throws IncompleteAutomataException, InvalidBuilderException, InvalidStateException, InvalidSymbolException {
+		FABuilder builder = new FABuilder();
+		State[] q = new State[5];
+		for (int i = 0; i < 5; i++) {
+			q[i] = builder.newState();
+		}
+		
+		FiniteAutomata fa = builder.setInitial(q[0])
+				.setFinal(q[4])
+				.addTransition(q[0], 'a', q[1])
+				.addTransition(q[0], 'a', q[2])
+				.addTransition(q[0], 'b', q[1])
+				.addTransition(q[1], 'b', q[2])
+				.addTransition(q[2], 'c', q[3])
+				.addTransition(q[3], 'd', q[4])
+				.build();
+		
+		assertEquals(fa.clone().getDefinition(), fa.getDefinition());
+
+		for (int i = 0; i < 5; i++) {
+			assertTrue(fa.getStates().contains(q[i]));
+			assertFalse(fa.clone().getStates().contains(q[i]));
+		}
+	}
 
 }
