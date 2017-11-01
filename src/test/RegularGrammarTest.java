@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 
+import RegularLanguages.FiniteAutomata;
 import RegularLanguages.RegularGrammar;
 import RegularLanguages.RegularLanguage;
 import RegularLanguages.Operators.FAOperator;
@@ -14,7 +15,7 @@ public class RegularGrammarTest {
 	private static String[] validRG;
 	private static String[] invalidRG;
 	private static int lengthValid = 5;
-	private static int lengthInvalid = 12;
+	private static int lengthInvalid = 15;
 
 	/**
 	 * Possibilities of grammars that are valid
@@ -29,8 +30,8 @@ public class RegularGrammarTest {
 				+ "A -> aA | bB\n"
 				+ "B -> bB | cC\n"
 				+ "C -> cC | c";
-		// L(G) = { abcd e^n | n > 0 }
-		validRG[2] = "S -> aA\n"
+		// L(G) = { abcd e^n | n > 0 } U {&}
+		validRG[2] = "S -> aA | & \n"
 				+ "A -> bB | bE\n"
 				+ "B -> cC\n"
 				+ "E -> cC\n"
@@ -79,9 +80,13 @@ public class RegularGrammarTest {
 		invalidRG[10] = "S -> 0S | A | 1";
 		// S -> 0s | 0
 		invalidRG[11] = "S -> 0s | 0";
-		// S -> 0A    A -> ... | &   (& in non initial)
-		invalidRG[11] = "S -> 0A\n"
-				+ "A -> aA | bA | & | a | b";
+		// S -> 0&
+		invalidRG[12] = "S -> 0&";
+		// S -> &A
+		invalidRG[13] = "S -> &A";
+		// S -> 0A | &    A -> aS   (A => S => &)
+		invalidRG[14] = "S -> 0A | &\n"
+				+ "A -> aS";
 	}
 
 	/**
@@ -108,9 +113,13 @@ public class RegularGrammarTest {
 		// TODO assertion tests
 		
 		// L(G) = { abcd e^n | n > 0 }
-		System.out.println(rg[2].getFA().getDefinition());
-		System.out.println(FAOperator.determinize(rg[2].getFA()).getDefinition());
-		System.out.println(FAOperator.minimize(rg[2].getFA()).getDefinition());
+		FiniteAutomata fa = rg[2].getFA();
+		System.out.println(fa.getDefinition());
+		System.out.println(FAOperator.determinize(fa).getDefinition());
+		System.out.println(FAOperator.minimize(fa).getDefinition());
+		
+		System.err.println(fa.getRG().getDefinition());
+		
 		
 	}
 	

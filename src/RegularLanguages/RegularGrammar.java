@@ -34,9 +34,9 @@ public class RegularGrammar extends RegularLanguage {
 	/**
 	 * Verify if a given input is a valid RG
 	 * @param inp the input entered by the user
-	 * @return a Regular Language if valid, null if invalid
+	 * @return a Regular Grammar if valid, null if invalid
 	 */
-	public static RegularLanguage isValidRG(String inp) {
+	public static RegularGrammar isValidRG(String inp) {
 		RegularGrammar rg = new RegularGrammar(inp);
 		// Verify invalid symbols
 		if (!lexicalValidation(inp)) {
@@ -131,8 +131,7 @@ public class RegularGrammar extends RegularLanguage {
 	 * Out of scope
 	 */
 	public RegularExpression getRE() {
-//		return null;
-		return new RegularExpression("UNDEFINED RE");
+		return null;
 	}
 	
 
@@ -193,8 +192,12 @@ public class RegularGrammar extends RegularLanguage {
 			vnScan.useDelimiter("->");
 			
 			if(vnScan.hasNext()) {
-				pr = new HashSet<String>();
 				vn = vnScan.next();
+				pr = rg.productions.get(vn.charAt(0));
+				if (pr == null ) {
+					pr = new HashSet<String>();
+				}
+				
 				// if |vN| > 1 or is not upper case or not a letter
 				if (vn.length() > 1
 						|| Character.isLowerCase(vn.charAt(0)) ||

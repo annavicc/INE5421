@@ -133,8 +133,7 @@ public class FiniteAutomata extends RegularLanguage {
 	
 	/**
 	 * Convert FA to RG
-	 * TODO implement
-	 * @return empty grammar
+	 * @return equivalent grammar
 	 */
 	public RegularGrammar getRG() {
 		return FAOperator.FAtoRG(this);
