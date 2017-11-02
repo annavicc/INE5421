@@ -21,6 +21,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 
 import RegularLanguages.RegularLanguage;
+import RegularLanguages.RegularLanguage.InputType;
 
 public class ViewEditFrame extends JFrame{
 	
@@ -64,7 +65,11 @@ public class ViewEditFrame extends JFrame{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		this.setTitle("View and Edit Regular Languages");
+		if (this.language == null ) {
+			this.setTitle("View and Edit Regular Languages");
+		} else {
+			this.setTitle("View and Edit - " + this.language.toString());
+		}
 //		this.setResizable(false);
 		this.setBounds(100, 100, 500, 500);
 		this.setMinimumSize(new Dimension(475, 400));
@@ -97,19 +102,36 @@ public class ViewEditFrame extends JFrame{
 		btnViewEditSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String input = getPaneText(); // Gets text from pane
+				String type;
 				RegularLanguage l; // Gets RL object
 				if (input == null) {
 					l = ViewEditFrame.this.language.getFA();
+					type = strFA;
 				}
 				else {
 					l = RegularLanguage.validate(input);
-				}
-				if(l == null) { // If type is not valid
-					JOptionPane.showMessageDialog(ViewEditFrame.this, "Invalid input!");
-					return;
+					if(l == null) { // If type is not valid
+						JOptionPane.showMessageDialog(ViewEditFrame.this, "Invalid input!");
+						return;
+					}
+					if (l.getType() == InputType.RG) {
+						type = strRG;
+					} else {
+						type = strRE;
+					}
 				}
 				l.setId(language.toString());
-//				// add Regular Language to Main Panel
+				
+				int answer = JOptionPane.showConfirmDialog(
+						ViewEditFrame.this,
+						"Replace '" + language.toString()+ "' by this new " + type + "?",
+						"Overwrite?",
+						JOptionPane.YES_NO_OPTION
+				);
+				if (answer != JOptionPane.YES_OPTION) {
+					return;
+				}
+				// add Regular Language to Main Panel
 				ViewEditFrame.this.mainFrame.addToPanel(l);
 				ViewEditFrame.this.exit();
 				

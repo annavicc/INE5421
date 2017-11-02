@@ -2,6 +2,7 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -31,8 +32,16 @@ public class MainFrame extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		Toolkit xToolkit = Toolkit.getDefaultToolkit();
+		java.lang.reflect.Field awtAppClassNameField;
 		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());  // Set native window theme
+			// Set application name
+			awtAppClassNameField = xToolkit.getClass().getDeclaredField("awtAppClassName");
+			awtAppClassNameField.setAccessible(true);
+			awtAppClassNameField.set(xToolkit, "Regular Languages Manager");
+			
+			// Set native window theme
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -61,7 +70,7 @@ public class MainFrame extends JFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		this.setTitle("RL Manager");
+		this.setTitle("Regular Languages Manager");
 //		this.setResizable(false);
 		this.setBounds(100, 100, 500, 400);
 		this.setMinimumSize(new Dimension(400, 300));
@@ -93,6 +102,13 @@ public class MainFrame extends JFrame {
 		btnMainRemoveRL.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 		    	MainFrame.this.removeSelected();
+		    }
+		});
+		
+		JButton btnMainRenameRL = new JButton("Rename");
+		btnMainRenameRL.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	MainFrame.this.renameSelected();
 		    }
 		});
 		
@@ -149,6 +165,7 @@ public class MainFrame extends JFrame {
 					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING, false)
 						.addComponent(btnMainAddRL, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnMainViewEdit, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnMainRenameRL, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnMainRemoveRL, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnMainClear, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
@@ -172,6 +189,8 @@ public class MainFrame extends JFrame {
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnMainViewEdit, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 							.addGap(7)
+							.addComponent(btnMainRenameRL, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+							.addGap(7)
 							.addComponent(btnMainRemoveRL, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 							.addGap(7)
 							.addComponent(btnMainClear, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
@@ -190,22 +209,12 @@ public class MainFrame extends JFrame {
 	public void addToPanel(RegularLanguage rl) {
 		this.languages.put(rl.getId(), rl);
 		this.updateJList();
+		this.jListMainRL.setSelectedValue(rl.getId(), true);
 	}
 	
 	// Get Regular Language by name
 	public RegularLanguage getLanguage(String name) {
 		return this.languages.get(name);
-	}
-
-	// Get selected Regular Language
-	private RegularLanguage getSelected() {
-		if (jListMainRL.isSelectionEmpty()) {
-			JOptionPane.showMessageDialog(this, "No language selected!");
-			return null;
-		} else {
-			return getLanguage(jListMainRL.getSelectedValue());
-			
-		}
 	}
 	
 	// Get Regular Languages names array
@@ -245,6 +254,39 @@ public class MainFrame extends JFrame {
 			if (this.confirm("Remove \"" + id + '"') == JOptionPane.YES_OPTION) {
 				MainFrame.this.languages.remove(id);
 		    	updateJList();
+			}
+		}
+	}
+	
+	// Rename language selected on JList
+	private void renameSelected() {
+		if (isLanguageSelected()) {
+			String id = jListMainRL.getSelectedValue();
+			Object input = JOptionPane.showInputDialog
+					(this, "Enter new name:", "Rename RL", JOptionPane.PLAIN_MESSAGE, null, null, id);
+			
+			if (input != null) {
+				String newName = input.toString();
+				if (newName.equals("") || newName.contains("[") || newName.contains("]")) {
+					JOptionPane.showMessageDialog(this, "Invalid name!\n"
+							+ "Name must not be empty.\nThe characters '[' and ']' are not allowed.");
+					return;
+				}
+				if (this.getLanguage(newName) != null) {
+					int answer = JOptionPane.showConfirmDialog(
+							this,
+							'"' + newName + "\" already exists!\nOverwrite?",
+							"Overwrite?",
+							JOptionPane.YES_NO_OPTION
+					);
+					if (answer != JOptionPane.YES_OPTION) {
+						return;
+					}
+				}
+				RegularLanguage l = this.getLanguage(id);
+				this.languages.remove(id);
+				l.setId(newName);
+				this.addToPanel(l);
 			}
 		}
 	}
