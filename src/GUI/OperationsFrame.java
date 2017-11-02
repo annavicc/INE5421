@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 import RegularLanguages.RegularLanguage;
+import RegularLanguages.Operators.FAOperator;
 
 public class OperationsFrame extends JFrame {
 
@@ -66,9 +67,20 @@ public class OperationsFrame extends JFrame {
 		
 		JComboBox<String> cbOpOperations = new JComboBox<String>();
 		cbOpOperations.addItem("Union");
+		cbOpOperations.addItem("Complement");
 		cbOpOperations.addItem("Intersection");
-		cbOpOperations.addItem("Difference");
-		cbOpOperations.addItem("Concatenation");
+		cbOpOperations.addItem("Minimize FA");
+		cbOpOperations.addItem("Determinize FA");
+		cbOpOperations.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	String selected = String.valueOf(cbOpOperations.getSelectedItem());
+		    	if (selected.equals("Union") || selected.equals("Intersection")) {
+		    		cbOpRL2.setEnabled(true);
+		    	} else {
+		    		cbOpRL2.setEnabled(false);
+		    	}
+		    }
+		});
 		
 		// JLabels:
 		
@@ -86,8 +98,18 @@ public class OperationsFrame extends JFrame {
 		});
 		
 		JButton btnOpSave = new JButton("Save");
+		btnOpSave.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RegularLanguage rl1 = (RegularLanguage) cbOpRL1.getSelectedItem();
+				RegularLanguage rl2 = (RegularLanguage) cbOpRL2.getSelectedItem();
+				String operation = String.valueOf(cbOpOperations.getSelectedItem());
+				if (saveOperation(operation, rl1, rl2)) {
+					OperationsFrame.this.exit();
+				}
+			}
+		});
 		
-		JButton btnOpView = new JButton("View");
+//		JButton btnOpView = new JButton("View");
 		
 		// Close Window action:
 		
@@ -118,15 +140,15 @@ public class OperationsFrame extends JFrame {
 									.addGap(41)))
 							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(lbOpSelectOp)
-								.addComponent(cbOpOperations, GroupLayout.PREFERRED_SIZE, 120, GroupLayout.PREFERRED_SIZE))
+								.addComponent(cbOpOperations, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE))
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.LEADING)
 								.addComponent(lbOpSelectRL2)
 								.addComponent(cbOpRL2, 0, 283, Short.MAX_VALUE)))
 						.addGroup(gl_operationsFramePanel.createSequentialGroup()
 							.addComponent(btnOpCancel, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnOpView, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
+//							.addPreferredGap(ComponentPlacement.RELATED)
+//							.addComponent(btnOpView, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addComponent(btnOpSave, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)))
 					.addContainerGap())
@@ -147,7 +169,7 @@ public class OperationsFrame extends JFrame {
 						.addComponent(cbOpRL2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED, 66, Short.MAX_VALUE)
 					.addGroup(gl_operationsFramePanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnOpView, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+//						.addComponent(btnOpView, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnOpCancel, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
 						.addComponent(btnOpSave, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))
 					.addContainerGap())
@@ -156,8 +178,42 @@ public class OperationsFrame extends JFrame {
 		this.populateComboBoxes();
 	}
 	
+	// Save new language based on selections
+	private boolean saveOperation(String operation, RegularLanguage rl1, RegularLanguage rl2) {
+		if (rl1 == null) {
+			return false;
+		}
+		if (operation.equals("Union")) {
+			if (rl2 == null) {
+				return false;
+			}
+			RegularLanguage newL = FAOperator.union(rl1.getFA(), rl2.getFA());
+			newL.setId("[ [" + rl1.getId() + "] \u222A [" + rl2.getId() + "] ]");
+			mainFrame.addToPanel(newL);
+			return true;
+		} else if (operation.equals("Complement")) {
+			RegularLanguage newL = FAOperator.complement(rl1.getFA());
+			newL.setId("[ [" + rl1.getId() + "]\u2201 ]");
+			mainFrame.addToPanel(newL);
+			return true;
+		} else if (operation.equals("Minimize FA")) {
+			RegularLanguage newL = FAOperator.minimize(rl1.getFA());
+			newL.setId("[ [" + rl1.getId() + "]min ]");
+			mainFrame.addToPanel(newL);
+		} else if (operation.equals("Determinize FA")) {
+			RegularLanguage newL = FAOperator.determinize(rl1.getFA());
+			newL.setId("[ [" + rl1.getId() + "]det ]");
+			mainFrame.addToPanel(newL);
+		} else {
+			return false;
+		}
+		
+		return true;
+		
+	}
+
 	// Populate combo boxes with regular languages from the list
-	public void populateComboBoxes() {
+	private void populateComboBoxes() {
 		HashMap<String, RegularLanguage> languages = mainFrame.getLanguages();
 		for (String id : languages.keySet()) {
 			cbOpRL1.addItem(languages.get(id));

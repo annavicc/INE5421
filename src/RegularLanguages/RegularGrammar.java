@@ -282,9 +282,10 @@ public class RegularGrammar extends RegularLanguage {
 						rg.vt.add(first);
 						if (vn != rg.s) {
 							return false;
-						} else if (prodList.stream().anyMatch(
-								pr -> pr.length() > 1 && pr.charAt(1) == vn
-						)) {  // if S -> aS | &
+						} else if (rg.productions.values().stream().anyMatch(
+								list -> list.stream().anyMatch(
+										pr -> pr.length() > 1 && pr.charAt(1) == vn
+						))) {  // if S -> & and X -> aS
 							return false;
 						}
 					}

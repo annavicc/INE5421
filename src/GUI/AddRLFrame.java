@@ -51,6 +51,7 @@ public class AddRLFrame extends JFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		this.setTitle("Add Regular Language");
 //		this.setResizable(false);
 		this.setBounds(100, 100, 500, 500);
 		this.setMinimumSize(new Dimension(450, 300));
@@ -91,9 +92,9 @@ public class AddRLFrame extends JFrame {
 		btnAddRLAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				String name = txtAddRLName.getText(); // Gets name from txtField
-				if (name.equals("") || name.contains("(") || name.contains(")")) {
+				if (name.equals("") || name.contains("[") || name.contains("]")) {
 					JOptionPane.showMessageDialog(AddRLFrame.this, "Invalid name!\n"
-							+ "Name must not be empty.\nThe characters '(' and ')' are not allowed.");
+							+ "Name must not be empty.\nThe characters '[' and ']' are not allowed.");
 					return;
 				}
 				else if (AddRLFrame.this.mainFrame.getLanguage(name) != null) {

@@ -393,6 +393,9 @@ public final class FAOperator {
 			// Create new initial state
 			State initial = builder.newState();
 			builder.setInitial(initial);
+			if (fa1.getFinals().contains(fa1.getInitial()) || fa2.getFinals().contains(fa2.getInitial())) {
+				builder.setFinal(initial);
+			}
 
 			// Import states from FA 1
 			for (State st : fa1.getStates()) {
@@ -447,7 +450,7 @@ public final class FAOperator {
 	 */
 	public static FiniteAutomata complement(FiniteAutomata fa) {
 		if (!isDeterministic(fa)) {
-			complement(determinize(fa));
+			return complement(determinize(fa));
 		}
 		
 		FABuilder builder = new FABuilder();
