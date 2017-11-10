@@ -240,6 +240,7 @@ public class RegularGrammar extends RegularLanguage {
 		Scanner prodScan = new Scanner(prod);
 		prodScan.useDelimiter("[|]");
 		if (prod.length() < 1) {
+			prodScan.close();
 			return false;
 		}
 		
@@ -247,10 +248,12 @@ public class RegularGrammar extends RegularLanguage {
 			prod = prodScan.next();
 			prodLength = prod.length();
 			if (prodLength < 1 || prodLength > 2) { // |prod| = 0 || |prod| = 2
+				prodScan.close();
 				return false;
 			} else { // |prod| = 1 or 2
 				first = prod.charAt(0);
 				if (Character.isUpperCase(first)){
+					prodScan.close();
 					return false;
 				}
 				if (Character.isDigit(first)
@@ -261,14 +264,18 @@ public class RegularGrammar extends RegularLanguage {
 				if (prodLength == 2) { // |prod| = 2
 					second = prod.charAt(1);
 					if (Character.isUpperCase(first)) { // if first symbol is vN
+						prodScan.close();
 						return false;
 					} else if (Character.isLowerCase(second)
 							|| Character.isDigit(second)) { // if both are lower case or digit
+						prodScan.close();
 						return false;
 					} else if (first == '&' || second == '&') {
+						prodScan.close();
 						return false;
 					}
 					if (second == rg.s && rg.vt.contains('&')) {
+						prodScan.close();
 						return false;
 					}
 					rg.vn.add(second);
@@ -276,16 +283,19 @@ public class RegularGrammar extends RegularLanguage {
 					rg.productions.put(vn, prodList);
 				} else { // |prod| = 1
 					if (Character.isUpperCase(first)) { // if S -> A
+						prodScan.close();
 						return false;
 					}
 					if (first == '&') {
 						rg.vt.add(first);
 						if (vn != rg.s) {
+							prodScan.close();
 							return false;
 						} else if (rg.productions.values().stream().anyMatch(
 								list -> list.stream().anyMatch(
 										pr -> pr.length() > 1 && pr.charAt(1) == vn
 						))) {  // if S -> & and X -> aS
+							prodScan.close();
 							return false;
 						}
 					}

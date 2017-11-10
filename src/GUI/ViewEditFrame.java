@@ -10,13 +10,11 @@ import java.awt.event.WindowEvent;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SwingConstants;
 
@@ -24,6 +22,9 @@ import RegularLanguages.RegularLanguage;
 import RegularLanguages.RegularLanguage.InputType;
 
 public class ViewEditFrame extends JFrame{
+	
+	// Auto-generated UID
+	private static final long serialVersionUID = -3107653144045018225L;
 	
 	private MainFrame mainFrame;
 	private JScrollPane scpViewEditRE, scpViewEditRG, scpViewEditFA;

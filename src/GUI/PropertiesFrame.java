@@ -12,19 +12,21 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.LayoutStyle.ComponentPlacement;
-
-import RegularLanguages.RegularLanguage;
-
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import RegularLanguages.RegularLanguage;
+import RegularLanguages.Operators.FAOperator;
+
 public class PropertiesFrame extends JFrame {
 
+	// Auto-generated UID
+	private static final long serialVersionUID = 82271491239769704L;
+	
 	private MainFrame mainFrame;
-	private JFrame frmRegularLanguagesProperties;
-	private JComboBox<RegularLanguage> cbPrLR1;
-	private JComboBox<RegularLanguage> cbPrLR2;
+	private JComboBox<RegularLanguage> cbPrRL1;
+	private JComboBox<RegularLanguage> cbPrRL2;
 
 	/**
 	 * Exit back to main frame
@@ -57,19 +59,33 @@ public class PropertiesFrame extends JFrame {
 		this.setBounds(100, 200, 750, 190);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		frmRegularLanguagesProperties = new JFrame();
-		
 		JPanel propertiesFramePanel = new JPanel();
 		this.getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		cbPrLR1 = new JComboBox<RegularLanguage>();
-		cbPrLR2 = new JComboBox<RegularLanguage>();
+		cbPrRL1 = new JComboBox<RegularLanguage>();
+		cbPrRL2 = new JComboBox<RegularLanguage>();
 
 		// JLabels:
-		JLabel lbPrSelectRL1 = new JLabel("Select LR 1");
+		JLabel lbPrSelectRL1 = new JLabel("Select RL 1");
 		JLabel lbPrSelectProperty = new JLabel("Select Property");
 		JLabel lbPrSelectRL2 = new JLabel("Select RL 2");
 
+		// JComboBox
+		JComboBox<String> cbPrProperties = new JComboBox<String>();
+		cbPrProperties.addItem("Containment");
+		cbPrProperties.addItem("Equivalence");
+		cbPrProperties.addItem("Emptiness");
+		cbPrProperties.addItem("Finiteness");
+		cbPrProperties.addActionListener (new ActionListener () {
+		    public void actionPerformed(ActionEvent e) {
+		    	String selected = String.valueOf(cbPrProperties.getSelectedItem());
+		    	if (selected.equals("Containment") || selected.equals("Equivalence")) {
+		    		cbPrRL2.setEnabled(true);
+		    	} else {
+		    		cbPrRL2.setEnabled(false);
+		    	}
+		    }
+		});
 		
 		// JButtons:
 		JButton btnPrCancel = new JButton("Cancel");
@@ -80,12 +96,52 @@ public class PropertiesFrame extends JFrame {
 		});
 		
 		JButton btnPrVerify = new JButton("Verify");
+		btnPrVerify.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				RegularLanguage rl1 = (RegularLanguage) cbPrRL1.getSelectedItem();
+				RegularLanguage rl2 = (RegularLanguage) cbPrRL2.getSelectedItem();
+				String property = String.valueOf(cbPrProperties.getSelectedItem());
+				if (rl1 == null) { 
+					return;
+				}
+				String response = rl1.getId();
+				if (property.equals("Containment")) {
+					if (rl2 == null) { 
+						return;
+					}
+					if (FAOperator.isSubset(rl1.getFA(), rl2.getFA())) {
+						response += "\n\u2286 (is contained in)\n"; 
+					} else {
+						response += "\n\u2288 (is not contained in)\n";
+					}
+					response += rl2.getId();
+				}
+				if (property.equals("Equivalence")) {
+					if (rl2 == null) { 
+						return;
+					}
+					if (FAOperator.isEquivalent(rl1.getFA(), rl2.getFA())) {
+						response += "\n= (is equivalent to)\n"; 
+					} else {
+						response += "\n\u2260 (is not equivalent to)\n";
+					}
+					response += rl2.getId();
+				}
+				if (property.equals("Emptiness")) {
+					if (FAOperator.isEmptyLanguage(rl1.getFA())) {
+						response += "\n= \u03d5 (is empty)\n"; 
+					} else {
+						response += "\n\u2260 \u03d5 (is not empty)\n";
+					}
+				}
+				if (property.equals("Finiteness")) {
+					//TODO
+				}
+				JOptionPane.showMessageDialog(PropertiesFrame.this, response);
+			}
+		});		
 		
 		// Close Window action:
-		JComboBox<String> cbPrProperties = new JComboBox<String>();
-		cbPrProperties.addItem("Emptiness");
-		cbPrProperties.addItem("Finitness");
-		
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 			@Override
@@ -104,7 +160,7 @@ public class PropertiesFrame extends JFrame {
 					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_propertiesFramePanel.createSequentialGroup()
 							.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
-								.addComponent(cbPrLR1, 0, 200, Short.MAX_VALUE)
+								.addComponent(cbPrRL1, 0, 200, Short.MAX_VALUE)
 								.addComponent(lbPrSelectRL1))
 							.addGap(14)
 							.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
@@ -112,7 +168,7 @@ public class PropertiesFrame extends JFrame {
 								.addComponent(cbPrProperties, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE))
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.LEADING)
-								.addComponent(cbPrLR2, 0, 200, Short.MAX_VALUE)
+								.addComponent(cbPrRL2, 0, 200, Short.MAX_VALUE)
 								.addComponent(lbPrSelectRL2, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)))
 						.addGroup(gl_propertiesFramePanel.createSequentialGroup()
 							.addComponent(btnPrCancel, GroupLayout.PREFERRED_SIZE, 90, GroupLayout.PREFERRED_SIZE)
@@ -131,8 +187,8 @@ public class PropertiesFrame extends JFrame {
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(cbPrProperties, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(cbPrLR2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(cbPrLR1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(cbPrRL2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(cbPrRL1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
 					.addGroup(gl_propertiesFramePanel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnPrVerify, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
@@ -149,8 +205,8 @@ public class PropertiesFrame extends JFrame {
 	public void populateComboBoxes() {
 		HashMap<String, RegularLanguage> languages = mainFrame.getLanguages();
 		for (String id : languages.keySet()) {
-			cbPrLR1.addItem(languages.get(id));
-			cbPrLR2.addItem(languages.get(id));
+			cbPrRL1.addItem(languages.get(id));
+			cbPrRL2.addItem(languages.get(id));
 		}
 	}
 

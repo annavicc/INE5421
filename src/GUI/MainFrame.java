@@ -25,6 +25,9 @@ import RegularLanguages.RegularLanguage;
 
 public class MainFrame extends JFrame {
 
+	// Auto-generated UID
+	private static final long serialVersionUID = 3421512408406584422L;
+	
 	private JList<String> jListMainRL;
 	private HashMap<String, RegularLanguage> languages = new HashMap<String, RegularLanguage>();
 

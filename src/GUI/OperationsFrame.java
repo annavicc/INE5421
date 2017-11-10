@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -15,12 +16,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
+import RegularLanguages.FiniteAutomata;
 import RegularLanguages.RegularLanguage;
 import RegularLanguages.Operators.FAOperator;
 
 public class OperationsFrame extends JFrame {
 
-	private JFrame frmRegularLanguagesOperations;
+	// Auto-generated UID
+	private static final long serialVersionUID = -1372510623291211881L;
+	
 	private JComboBox<RegularLanguage> cbOpRL1;
 	private JComboBox<RegularLanguage> cbOpRL2;
 	private MainFrame mainFrame = null;
@@ -192,10 +196,19 @@ public class OperationsFrame extends JFrame {
 			mainFrame.addToPanel(newL);
 			return true;
 		} else if (operation.equals("Complement")) {
-			RegularLanguage newL = FAOperator.complement(rl1.getFA());
+			RegularLanguage newL = FAOperator.complement(rl1.getFA(), null);
 			newL.setId("[ [" + rl1.getId() + "]\u2201 ]");
 			mainFrame.addToPanel(newL);
 			return true;
+		} else if (operation.equals("Intersection")) {	
+			Map<String, FiniteAutomata> automatas = FAOperator.intersectionSteps(rl1.getFA(), rl2.getFA());
+			automatas.get("C1").setId("[ [" + rl1.getId() + "]\u2201 ]");
+			automatas.get("C2").setId("[ [" + rl2.getId() + "]\u2201 ]");
+			automatas.get("U").setId("[ [" + automatas.get("C1").getId() + "] \u222A [" + automatas.get("C2").getId() + "] ]");
+			automatas.get("I").setId("[ [" + rl1.getId() + "] \u2229 [" + rl2.getId() + "] ]");
+			for (FiniteAutomata fa : automatas.values()) {
+				mainFrame.addToPanel(fa);
+			}
 		} else if (operation.equals("Minimize FA")) {
 			RegularLanguage newL = FAOperator.minimize(rl1.getFA());
 			newL.setId("[ [" + rl1.getId() + "]min ]");
