@@ -135,7 +135,11 @@ public class PropertiesFrame extends JFrame {
 					}
 				}
 				if (property.equals("Finiteness")) {
-					//TODO
+					if (FAOperator.isInfiniteLanguage(rl1.getFA())) {
+						response += "\nis infinite \u221e\n"; 
+					} else {
+						response += "\nis finite\n";
+					}
 				}
 				JOptionPane.showMessageDialog(PropertiesFrame.this, response);
 			}
