@@ -23,6 +23,9 @@ import RegularLanguages.RegularLanguage;
 
 public class AddRLFrame extends JFrame {
 
+	// Auto-generated UID
+	private static final long serialVersionUID = 7589217999180208071L;
+	
 	private MainFrame mainFrame;
 
 	/**

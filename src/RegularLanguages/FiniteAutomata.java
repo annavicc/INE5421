@@ -5,7 +5,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
@@ -225,6 +224,7 @@ public class FiniteAutomata extends RegularLanguage {
 		 * @param owner UUID of the owner FA
 		 * @param index new index in new FA
 		 */
+		@SuppressWarnings("unchecked")
 		private State(State st, UUID newOwner, int index) {
 			this.uuid = st.uuid;
 			this.index = index;
@@ -381,7 +381,6 @@ public class FiniteAutomata extends RegularLanguage {
 		public FABuilder importState(State st) {
 			State imported = new State(st, this.uuid, states.size());
 			if (this.states.get(imported) == null) {
-				State s1 = new State(st, this.uuid, states.size());
 				states.put(imported, imported);
 			}
 			return this;
@@ -425,7 +424,7 @@ public class FiniteAutomata extends RegularLanguage {
 		public FABuilder addTransition(State in, char c, State out) throws InvalidStateException, InvalidSymbolException {
 			in = this.validateState(in);
 			out = this.validateState(out);
-			if (!Character.toString(c).matches("[0-9a-z&]")) {
+			if (!Character.toString(c).matches("[0-9a-z]")) {
 				throw new InvalidSymbolException("FABuilder.addTransition");
 			}
 			
@@ -479,24 +478,36 @@ public class FiniteAutomata extends RegularLanguage {
 		}
 		
 		public static class InvalidStateException extends Exception {
+			// Auto-generated UID
+			private static final long serialVersionUID = -4920068363089374569L;
+
 			public InvalidStateException(String method) {
 		        super(method + ": Received State does not belong to this FABuilder!");
 		    }
 		}
 		
 		public static class InvalidSymbolException extends Exception {
+			// Auto-generated UID
+			private static final long serialVersionUID = -5324376816337298591L;
+
 			public InvalidSymbolException(String method) {
 		        super(method + ": Received Symbol does not belong to this FABuilder!");
 		    }
 		}
 		
 		public static class IncompleteAutomataException extends Exception {
+			// Auto-generated UID
+			private static final long serialVersionUID = 4937858459366339539L;
+
 			public IncompleteAutomataException() {
 		        super("FABuilder.build: Initial State not set!");
 		    }
 		}
 		
 		public static class InvalidBuilderException extends Exception {
+			// Auto-generated UID
+			private static final long serialVersionUID = 7587522407031610014L;
+
 			public InvalidBuilderException() {
 		        super("FABuilder.build: Builder already used!");
 		    }

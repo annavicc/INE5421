@@ -446,11 +446,12 @@ public final class FAOperator {
 	/**
 	 * Get FA equivalent to the complement of another
 	 * @param fa FA
+	 * @param alphabet New alphabet symbols
 	 * @return New FA = complement(FA) 
 	 */
-	public static FiniteAutomata complement(FiniteAutomata fa) {
+	public static FiniteAutomata complement(FiniteAutomata fa, Set<Character> alphabet) {
 		if (!isDeterministic(fa)) {
-			return complement(determinize(fa));
+			return complement(determinize(fa), alphabet);
 		}
 		
 		FABuilder builder = new FABuilder();
@@ -470,7 +471,11 @@ public final class FAOperator {
 			builder.setFinal(dead);
 			builder.setInitial(fa.getInitial());
 			
-			for (char c : fa.getAlphabet()) {
+			Set<Character> newAlphabet = new HashSet<Character>(fa.getAlphabet());
+			if (alphabet != null) {
+				newAlphabet.addAll(alphabet);
+			}
+			for (char c : newAlphabet) {
 				builder.addTransition(dead, c, dead);
 				
 				for (State in : fa.getStates()) {
@@ -498,17 +503,66 @@ public final class FAOperator {
 	}
 	
 	/**
-	 * Chech if the language accepted by an FA is empty
+	 * Get FA equivalent to the intersection of another two
+	 * @param fa1 FA1
+	 * @param fa2 FA2
+	 * @return New FA = FA1 intersection FA2 
+	 */
+	public static FiniteAutomata intersection(FiniteAutomata fa1, FiniteAutomata fa2) {
+		return intersectionSteps(fa1, fa2).get("I");
+	}
+	
+	/**
+	 * Get one FA for each step of the intersection of another two
+	 * @param fa1 FA1
+	 * @param fa2 FA2
+	 * @return Map of FAs = 
+	 * {"C1" : complement(FA1), "C2": complement(FA2), "U": union("C1", "C2"), "I": intersection("U")} 
+	 */
+	public static Map<String, FiniteAutomata> intersectionSteps(FiniteAutomata fa1, FiniteAutomata fa2) {
+		
+		FiniteAutomata fa1Compl = complement(fa1, fa2.getAlphabet());
+		FiniteAutomata fa2Compl = complement(fa2, fa1.getAlphabet());
+		FiniteAutomata union = union(fa1Compl, fa2Compl);
+		FiniteAutomata intersec = complement(union, null);
+		
+		Map<String, FiniteAutomata> ret = new HashMap<String, FiniteAutomata>();
+		ret.put("C1", fa1Compl);
+		ret.put("C2", fa2Compl);
+		ret.put("U", union);
+		ret.put("I", intersec);
+		
+		return ret;
+	}
+
+	/**
+	 * Check if the language accepted by FA1 is a subset of the language accepted by FA2 
+	 * @param fa1 FA1
+	 * @param fa2 FA2
+	 * @return whether L(FA1) is a subset of L(FA2) 
+	 */
+	public static boolean isSubset(FiniteAutomata fa1, FiniteAutomata fa2) {
+		return isEmptyLanguage(intersection(fa1, complement(fa2, fa1.getAlphabet())));
+	}
+	
+	/**
+	 * Check if the language accepted by FA1 is a subset of the language accepted by FA2 
+	 * @param fa1 FA1
+	 * @param fa2 FA2
+	 * @return whether L(FA1) is a subset of L(FA2) 
+	 */
+	public static boolean isEquivalent(FiniteAutomata fa1, FiniteAutomata fa2) {
+		return isSubset(fa1, fa2) && isSubset(fa2, fa1);
+	}
+
+	
+	/**
+	 * Check if the language accepted by an FA is empty
 	 * @param fa FA to be verified
-	 * @return boolean wether it is empty
+	 * @return boolean whether it is empty
 	 */
 	public static boolean isEmptyLanguage(FiniteAutomata fa) {
-		try {
-			return removeStates(fa, getUnreachableStates(fa)).getFinals().isEmpty();
-		} catch (InvalidStateException e) {
-			e.printStackTrace();
-			return true;
-		}
+		return getDeadStates(fa).contains(fa.getInitial());
 	}
 	
 	/**
@@ -571,8 +625,8 @@ public final class FAOperator {
 	
 	/**
 	 * Convert FA to RG
-	 * TODO implement
-	 * @return empty grammar
+	 * @param fa FA
+	 * @return regular grammar equivalent to FA 
 	 */
 	public static RegularGrammar FAtoRG(FiniteAutomata fa) {
 		if (!isDeterministic(fa)) {
@@ -650,7 +704,6 @@ public final class FAOperator {
 			
 			// Add new non terminal symbol
 			char newSymbol = '@';
-			Stream<Character> newVn = Stream.concat(Stream.of(newSymbol), rg.getVn().stream());
 			statesMap.put(newSymbol, builder.newState());
 			
 			// Set initial symbol as initial state

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import com.bethecoder.ascii_table.ASCIITable;
 
-import RegularLanguages.Operators.FAOperator;
 import RegularLanguages.FiniteAutomata;
 import RegularLanguages.FiniteAutomata.FABuilder;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
@@ -22,6 +21,7 @@ import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
 import RegularLanguages.FiniteAutomata.State;
+import RegularLanguages.Operators.FAOperator;
 
 class FiniteAutomataTest {
 	FiniteAutomata.FABuilder[] builders;
@@ -170,7 +170,7 @@ class FiniteAutomataTest {
 		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
 		FiniteAutomata.State q0 = builder.newState();
 		for (char c = 0; c < (char) -1; c++) {
-			if ((c < 'a' || c > 'z') && c != '&' && !(c >= '0' && c <= '9')) {
+			if ((c < 'a' || c > 'z') && !(c >= '0' && c <= '9')) {
 				final char ch = c;
 				assertThrows(InvalidSymbolException.class,
 						() -> builder.addTransition(q0, ch, q0));
@@ -184,7 +184,7 @@ class FiniteAutomataTest {
 		for (char c = 'a'; c <= 'z'; c++) {
 			assertTrue(alphabet.contains(c));
 		}
-		assertTrue(alphabet.contains('&'));  // TODO should it contain '&'?
+		assertFalse(alphabet.contains('&'));
 		assertFalse(alphabet.contains('A'));
 		
 	}
@@ -236,14 +236,14 @@ class FiniteAutomataTest {
 	@Test
 	void testAutomataRepresentation() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
 		String smallDelta = "\u03B4";
-		String[] topRow = {smallDelta, "&", "a", "b", "c"};
+		String[] topRow = {smallDelta, "a", "b", "c"};
 		String[][] data = {
-				{"->q0",  "q0",  "q1, q2",          "",    "q5"},
-				{"q1",    "",    "",                "q4",  "q4"},
-				{"*q2",   "",    "",                "q4",  "q4"},
-				{"q3",    "",    "q1, q2, q3, q4",  "",    ""  },
-				{"q4",    "",    "q3",              "q3",  ""  },
-				{"*q5",   "",    "",                "",    ""  }
+				{"->q0",  "q1, q2",          "",    "q5"},
+				{"q1",    "",                "q4",  "q4"},
+				{"*q2",   "",                "q4",  "q4"},
+				{"q3",    "q1, q2, q3, q4",  "",    ""  },
+				{"q4",    "q3",              "q3",  ""  },
+				{"*q5",   "",                "",    ""  }
 		};
 		
 		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
@@ -254,7 +254,6 @@ class FiniteAutomataTest {
 		builder.setInitial(q[0])
 			.setFinal(q[2])
 			.setFinal(q[5])
-			.addTransition(q[0], '&', q[0])
 			.addTransition(q[0], 'a', q[1])
 			.addTransition(q[0], 'a', q[2])
 			.addTransition(q[0], 'c', q[5])
@@ -304,7 +303,7 @@ class FiniteAutomataTest {
 		System.out.println(ndfa.getDefinition());
 		System.out.println(dfa.getDefinition());
 		
-		// TODO Assert same language 
+		assertTrue(FAOperator.isEquivalent(ndfa, dfa)); 
 		
 		
 		// Example from https://www.tutorialspoint.com/automata_theory/ndfa_to_dfa_conversion.htm
@@ -337,7 +336,7 @@ class FiniteAutomataTest {
 		System.out.println(ndfa.getDefinition());
 		System.out.println(dfa.getDefinition());
 		
-		// TODO Assert same language
+		assertTrue(FAOperator.isEquivalent(ndfa, dfa));
 	}
 	
 	@Test
@@ -378,8 +377,10 @@ class FiniteAutomataTest {
 		System.out.println(fa.getDefinition());
 		System.out.println(faNoDeadStates.getDefinition());
 		System.out.println(faNoUnreachableStates.getDefinition());
-		
-		// TODO assert same language
+				
+		assertTrue(FAOperator.isEquivalent(fa, faNoDeadStates));
+		assertTrue(FAOperator.isEquivalent(fa, faNoUnreachableStates));
+		assertTrue(FAOperator.isEquivalent(faNoDeadStates, faNoUnreachableStates));
 
 	}
 	
@@ -444,7 +445,7 @@ class FiniteAutomataTest {
 					"+------+----+----+\n",
 					faMin.getDefinition());
 			
-			// TODO assert same language
+			assertTrue(FAOperator.isEquivalent(faMin, fa));
 			
 		}
 
@@ -479,7 +480,7 @@ class FiniteAutomataTest {
 			assertEquals(fa.getDefinition(), FAOperator.minimize(fa2).getDefinition());
 			assertNotEquals(fa2.getDefinition(), FAOperator.minimize(fa2).getDefinition());
 			
-			// TODO assert same language
+			assertTrue(FAOperator.isEquivalent(fa, fa2));
 		}
 
 		// Cap. III - pg. 8 - ex. 1
@@ -540,7 +541,7 @@ class FiniteAutomataTest {
 					"+-------+----+----+----+\n",
 					faMin.getDefinition());
 			
-			// TODO assert same language
+			assertTrue(FAOperator.isEquivalent(fa, faMin));
 			
 		}		
 	}
@@ -609,7 +610,11 @@ class FiniteAutomataTest {
 		
 		FiniteAutomata fa4 = FAOperator.minimize(FAOperator.union(fa1, fa1));
 		
-		// TODO assert same language (fa1 && fa4)
+		assertFalse(FAOperator.isEquivalent(fa1, fa2));
+		assertFalse(FAOperator.isEquivalent(fa1, fa3));
+		assertFalse(FAOperator.isEquivalent(fa2, fa3));
+		assertTrue(FAOperator.isEquivalent(fa1, fa4));
+		
 		System.out.println(fa4.getDefinition());
 	}
 	
@@ -633,12 +638,11 @@ class FiniteAutomataTest {
 				.build();
 		
 		
-		FiniteAutomata fa2 = FAOperator.complement(fa);
+		FiniteAutomata fa2 = FAOperator.complement(fa, null);
 		System.out.println(fa.getDefinition());
 		System.out.println(fa2.getDefinition());
 
-		
-		// TODO create assertions
+		assertTrue(FAOperator.isEmptyLanguage(FAOperator.intersection(fa, fa2)));
 	}
 	
 }
