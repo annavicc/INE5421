@@ -63,7 +63,6 @@ public class DiSimone {
 	 * @return the regex in post order 
 	 */
 	public String getPostOrderRegex() {
-		System.err.println(this.postOrderRegex);
 		return this.postOrderRegex;
 	}
 	
@@ -374,7 +373,6 @@ public class DiSimone {
 				try {
 					fa.addTransition(in, nodeSymbol, out);
 				} catch (InvalidSymbolException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -383,11 +381,7 @@ public class DiSimone {
 		try {
 			FiniteAutomata automata = fa.build();
 			return automata; // return the automata
-		} catch (IncompleteAutomataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidBuilderException e) {
-			// TODO Auto-generated catch block
+		} catch (IncompleteAutomataException | InvalidBuilderException  e) {
 			e.printStackTrace();
 		}
 		return null;

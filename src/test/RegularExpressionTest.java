@@ -189,12 +189,12 @@ class RegularExpressionTest {
 	void testConcatenationOperator() {
 		String conc1, conc2, conc3, conc4, conc5, conc6;
 		RegularExpression re1, re2, re3, re4, re5, re6;
-		re1 = new RegularExpression("").isValidRE(concatenated[0]); // abcd
-		re2 = new RegularExpression("").isValidRE(concatenated[1]); // (ab)*(cd)*
-		re3 = new RegularExpression("").isValidRE(concatenated[2]); // ab*c**de*
-		re4 = new RegularExpression("").isValidRE(concatenated[3]); // ab?cd+e
-		re5 = new RegularExpression("").isValidRE(concatenated[4]); // ((ab)+(cd)+)*
-		re6 = new RegularExpression("").isValidRE(concatenated[5]); // ab | cd | ef*g
+		re1 = RegularExpression.isValidRE(concatenated[0]); // abcd
+		re2 = RegularExpression.isValidRE(concatenated[1]); // (ab)*(cd)*
+		re3 = RegularExpression.isValidRE(concatenated[2]); // ab*c**de*
+		re4 = RegularExpression.isValidRE(concatenated[3]); // ab?cd+e
+		re5 = RegularExpression.isValidRE(concatenated[4]); // ((ab)+(cd)+)*
+		re6 = RegularExpression.isValidRE(concatenated[5]); // ab | cd | ef*g
 		conc1 = re1.getExplicitConcatenation();
 		conc2 = re2.getExplicitConcatenation();
 		conc3 = re3.getExplicitConcatenation();
