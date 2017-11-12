@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
-
-import org.omg.CORBA.Current;
 
 import RegularLanguages.FiniteAutomata;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
@@ -64,6 +63,7 @@ public class DiSimone {
 	 * @return the regex in post order 
 	 */
 	public String getPostOrderRegex() {
+		System.err.println(this.postOrderRegex);
 		return this.postOrderRegex;
 	}
 	
@@ -474,7 +474,7 @@ public class DiSimone {
                 break;
             case '|': 
                 Node rightNode = node.right; // ignore right subtree
-                while (rightNode.right.right != null) {
+                while (rightNode.data == '.' || rightNode.data == '|') {
                 	rightNode = rightNode.right;
                 }
                 if (rightNode.right != null) {
@@ -530,7 +530,7 @@ public class DiSimone {
 		
 		@Override
 		public int hashCode() {
-			return this.nodeNumber + this.data;
+			return Objects.hash(this.nodeNumber, this.data);
 		}
 	}
 
