@@ -8,7 +8,6 @@ import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.Operators.DiSimone;
-import RegularLanguages.Operators.FAOperator;
 
 
 /**
@@ -47,6 +46,14 @@ public class RegularExpression extends RegularLanguage {
 	}
 	
 	/**
+	 * Get the RE entered by the user
+	 * @return the representation of the RE as a String
+	 */
+	public String getRegex() {
+		return this.regex;
+	}
+	
+	/**
 	 * Get an equivalent simplified representation of the RE
 	 * @return the simplified representation of the RE as a String
 	 */
@@ -79,11 +86,12 @@ public class RegularExpression extends RegularLanguage {
 		} catch (InvalidStateException e) {
 			e.printStackTrace();
 		}
-		return FAOperator.REtoFA(this);
+		return null;
 	}
 	
 	/**
-	 * @return
+	 * Get empty finite automata
+	 * @return empty FA
 	 */
 	private FiniteAutomata getEmptyAutomata() {
 		FABuilder fa = new FiniteAutomata.FABuilder();
@@ -93,7 +101,6 @@ public class RegularExpression extends RegularLanguage {
 			return fa.build();
 		} catch (IncompleteAutomataException | InvalidBuilderException
 				| InvalidStateException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;

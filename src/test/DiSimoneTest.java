@@ -1,5 +1,6 @@
 package test;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.LinkedList;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import RegularLanguages.FiniteAutomata;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.RegularExpression;
+import RegularLanguages.RegularGrammar;
 import RegularLanguages.Operators.DiSimone;
 import RegularLanguages.Operators.DiSimone.Node;
 import RegularLanguages.Operators.FAOperator;
@@ -62,7 +64,6 @@ class DiSimoneTest {
 				diSimoneObject[i] = new DiSimone(reObject[i].getExplicitConcatenation());
 				i++;
 			} catch (InvalidStateException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -310,6 +311,37 @@ class DiSimoneTest {
 		assertEquals(expected6, fa7.getDefinition());
 	}
 	
+	/**
+	 * Test equivalence between FA and RE
+	 * @throws InvalidStateException 
+	 */
+	@Test
+	void testREEquivalence() throws InvalidStateException {
+		
+		RegularExpression re1, re2;
+		RegularGrammar rg1;
+		
+		// L = {x | (a,b)* && (|x| % 3 != 0)} 
+		re1 = RegularExpression.isValidRE("((a|b)(a|b)(a|b))*(a|b)(a|b)?");
+		rg1 = RegularGrammar.isValidRG("A->a|b|aB|bB \n B->a|b|aC|bC \n C->aA|bA");
+		assertTrue(FAOperator.isEquivalent(re1.getFA(), rg1.getFA()));
+		
+		// L = {x | (a,b)* && (|x| is even) && (x does not contain "bb")}
+		re1 = RegularExpression.isValidRE("(ba)*(ab)* (aa(ba)*(ab)*)*");
+		re2 = RegularExpression.isValidRE("(a(ba)*a | ba)* (ab)*");
+		rg1 = RegularGrammar.isValidRG("S->&|aB|bD \n A->aB|bD \n B->a|b|aA|bC \n C->aB \n D->a|aA");
+		assertTrue(FAOperator.isEquivalent(re1.getFA(), re2.getFA()));
+		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re1.getFA()));
+		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re2.getFA()));
+		
+		// L = {x | (1,2,3)* && (sum(elements of x) % 3 == 0)}
+		re1 = RegularExpression.isValidRE("(  3  |  1 (3|13*2)* (2|13*1)  |  2 (3|23*1)* (1|23*2)  )*");
+		rg1 = RegularGrammar.isValidRG("S->&|3|3A|1B|2C \n A->3|3A|1B|2C \n B->3B|1C|2|2A \n C->3C|1|1A|2B");
+		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re1.getFA()));
+		
+		
+		
+	}
 	
 	
 

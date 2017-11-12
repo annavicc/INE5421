@@ -23,7 +23,6 @@ import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
 import RegularLanguages.FiniteAutomata.State;
 import RegularLanguages.FiniteAutomata.TransitionInput;
-import RegularLanguages.RegularExpression;
 import RegularLanguages.RegularGrammar;
 
 /**
@@ -785,22 +784,5 @@ public final class FAOperator {
 		
 		return null;
 	}
-	
-	/**
-	 * Convert RE to FA
-	 * TODO implement
-	 * @return empty FA
-	 */
-	public static FiniteAutomata REtoFA(RegularExpression re) {
-		FiniteAutomata.FABuilder builder = new FiniteAutomata.FABuilder();
-		FiniteAutomata.State q0 = builder.newState();
-		try {
-			builder.setInitial(q0);
-			return builder.build();
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
+		
 }
