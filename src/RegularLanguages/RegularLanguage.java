@@ -136,7 +136,6 @@ public abstract class RegularLanguage {
 	 */
 	public abstract String getDefinition();
 	
-	
 	public abstract RegularGrammar getRG();
 	public abstract RegularExpression getRE();
 	public abstract FiniteAutomata getFA();

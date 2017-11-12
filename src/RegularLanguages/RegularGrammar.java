@@ -19,6 +19,7 @@ public class RegularGrammar extends RegularLanguage {
 	private HashSet<Character> vt;	// terminal symbols
 	private HashMap<Character, HashSet<String>> productions;	// production rules S -> aA | a
 	private char s;	// initial S
+	private static Scanner prodScan;
 
 	/**
 	 * Public constructor
@@ -135,6 +136,9 @@ public class RegularGrammar extends RegularLanguage {
 	}
 	
 
+	/* 
+	 * Return regular grammar object
+	 */
 	@Override
 	public RegularGrammar getRG() {
 		return this;
@@ -237,7 +241,7 @@ public class RegularGrammar extends RegularLanguage {
 		String prod = productions.substring(productions.indexOf("->")+2);
 		int prodLength = 0;
 		char first, second;
-		Scanner prodScan = new Scanner(prod);
+		prodScan = new Scanner(prod);
 		prodScan.useDelimiter("[|]");
 		if (prod.length() < 1) {
 			return false;

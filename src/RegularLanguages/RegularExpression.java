@@ -24,7 +24,7 @@ public class RegularExpression extends RegularLanguage {
 	public RegularExpression(String inp) {
 		super(inp, InputType.RE);
 		vt = new HashSet<Character>();
-		regex = inp;
+		this.regex = inp;
 		formatted_regex = "" ;
 	}
 	
@@ -57,8 +57,8 @@ public class RegularExpression extends RegularLanguage {
 	 */
 	public FiniteAutomata getFA() {
 		try {
-			DiSimone tree = new DiSimone(this.getExplicitConcatenation());
-			FiniteAutomata fa = tree.getFA();
+			DiSimone tree = new DiSimone(this.getExplicitConcatenation()); // get DiSimone Tree
+			FiniteAutomata fa = tree.getFA(); // get Finite Automata from tree
 			if (fa != null) {
 				return fa;
 			}
@@ -68,6 +68,10 @@ public class RegularExpression extends RegularLanguage {
 		return FAOperator.REtoFA(this);
 	}
 	
+	/**
+	 * Add '.' in concatenation
+	 * @return the regex with '.' representing concatenation
+	 */
 	public String getExplicitConcatenation() {
 		String concatenation = "";
 		char next, c;
@@ -101,18 +105,8 @@ public class RegularExpression extends RegularLanguage {
 		return concatenation;
 	}
 	
-	public static boolean isOperator(char c) {
-		if (c == '.' || c == '|'
-				|| c == '*' || c == '?'
-				|| c == '+') {
-			return true;
-		}
-		return false;
-	}
-	
-	
 	/*
-	 * Get RE
+	 * Return the RE object
 	 */
 	public RegularExpression getRE() {
 		return this;
@@ -218,10 +212,11 @@ public class RegularExpression extends RegularLanguage {
 							&& next != '&') { // |* |? || 
 						return false;
 					}
+				} else { // a | b |
+					return false;
 				}
 			}
 		}
-
 		return symbols.isEmpty();
 	}
 	
