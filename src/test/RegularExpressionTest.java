@@ -15,10 +15,11 @@ class RegularExpressionTest {
 	private static String[] validRE;
 	private static String[] invalidRE;
 	private static String[] toFormatRE;
+	private static String[] concatenated;
 	private static int lengthValid = 13;
-	private static int lengthInvalid = 10;
+	private static int lengthInvalid = 12;
 	private static int lengthToFormatRE = 7;
-
+	private static int lengthConcatenated = 6;	
 	
 	/**
 	 * Original regular expressions to be converted
@@ -96,7 +97,21 @@ class RegularExpressionTest {
 		invalidRE[8] = "a | b | | c";
 		// uneven parenthesis
 		invalidRE[9] = "(a(b(c(d)*)+)*";
-		// TODO empty parenthesis ()
+		// a | b |
+		invalidRE[10] = "a | b | ";
+		// invalid symbols
+		invalidRE[11] = "a | b | $ | -";
+	}
+	
+	@BeforeEach
+	void setUpConcatenated() {
+		concatenated = new String[lengthConcatenated];
+		concatenated[0] = "abcd";
+		concatenated[1] = "(ab)*(cd)*";
+		concatenated[2] = "ab*c**de*";
+		concatenated[3] = "ab?cd+e";
+		concatenated[4] = "((ab)+(cd)+)*";
+		concatenated[5] = "ab | cd | ef*g";
 	}
 	
 	/**
@@ -168,7 +183,33 @@ class RegularExpressionTest {
 		for (RegularLanguage l : rl) {
 			assertNull(l);
 		}
+	}
+	
+	@Test
+	void testConcatenationOperator() {
+		String conc1, conc2, conc3, conc4, conc5, conc6;
+		RegularExpression re1, re2, re3, re4, re5, re6;
+		re1 = new RegularExpression("").isValidRE(concatenated[0]); // abcd
+		re2 = new RegularExpression("").isValidRE(concatenated[1]); // (ab)*(cd)*
+		re3 = new RegularExpression("").isValidRE(concatenated[2]); // ab*c**de*
+		re4 = new RegularExpression("").isValidRE(concatenated[3]); // ab?cd+e
+		re5 = new RegularExpression("").isValidRE(concatenated[4]); // ((ab)+(cd)+)*
+		re6 = new RegularExpression("").isValidRE(concatenated[5]); // ab | cd | ef*g
+		conc1 = re1.getExplicitConcatenation();
+		conc2 = re2.getExplicitConcatenation();
+		conc3 = re3.getExplicitConcatenation();
+		conc4 = re4.getExplicitConcatenation();
+		conc5 = re5.getExplicitConcatenation();
+		conc6 = re6.getExplicitConcatenation();
+		// obtained and expected:
+		assertEquals(conc1, "a.b.c.d");
+		assertEquals(conc2, "(a.b)*.(c.d)*");
+		assertEquals(conc3, "a.b*.c*.d.e*");
+		assertEquals(conc4, "a.b?.c.d+.e");
+		assertEquals(conc5, "((a.b)+.(c.d)+)*");
+		assertEquals(conc6, "a.b|c.d|e.f*.g");
 		
 	}
+	
 
 }

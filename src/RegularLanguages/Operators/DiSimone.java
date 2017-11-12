@@ -26,7 +26,7 @@ public class DiSimone {
 	private Node root; // root of the tree
 	private String regex; // regex that it represents
 	private String postOrderRegex; // regex in postfix notation
-	private static int nTerminals = 0; // quantity of terminals 
+	private int nTerminals = 0; // quantity of terminals 
 	private FiniteAutomata automata; // the equivalent automata
 	
 	/**
@@ -48,6 +48,32 @@ public class DiSimone {
 	public DiSimone getTree() {
 		return this;
 	}
+	
+	/**
+	 * Method to get the root of the tree
+	 * @return the root of the tree
+	 */
+	public Node getRoot() {
+		return this.root;
+	}
+	
+	/**
+	 * Method to get the regex in postorder
+	 * @return the regex in post order 
+	 */
+	public String getPostOrderRegex() {
+		return this.postOrderRegex;
+	}
+	
+	/**
+	 * Method that returns the quantity of
+	 * leaf nodes (terminal symbols)
+	 * @return the amount of leaf nodes
+	 */
+	public int getNumberOfTerminals() {
+		return this.nTerminals;
+	}
+	
 	
 	/**
 	 * Method to return the finite automata that
@@ -126,9 +152,7 @@ public class DiSimone {
 	 * @return the root of the tree
 	 */
 	public Node createTree(char postfix[]) {
-		if (this.nTerminals > 0) { // count the leaf terminals
-    		this.nTerminals = 0;
-    	}
+		this.nTerminals = 0;
         
 		Stack<Node> stack = new Stack<>();
 

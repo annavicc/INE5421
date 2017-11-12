@@ -136,8 +136,20 @@ public abstract class RegularLanguage {
 	 */
 	public abstract String getDefinition();
 	
+	/**
+	 * Return a Regular Grammar object
+	 * @return the RG object
+	 */
 	public abstract RegularGrammar getRG();
+	/**
+	 * Return a Regular Expression Object
+	 * @return the RE object
+	 */
 	public abstract RegularExpression getRE();
+	/**
+	 * The Finite Automata Object
+	 * @return the automata object
+	 */
 	public abstract FiniteAutomata getFA();
 	
 	
