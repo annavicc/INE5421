@@ -188,6 +188,35 @@ public class DiSimone {
         
         return stack.pop(); // Tree root
 	}
+	
+	public Queue<Node> inOrder(Node node, Queue<Node> q) {
+		//keep the nodes in the path that are waiting to be visited
+        Stack<Node> stack = new Stack<Node>();
+
+        //first node to be visited will be the left one
+        while (node != null) {
+            stack.push(node);
+            node = node.left;
+        }
+         
+        // traverse the tree
+        while (stack.size() > 0) {
+           
+            // visit the top node
+            node = stack.pop();
+            q.add(node);
+            if (node.right != null) {
+                node = node.right;
+                 
+                // the next node to be visited is the leftmost
+                while (node != null) {
+                    stack.push(node);
+                    node = node.left;
+                }
+            }
+        }
+		return q;
+	}
 		
 	/**
 	 * In order traversal in a threaded tree
@@ -320,20 +349,9 @@ public class DiSimone {
 			// For a given terminal symbol, get the UNION of their compositions
 			HashMap<Character, Set<Node>> unionSymbolsComposition = new HashMap<Character, Set<Node>>();
 			
-			// Create composition for state qi
-			for (Node nd : qiComposition) {
-				if (nd.data != '$') { // If symbol is not a lambda
-					Set<Node> upComposition = upPath(nd); // Nodes reached by going up routine
-					// Composition for the current terminal
-					Set<Node> symbolComposition = unionSymbolsComposition.get(nd.data);
-					if (symbolComposition != null) {
-						symbolComposition.addAll(upComposition);
-					} else { // if null
-						// insert all the nodes reached (up routine) by nd input symbol
-						unionSymbolsComposition.put(nd.data, new HashSet<Node>(upComposition));
-					}
-				}
-			}
+			// Get the union of state compositions for a given symbol
+			unionSymbolsComposition = getStateQiComposition
+					(unionSymbolsComposition, qiComposition);
 			
 			// Associate compositions to FA states
 			for (Character nodeSymbol : unionSymbolsComposition.keySet()) {
@@ -360,19 +378,7 @@ public class DiSimone {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
 			}
-			
-			
-			// testing: prints each state composition
-//			for (Character cc : unionSymbolsComposition.keySet()) {
-//				System.out.print(cc + ": ");
-//				Set<Node> nu = unionSymbolsComposition.get(cc);
-//				for (Node nnu : nu) {
-//					System.out.print(" " + nnu.nodeNumber + "" + nnu.data);
-//				}
-//				System.out.println("\n");
-//			}
 			
 		}
 		try {
@@ -386,6 +392,30 @@ public class DiSimone {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * Return the union of compositions for a given symbol
+	 * @param unionSymbolsComposition a mapping for a given symbol to a set of nodes it reaches
+	 * @param qiComposition the composition of the state qi
+	 * @return the union of compositions for every symbol in state qi
+	 */
+	public HashMap<Character, Set<Node>> getStateQiComposition
+			(HashMap<Character, Set<Node>> unionSymbolsComposition, Set<Node> qiComposition) {
+		for (Node nd : qiComposition) {
+			if (nd.data != '$') { // If symbol is not a lambda
+				Set<Node> upComposition = upPath(nd); // Nodes reached by going up routine
+				// Composition for the current terminal
+				Set<Node> symbolComposition = unionSymbolsComposition.get(nd.data);
+				if (symbolComposition != null) {
+					symbolComposition.addAll(upComposition);
+				} else { // if null
+					// insert all the nodes reached (up routine) by nd input symbol
+					unionSymbolsComposition.put(nd.data, new HashSet<Node>(upComposition));
+				}
+			}
+		}
+		return unionSymbolsComposition;
 	}
 		
 	/**
@@ -474,7 +504,7 @@ public class DiSimone {
 		public Node threaded;
 		public char data; // node data
 		boolean isThreaded; // If right pointer is a normal right pointer or a pointer to inorder successor.
-		private int nodeNumber; // number of terminal leaf node
+		public int nodeNumber; // number of terminal leaf node
 		
 		/**
 		 * Public constructor

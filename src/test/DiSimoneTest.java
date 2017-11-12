@@ -3,18 +3,20 @@ package test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.LinkedList;
-import java.util.Queue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import RegularLanguages.FiniteAutomata;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.RegularExpression;
 import RegularLanguages.Operators.DiSimone;
 import RegularLanguages.Operators.DiSimone.Node;
+import RegularLanguages.Operators.FAOperator;
 
 class DiSimoneTest {
 	String[] regex;
+	String[] postOrderRegex;
 	RegularExpression[] reObject;
 	DiSimone[] diSimoneObject;
 	String[] expectedConcatenation[];
@@ -66,29 +68,32 @@ class DiSimoneTest {
 		}
 	}
 	
+	@BeforeEach
+	void setUpPostOrderRegex() {
+		postOrderRegex = new String[lengthRegex];
+		postOrderRegex[0] = diSimoneObject[0].getPostOrderRegex();
+		postOrderRegex[1] = diSimoneObject[1].getPostOrderRegex();
+		postOrderRegex[2] = diSimoneObject[2].getPostOrderRegex();
+		postOrderRegex[3] = diSimoneObject[3].getPostOrderRegex();
+		postOrderRegex[4] = diSimoneObject[4].getPostOrderRegex();
+		postOrderRegex[5] = diSimoneObject[5].getPostOrderRegex();
+		postOrderRegex[6] = diSimoneObject[6].getPostOrderRegex();
+	}
+	
 
 	/**
 	 * Test postfix notation (Polish Reverse Notation)
 	 */
 	@Test
 	void testPostOrder() {
-		String s1, s2, s3, s4, s5, s6, s7;
-		s1 = diSimoneObject[0].getPostOrderRegex(); // abcd
-		s2 = diSimoneObject[1].getPostOrderRegex(); // a*
-		s3 = diSimoneObject[2].getPostOrderRegex(); // a**
-		s4 = diSimoneObject[3].getPostOrderRegex(); // ab | cd?
-		s5 = diSimoneObject[4].getPostOrderRegex(); // (ab)*
-		s6 = diSimoneObject[5].getPostOrderRegex(); // (ab)+ | cd*e
-		s7 = diSimoneObject[6].getPostOrderRegex(); // (ab)+ | (cd)+ | (ab)+(cd)+
-		
 		// Expected, actual
-		assertEquals("ab.c.d.", s1);
-		assertEquals("a*", s2);
-		assertEquals("a*", s3);
-		assertEquals("ab.cd?.|", s4);
-		assertEquals("ab.*", s5);
-		assertEquals("ab.+cd*.e.|", s6);
-		assertEquals("ab.+cd.+|ab.+cd.+.|", s7);
+		assertEquals("ab.c.d.", postOrderRegex[0]);
+		assertEquals("a*", postOrderRegex[1]);
+		assertEquals("a*", postOrderRegex[2]);
+		assertEquals("ab.cd?.|", postOrderRegex[3]);
+		assertEquals("ab.*", postOrderRegex[4]);
+		assertEquals("ab.+cd*.e.|", postOrderRegex[5]);
+		assertEquals("ab.+cd.+|ab.+cd.+.|", postOrderRegex[6]);
 	}
 	
 	/**
@@ -161,17 +166,150 @@ class DiSimoneTest {
 		assertEquals('|', r7.data);
 	}
 	
+	
+	/**
+	 * Test Expression Tree correctness
+	 */
+	@Test
+	void testTreeCreation() {
+		DiSimone s = diSimoneObject[6];
+		// (ab)+ | (cd)+ | (ab)+(cd)+
+		Node root = s.createTree(postOrderRegex[6].toCharArray());
+		String actual1 = "";
+		for (Node n : s.inOrder(root, new LinkedList<Node>())) {
+			if (Character.isLetterOrDigit(n.data)) {
+				actual1 += n.nodeNumber + "" + n.data + " ";
+			} else {
+				actual1 += n.data + " ";
+			}
+		}
+		
+		DiSimone s2 = diSimoneObject[5];
+		// (ab)+ | cd*e
+		Node root2 = s2.createTree(postOrderRegex[5].toCharArray());
+		String actual2 = "";
+		for (Node n : s2.inOrder(root2, new LinkedList<Node>())) {
+			if (Character.isLetterOrDigit(n.data)) {
+				actual2 += n.nodeNumber + "" + n.data + " ";
+			} else {
+				actual2 += n.data + " ";
+			}
+		}
+		
+		// Expected, actual
+		assertEquals("1a . 2b + | 3c . 4d + | 5a . 6b + . 7c . 8d + ", actual1);
+		assertEquals("1a . 2b + | 3c . 4d * . 5e " , actual2);		
+	}
+	
+	/**
+	 * Given an expression tree,
+	 * check whether the tree is
+	 * correctly threaded
+	 */
 	@Test
 	void testThreadedTree() {
-		DiSimone simone = diSimoneObject[0];
-		Node root = simone.
-				createTree(simone.getPostOrderRegex().toCharArray());
+		DiSimone simone = diSimoneObject[6];
+		Node root = simone.createTree(postOrderRegex[6].toCharArray());
 		simone.makeThreadedTree(root);
-		Queue<Node> q = new LinkedList<>();
-		for (Node node : simone.inOrderThreaded(root, q)) {
-//			System.out.print(node.data + "");
+		String actual1 = "";
+		for (Node node : simone.inOrderThreaded(root, new LinkedList<Node>())) {
+			if (Character.isLetterOrDigit(node.data)) {
+				actual1 += node.nodeNumber + "" + node.data + " ";
+			} else {
+				actual1 += node.data + " ";
+			}
 		}
+		DiSimone simone2 = diSimoneObject[5];
+		Node root2 = simone.createTree(postOrderRegex[5].toCharArray());
+		simone2.makeThreadedTree(root2);
+		String actual2 = "";
+		for (Node node : simone.inOrderThreaded(root2, new LinkedList<Node>())) {
+			if (Character.isLetterOrDigit(node.data)) {
+				actual2 += node.nodeNumber + "" + node.data + " ";
+			} else {
+				actual2 += node.data + " ";
+			}
+		}
+		
+		// Expected, actual
+		assertEquals("1a . 2b + | 3c . 4d + | 5a . 6b + . 7c . 8d + ", actual1);
+		assertEquals("1a . 2b + | 3c . 4d * . 5e " , actual2);
 	}
+	
+	/**
+	 * Test whether every FA created using the
+	 * DiSimone method is correct
+	 */
+	@Test
+	void testFAEquivalence() {
+		// Get minimized automata for every DiSimone Tree
+		FiniteAutomata fa1 = FAOperator.minimize(diSimoneObject[0].getFA()); // abcd
+		FiniteAutomata fa2 = FAOperator.minimize(diSimoneObject[1].getFA()); // a*
+		FiniteAutomata fa3 = FAOperator.minimize(diSimoneObject[2].getFA()); // a**
+		FiniteAutomata fa4 = FAOperator.minimize(diSimoneObject[3].getFA()); // ab | cd?
+		FiniteAutomata fa5 = FAOperator.minimize(diSimoneObject[4].getFA()); //(ab)*
+		FiniteAutomata fa6 = FAOperator.minimize(diSimoneObject[5].getFA()); // (ab)+ | cd*e
+		FiniteAutomata fa7 = FAOperator.minimize(diSimoneObject[6].getFA()); // (ab)+ | (cd)+ | (ab)+(cd)+
+		
+		String expected1 = "+------+----+----+----+----+\n" + 
+				"|   δ  |  a |  b |  c |  d |\n" + 
+				"+------+----+----+----+----+\n" + 
+				"|  *q0 |    |    |    |    |\n" + 
+				"|   q1 |    |    |    | q0 |\n" + 
+				"|   q2 |    |    | q1 |    |\n" + 
+				"|   q3 |    | q2 |    |    |\n" + 
+				"| ->q4 | q3 |    |    |    |\n" + 
+				"+------+----+----+----+----+\n" ;
+		String expected2 = "+-------+----+\n" + 
+				"|   δ   |  a |\n" + 
+				"+-------+----+\n" + 
+				"| *->q0 | q0 |\n" + 
+				"+-------+----+\n";
+		
+		String expected3 = "+------+----+----+----+----+\n" + 
+				"|   δ  |  a |  b |  c |  d |\n" + 
+				"+------+----+----+----+----+\n" + 
+				"|  *q0 |    |    |    | q3 |\n" + 
+				"| ->q1 | q2 |    | q0 |    |\n" + 
+				"|   q2 |    | q3 |    |    |\n" + 
+				"|  *q3 |    |    |    |    |\n" + 
+				"+------+----+----+----+----+\n";
+
+		String expected4 = "+-------+----+----+\n" + 
+				"|   δ   |  a |  b |\n" + 
+				"+-------+----+----+\n" + 
+				"| *->q0 | q1 |    |\n" + 
+				"|    q1 |    | q0 |\n" + 
+				"+-------+----+----+\n";
+		
+		String expected5 = "+------+----+----+----+----+----+\n" + 
+				"|   δ  |  a |  b |  c |  d |  e |\n" + 
+				"+------+----+----+----+----+----+\n" + 
+				"|  *q0 | q1 |    |    |    |    |\n" + 
+				"|   q1 |    | q0 |    |    |    |\n" + 
+				"|   q2 |    |    |    | q2 | q4 |\n" + 
+				"| ->q3 | q1 |    | q2 |    |    |\n" + 
+				"|  *q4 |    |    |    |    |    |\n" + 
+				"+------+----+----+----+----+----+\n";
+		
+		String expected6 = "+------+----+----+----+----+\n" + 
+				"|   δ  |  a |  b |  c |  d |\n" + 
+				"+------+----+----+----+----+\n" + 
+				"|  *q0 | q1 |    | q2 |    |\n" + 
+				"|   q1 |    | q0 |    |    |\n" + 
+				"|   q2 |    |    |    | q4 |\n" + 
+				"| ->q3 | q1 |    | q2 |    |\n" + 
+				"|  *q4 |    |    | q2 |    |\n" + 
+				"+------+----+----+----+----+\n";
+		assertEquals(expected1, fa1.getDefinition());
+		assertEquals(expected2, fa2.getDefinition());
+		assertEquals(expected2, fa3.getDefinition());
+		assertEquals(expected3, fa4.getDefinition());
+		assertEquals(expected4, fa5.getDefinition());
+		assertEquals(expected5, fa6.getDefinition());
+		assertEquals(expected6, fa7.getDefinition());
+	}
+	
 	
 	
 
