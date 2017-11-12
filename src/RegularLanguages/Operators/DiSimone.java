@@ -183,9 +183,7 @@ public class DiSimone {
             } else {
             	stack.push(node);
             }
-
         }
-        
         return stack.pop(); // Tree root
 	}
 	
@@ -268,6 +266,7 @@ public class DiSimone {
         
         // Link NULL right pointers to inorder successor
         threadedUtil(node, q);
+        
 	}
 	
 	
@@ -475,7 +474,7 @@ public class DiSimone {
                 break;
             case '|': 
                 Node rightNode = node.right; // ignore right subtree
-                while (rightNode.right != null) {
+                while (rightNode.right.right != null) {
                 	rightNode = rightNode.right;
                 }
                 if (rightNode.right != null) {
