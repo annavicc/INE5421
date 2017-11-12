@@ -163,7 +163,7 @@ public class DiSimone {
             Character c = postfix[i];
             Node node = new Node(c);
 
-            if (Character.isLetterOrDigit(c)) { // operand
+            if (Character.isLetterOrDigit(c) || c == '&') { // operand
             	node.nodeNumber = ++this.nTerminals; // sets leaf number
             }
             if (precedence(c) >= 0) { // operator

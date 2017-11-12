@@ -114,26 +114,30 @@ public class RegularExpression extends RegularLanguage {
 				if (i < this.formatted_regex.length() - 1) {
 					next = this.formatted_regex.charAt(i+1);
 					if (Character.isLetterOrDigit(next) 
-							|| next == '(') {
+							|| next == '(' || c == '&') {
 						concatenation += '.';
 					}
 				}
 			} else if ( c == '*' || c == '?' || c == '+') {
 				if (i < this.formatted_regex.length() - 1) {
 					next = this.formatted_regex.charAt(i+1);
-					if (next == '(' || Character.isLetterOrDigit(next)) {
+					if (next == '(' || Character.isLetterOrDigit(next)
+							|| next == '&') {
 						concatenation += '.';
 					}
 				} 
 			}
-			if (Character.isLetterOrDigit(c)) {
+			if (Character.isLetterOrDigit(c)|| c == '&') {
 				if (i < this.formatted_regex.length() - 1) {
-					if (Character.isLetter(this.formatted_regex.charAt(i+1))) { // next is letter too
+					next = this.formatted_regex.charAt(i+1);
+					if (Character.isLetterOrDigit(next)
+							|| next == '&' || next == '(') { // next is letter too
 						concatenation += '.';
 					}
 				}
 			}
 		}
+		System.out.println(concatenation);
 		return concatenation;
 	}
 	
