@@ -645,4 +645,69 @@ class FiniteAutomataTest {
 		assertTrue(FAOperator.isEmptyLanguage(FAOperator.intersection(fa, fa2)));
 	}
 	
+	@Test
+	void testFiniteness() throws InvalidStateException, InvalidSymbolException, IncompleteAutomataException, InvalidBuilderException {
+		State[][] q = new State[5][5]; 
+		FABuilder[] builder = new FABuilder[5];
+		
+		for (int i = 0; i < 5; i++) {
+			builder[i] = new FABuilder();
+			for (int j = 0; j < 5; j++) {
+				q[i][j] = builder[i].newState();
+			}
+			builder[i].setInitial(q[i][0]);
+		}
+		
+		builder[0].
+				addTransition(q[0][0], 'a', q[0][1]).
+				addTransition(q[0][1], 'a', q[0][2]).
+				addTransition(q[0][2], 'a', q[0][3]).
+				addTransition(q[0][3], 'a', q[0][4]).
+				setFinal(q[0][4]);
+		
+		assertFalse(FAOperator.isInfiniteLanguage(builder[0].build()));
+		
+		builder[1].
+				addTransition(q[1][0], 'a', q[1][1]).
+				addTransition(q[1][0], 'b', q[1][2]).
+				addTransition(q[1][1], 'b', q[1][4]).
+				addTransition(q[1][2], 'c', q[1][3]).
+				addTransition(q[1][3], 'd', q[1][4]).
+				setFinal(q[1][4]);
+		
+		assertFalse(FAOperator.isInfiniteLanguage(builder[1].build()));
+		
+		builder[2].
+				addTransition(q[2][0], 'a', q[2][1]).
+				addTransition(q[2][1], 'a', q[2][2]).
+				addTransition(q[2][1], 'b', q[2][1]).
+				addTransition(q[2][1], 'a', q[2][2]).
+				addTransition(q[2][2], 'a', q[2][3]).
+				addTransition(q[2][3], 'a', q[2][4]).
+				setFinal(q[2][4]);
+		
+		assertTrue(FAOperator.isInfiniteLanguage(builder[2].build()));
+		
+		builder[3].
+				addTransition(q[3][0], 'a', q[3][1]).
+				addTransition(q[3][1], 'a', q[3][2]).
+				addTransition(q[3][2], 'a', q[3][3]).
+				addTransition(q[3][3], 'a', q[3][4]).
+				addTransition(q[3][4], 'a', q[3][4]).
+				setFinal(q[3][3]);
+		
+		assertFalse(FAOperator.isInfiniteLanguage(builder[3].build()));
+
+		builder[4].
+				addTransition(q[4][0], 'a', q[4][1]).
+				addTransition(q[4][1], 'a', q[4][2]).
+				addTransition(q[4][2], 'a', q[4][3]).
+				addTransition(q[4][3], 'a', q[4][4]).
+				addTransition(q[4][4], 'a', q[4][1]).
+				setFinal(q[4][4]);
+		
+		assertTrue(FAOperator.isInfiniteLanguage(builder[4].build()));
+		
+	}
+	
 }

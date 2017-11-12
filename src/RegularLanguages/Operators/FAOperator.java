@@ -16,15 +16,15 @@ import java.util.stream.Stream;
 import com.bethecoder.ascii_table.ASCIITable;
 
 import RegularLanguages.FiniteAutomata;
-import RegularLanguages.RegularGrammar;
 import RegularLanguages.FiniteAutomata.FABuilder;
-import RegularLanguages.FiniteAutomata.State;
-import RegularLanguages.FiniteAutomata.TransitionInput;
-import RegularLanguages.RegularExpression;
 import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidSymbolException;
+import RegularLanguages.FiniteAutomata.State;
+import RegularLanguages.FiniteAutomata.TransitionInput;
+import RegularLanguages.RegularExpression;
+import RegularLanguages.RegularGrammar;
 
 /**
  * Implements operations over Finite Automatas
@@ -563,6 +563,49 @@ public final class FAOperator {
 	 */
 	public static boolean isEmptyLanguage(FiniteAutomata fa) {
 		return getDeadStates(fa).contains(fa.getInitial());
+	}
+	
+	/**
+	 * Check if the language accepted by an FA is infinite
+	 * @param fa FA to be verified
+	 * @return boolean whether it is infinite
+	 */
+	public static boolean isInfiniteLanguage(FiniteAutomata fa) {
+		FiniteAutomata faMin = minimize(fa);
+		return isCyclic(faMin, faMin.getInitial(), new HashSet<State>());
+	}
+	
+	/**
+	 * Recursive function to check if a FA has cycles
+	 * Called to check a language finiteness 
+	 * @param fa FA to be verified
+	 * @param currentState state being verified
+	 * @param visited States visited on the current path
+	 * @return boolean whether it is infinite
+	 */
+	private static boolean isCyclic(FiniteAutomata fa, State currentState, Set<State> visited) {
+		
+		if (visited.contains(currentState)) {
+			return true;
+		} else {
+			Set<State> newVisited = new HashSet<State>();
+			newVisited.addAll(visited);
+			newVisited.add(currentState);
+			
+			// Get set of states reachable through one transition:
+			Set<State> next = fa.getTransitions().entrySet().stream()
+					.filter(e -> e.getKey().getState().equals(currentState)) 
+					.flatMap(e -> e.getValue().stream())
+					.collect(Collectors.toSet());
+			
+			// Recursion through next states: 
+			for (State st : next) {
+				if (isCyclic(fa, st, newVisited)) {
+					return true;
+				}
+			}
+			return false; 
+		}
 	}
 	
 	/**
