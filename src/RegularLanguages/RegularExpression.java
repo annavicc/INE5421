@@ -3,6 +3,9 @@ package RegularLanguages;
 import java.util.HashSet;
 import java.util.Stack;
 
+import RegularLanguages.FiniteAutomata.FABuilder;
+import RegularLanguages.FiniteAutomata.FABuilder.IncompleteAutomataException;
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidBuilderException;
 import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
 import RegularLanguages.Operators.DiSimone;
 import RegularLanguages.Operators.FAOperator;
@@ -16,7 +19,7 @@ public class RegularExpression extends RegularLanguage {
 	private HashSet<Character> vt;	// terminal symbols
 	private String regex; // the regular expression entered by the user
 	private String formatted_regex; // an equivalent simplified representation of the regex
-
+	private boolean isEmpty = false;
 	/**
 	 * Public constructor
 	 * @param inp the regex entered by the user
@@ -34,6 +37,13 @@ public class RegularExpression extends RegularLanguage {
 	 */
 	public String getDefinition() {
 		return this.input;
+	}
+	
+	/* (non-Javadoc)
+	 * @see RegularLanguages.RegularLanguage#isEmpty()
+	 */
+	public boolean isEmpty() {
+		return this.isEmpty;
 	}
 	
 	/**
@@ -57,15 +67,37 @@ public class RegularExpression extends RegularLanguage {
 	 */
 	public FiniteAutomata getFA() {
 		try {
-			DiSimone tree = new DiSimone(this.getExplicitConcatenation()); // get DiSimone Tree
-			FiniteAutomata fa = tree.getFA(); // get Finite Automata from tree
-			if (fa != null) {
-				return fa;
+			if (this.isEmpty) {
+				return getEmptyAutomata();
+			} else {
+				DiSimone tree = new DiSimone(this.getExplicitConcatenation()); // get DiSimone Tree
+				FiniteAutomata fa = tree.getFA(); // get Finite Automata from tree
+				if (fa != null) {
+					return fa;
+				}
 			}
 		} catch (InvalidStateException e) {
 			e.printStackTrace();
 		}
 		return FAOperator.REtoFA(this);
+	}
+	
+	/**
+	 * @return
+	 */
+	private FiniteAutomata getEmptyAutomata() {
+		FABuilder fa = new FiniteAutomata.FABuilder();
+		FiniteAutomata.State q0 = fa.newState();
+		try {
+			fa.setInitial(q0);
+			return fa.build();
+		} catch (IncompleteAutomataException | InvalidBuilderException
+				| InvalidStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+		
 	}
 	
 	/**
@@ -121,6 +153,10 @@ public class RegularExpression extends RegularLanguage {
 	public static RegularExpression isValidRE(String inp) {
 		RegularExpression re = new RegularExpression(inp);
 		String formatted =  inp.replaceAll("\\s+", ""); // Remove white spaces
+		if (formatted.equals("")) {
+			re.isEmpty = true;
+			return re;
+		}
 		// Verify invalid symbols
 		if (!lexicalValidation(formatted, re)) {
 			return null;
