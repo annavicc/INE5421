@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public class RegularGrammarTest {
 				+ "D -> dD | d\n"
 				+ "E- >e E|e";
 		// L(G) = (a,b)*
-		validRG[4] = "S -> aA | bA | &\n"
+		validRG[4] = "S -> aA | bA | a | b | &\n"
 				+ "A -> aA | bA | a | b";
 	}
 	
@@ -112,23 +113,7 @@ public class RegularGrammarTest {
 		// Should be different than null:
 		for (RegularLanguage lr : rg) {
 			assertNotNull(lr);
-			System.out.println("RG:");
-			System.out.println(lr.getDefinition());
-			System.out.println("FA:");
-			System.out.println(lr.getFA().getDefinition());
-			System.out.println("-----");
 		}
-		// TODO assertion tests
-		
-		// L(G) = { abcd e^n | n > 0 }
-		FiniteAutomata fa = rg[2].getFA();
-		System.out.println(fa.getDefinition());
-		System.out.println(FAOperator.determinize(fa).getDefinition());
-		System.out.println(FAOperator.minimize(fa).getDefinition());
-		
-		System.err.println(fa.getRG().getDefinition());
-		
-		
 	}
 	
 	
@@ -147,6 +132,84 @@ public class RegularGrammarTest {
 		for (RegularLanguage l : rg) {
 			assertNull(l);
 		}
+	}
+	
+	/**
+	 * Test whether the automata representation
+	 * of each regular grammar is correct
+	 */
+	@Test
+	public void testFAEquivalence() {
+		// Create Regular Grammar Objects
+		RegularLanguage rg[] = new RegularLanguage[lengthValid]; 
+		int i = 0;
+		for (String grammar : validRG) {
+			rg[i++] = RegularGrammar.isValidRG(grammar);
+		}
+		// L(G) = { a^n | n > 0 }
+		FiniteAutomata fa1 =  FAOperator.minimize(rg[0].getFA());
+		// L(G) = { a^n b^m c^k | n, m, k > 0 }
+		FiniteAutomata fa2 =  FAOperator.minimize(rg[1].getFA());
+		// L(G) = { abcd e^n | n > 0 } U {&}
+		FiniteAutomata fa3 =  FAOperator.minimize(rg[2].getFA());
+		// // L(G) = { a^n | n > 0 }
+		FiniteAutomata fa4 =  FAOperator.minimize(rg[3].getFA());
+		// // L(G) = (a,b)*
+		FiniteAutomata fa5 =  FAOperator.minimize(rg[4].getFA());
+
+		String expected1 = "+------+----+\n" + 
+				"|   δ  |  a |\n" + 
+				"+------+----+\n" + 
+				"|  *q0 | q0 |\n" + 
+				"| ->q1 | q0 |\n" + 
+				"+------+----+\n";
+		String expected2 = "+------+----+----+----+\n" + 
+				"|   δ  |  a |  b |  c |\n" + 
+				"+------+----+----+----+\n" + 
+				"|  *q0 |    |    | q0 |\n" + 
+				"|   q1 |    |    | q0 |\n" + 
+				"|   q2 |    | q2 | q1 |\n" + 
+				"|   q3 | q3 | q2 |    |\n" + 
+				"| ->q4 | q3 |    |    |\n" + 
+				"+------+----+----+----+\n";
+		String expected3 = "+-------+----+----+----+----+----+\n" + 
+				"|   δ   |  a |  b |  c |  d |  e |\n" + 
+				"+-------+----+----+----+----+----+\n" + 
+				"| *->q0 | q5 |    |    |    |    |\n" + 
+				"|    q1 |    |    |    |    | q2 |\n" + 
+				"|   *q2 |    |    |    |    | q2 |\n" + 
+				"|    q3 |    |    |    | q1 |    |\n" + 
+				"|    q4 |    |    | q3 |    |    |\n" + 
+				"|    q5 |    | q4 |    |    |    |\n" + 
+				"+-------+----+----+----+----+----+\n";
+		String expected4 = "+-------+----+----+----+----+----+\n" + 
+				"|   δ   |  a |  b |  c |  d |  e |\n" + 
+				"+-------+----+----+----+----+----+\n" + 
+				"|   *q0 | q0 |    |    |    |    |\n" + 
+				"|    q1 | q0 |    |    |    |    |\n" + 
+				"|    q2 |    | q6 |    |    |    |\n" + 
+				"|    q3 |    |    | q7 |    |    |\n" + 
+				"|    q4 |    |    |    | q8 |    |\n" + 
+				"|    q5 |    |    |    |    | q9 |\n" + 
+				"|   *q6 |    | q6 |    |    |    |\n" + 
+				"|   *q7 |    |    | q7 |    |    |\n" + 
+				"|   *q8 |    |    |    | q8 |    |\n" + 
+				"|   *q9 |    |    |    |    | q9 |\n" + 
+				"| ->q10 | q1 | q2 | q3 | q4 | q5 |\n" + 
+				"+-------+----+----+----+----+----+\n";
+		String expected5 = "+-------+----+----+\n" + 
+				"|   δ   |  a |  b |\n" + 
+				"+-------+----+----+\n" + 
+				"| *->q0 | q0 | q0 |\n" + 
+				"+-------+----+----+\n";
+		
+		assertEquals(expected1, fa1.getDefinition());
+		assertEquals(expected2, fa2.getDefinition());
+		assertEquals(expected3, fa3.getDefinition());
+		assertEquals(expected4, fa4.getDefinition());
+		assertEquals(expected5, fa5.getDefinition());
+		
+		
 	}
 	
 	

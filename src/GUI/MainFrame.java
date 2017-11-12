@@ -21,6 +21,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 
+import RegularLanguages.RegularExpression;
 import RegularLanguages.RegularLanguage;
 
 public class MainFrame extends JFrame {
@@ -59,6 +60,7 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
+		
 	}
 
 	/**
@@ -205,7 +207,6 @@ public class MainFrame extends JFrame {
 		);
 		
 		mainPanel.setLayout(gl_mainPanel);
-
 	}
 	
 	// Add Regular Language to JList
