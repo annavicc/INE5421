@@ -3,6 +3,8 @@ package RegularLanguages;
 import java.util.HashSet;
 import java.util.Stack;
 
+import RegularLanguages.FiniteAutomata.FABuilder.InvalidStateException;
+import RegularLanguages.Operators.DiSimone;
 import RegularLanguages.Operators.FAOperator;
 
 
@@ -22,7 +24,7 @@ public class RegularExpression extends RegularLanguage {
 	public RegularExpression(String inp) {
 		super(inp, InputType.RE);
 		vt = new HashSet<Character>();
-		regex = "";
+		regex = inp;
 		formatted_regex = "" ;
 	}
 	
@@ -42,6 +44,7 @@ public class RegularExpression extends RegularLanguage {
 		return this.formatted_regex;
 	}
 	
+	
 	/*
 	 * Convert RE to RG
 	 */
@@ -51,11 +54,62 @@ public class RegularExpression extends RegularLanguage {
 	
 	/*
 	 * Convert RE to FA
-	 * TODO implement
 	 */
 	public FiniteAutomata getFA() {
+		try {
+			DiSimone tree = new DiSimone(this.getExplicitConcatenation());
+			FiniteAutomata fa = tree.getFA();
+			if (fa != null) {
+				return fa;
+			}
+		} catch (InvalidStateException e) {
+			e.printStackTrace();
+		}
 		return FAOperator.REtoFA(this);
 	}
+	
+	public String getExplicitConcatenation() {
+		String concatenation = "";
+		char next, c;
+		for(int i = 0; i < this.formatted_regex.length(); i++) {
+			c = this.formatted_regex.charAt(i);
+			concatenation += c;
+			if (c == ')') { // )a )1 )(
+				if (i < this.formatted_regex.length() - 1) {
+					next = this.formatted_regex.charAt(i+1);
+					if (Character.isLetterOrDigit(next) 
+							|| next == '(') {
+						concatenation += '.';
+					}
+				}
+			} else if ( c == '*' || c == '?' || c == '+') {
+				if (i < this.formatted_regex.length() - 1) {
+					next = this.formatted_regex.charAt(i+1);
+					if (next == '(' || Character.isLetterOrDigit(next)) {
+						concatenation += '.';
+					}
+				} 
+			}
+			if (Character.isLetterOrDigit(c)) {
+				if (i < this.formatted_regex.length() - 1) {
+					if (Character.isLetter(this.formatted_regex.charAt(i+1))) { // next is letter too
+						concatenation += '.';
+					}
+				}
+			}
+		}
+		return concatenation;
+	}
+	
+	public static boolean isOperator(char c) {
+		if (c == '.' || c == '|'
+				|| c == '*' || c == '?'
+				|| c == '+') {
+			return true;
+		}
+		return false;
+	}
+	
 	
 	/*
 	 * Get RE
@@ -167,6 +221,7 @@ public class RegularExpression extends RegularLanguage {
 				}
 			}
 		}
+
 		return symbols.isEmpty();
 	}
 	
