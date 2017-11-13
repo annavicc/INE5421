@@ -1,7 +1,7 @@
 package RegularLanguages;
 
 /**
- * Representation of a Regular Grammar
+ * Representation of a Regular Language
  *
  */
 public abstract class RegularLanguage {

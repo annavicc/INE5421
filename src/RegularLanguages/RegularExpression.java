@@ -162,7 +162,7 @@ public class RegularExpression extends RegularLanguage {
 	 */
 	public static RegularExpression isValidRE(String inp) {
 		RegularExpression re = new RegularExpression(inp);
-		String formatted =  inp.replaceAll("[\\s.]+", ""); // Remove white spaces
+		String formatted =  inp.replaceAll("[\\s]+", ""); // Remove white spaces
 		if (formatted.replaceAll("[\\(\\)\\+\\?\\*\\|]+", "").equals("")) {
 			re.isEmpty = true;
 		}

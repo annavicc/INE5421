@@ -16,8 +16,8 @@ class RegularExpressionTest {
 	private static String[] invalidRE;
 	private static String[] toFormatRE;
 	private static String[] concatenated;
-	private static int lengthValid = 13;
-	private static int lengthInvalid = 12;
+	private static int lengthValid = 16;
+	private static int lengthInvalid = 15;
 	private static int lengthToFormatRE = 7;
 	private static int lengthConcatenated = 6;	
 	
@@ -69,13 +69,19 @@ class RegularExpressionTest {
 		validRE[11] = "a | &";
 		// &*
 		validRE[12] = "&*";
+		// (())* (empty language)
+		validRE[13] = "(())*";
+		// (a*b)*
+		validRE[14] = "(a*b)*";
+		// (a | & | a*b?c+)*
+		validRE[15] = "(a | & | a*b?c+)*";
 	}
 	
 	/**
 	 * Possibilities of regular expressions that are valid
 	 */
 	@BeforeEach
-	void setUpInValidRE(){
+	void setUpInvalidRE(){
 		invalidRE= new String[lengthInvalid];
 		// (ab
 		invalidRE[0] = "(ab";
@@ -101,6 +107,12 @@ class RegularExpressionTest {
 		invalidRE[10] = "a | b | ";
 		// invalid symbols
 		invalidRE[11] = "a | b | $ | -";
+		// (*)
+		invalidRE[12] = "(*)";
+		// (|a)
+		invalidRE[13] = "(|a)";
+		// (.b)
+		invalidRE[14] = "(.b)";
 	}
 	
 	@BeforeEach

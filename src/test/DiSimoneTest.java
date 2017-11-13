@@ -22,7 +22,7 @@ class DiSimoneTest {
 	RegularExpression[] reObject;
 	DiSimone[] diSimoneObject;
 	String[] expectedConcatenation[];
-	private static int lengthRegex= 7;
+	private static int lengthRegex= 8;
 	
 
 	@BeforeEach
@@ -37,6 +37,7 @@ class DiSimoneTest {
 		regex[4] = "(ab)*";
 		regex[5] = "(ab)+ | cd*e";
 		regex[6] = "(ab)+ | (cd)+ | (ab)+(cd)+";
+		regex[7] = "(a | &)*";
 		new RegularExpression("");
 		reObject[0] = RegularExpression
 				.isValidRE(regex[0]);
@@ -58,6 +59,8 @@ class DiSimoneTest {
 		new RegularExpression("");
 		reObject[6] = RegularExpression
 				.isValidRE(regex[6]);
+		reObject[7] = RegularExpression
+				.isValidRE(regex[7]);
 		int i = 0;
 		for (int j = 0; j < reObject.length; j++) {
 			try {
@@ -79,6 +82,7 @@ class DiSimoneTest {
 		postOrderRegex[4] = diSimoneObject[4].getPostOrderRegex();
 		postOrderRegex[5] = diSimoneObject[5].getPostOrderRegex();
 		postOrderRegex[6] = diSimoneObject[6].getPostOrderRegex();
+		postOrderRegex[7] = diSimoneObject[7].getPostOrderRegex();
 	}
 	
 
@@ -95,6 +99,7 @@ class DiSimoneTest {
 		assertEquals("ab.*", postOrderRegex[4]);
 		assertEquals("ab.+cd*.e.|", postOrderRegex[5]);
 		assertEquals("ab.+cd.+|ab.+cd.+.|", postOrderRegex[6]);
+		assertEquals("a&|*", postOrderRegex[7]);
 	}
 	
 	/**
@@ -103,7 +108,7 @@ class DiSimoneTest {
 	 */
 	@Test
 	void testNumberLeafNodes() {
-		int n1, n2, n3, n4, n5, n6, n7;
+		int n1, n2, n3, n4, n5, n6, n7, n8;
 		n1 = diSimoneObject[0].getNumberOfTerminals();
 		n2 = diSimoneObject[1].getNumberOfTerminals();
 		n3 = diSimoneObject[2].getNumberOfTerminals();
@@ -111,6 +116,8 @@ class DiSimoneTest {
 		n5 = diSimoneObject[4].getNumberOfTerminals();
 		n6 = diSimoneObject[5].getNumberOfTerminals();
 		n7 = diSimoneObject[6].getNumberOfTerminals();
+		n8 = diSimoneObject[7].getNumberOfTerminals();
+		
 		// Expected, actual
 		assertEquals(4, n1);
 		assertEquals(1, n2);
@@ -119,6 +126,7 @@ class DiSimoneTest {
 		assertEquals(2, n5);
 		assertEquals(5, n6);
 		assertEquals(8, n7);
+		assertEquals(1, n8);
 	}
 	
 	/**
@@ -148,7 +156,7 @@ class DiSimoneTest {
 	 */
 	@Test
 	void testRoot() {
-		DiSimone.Node r1, r2, r3, r4, r5, r6, r7;
+		DiSimone.Node r1, r2, r3, r4, r5, r6, r7, r8;
 		r1 = diSimoneObject[0].getRoot();
 		r2 = diSimoneObject[1].getRoot();
 		r3 = diSimoneObject[2].getRoot();
@@ -156,6 +164,7 @@ class DiSimoneTest {
 		r5 = diSimoneObject[4].getRoot();
 		r6 = diSimoneObject[5].getRoot();
 		r7 = diSimoneObject[6].getRoot();
+		r8 = diSimoneObject[7].getRoot();
 
 		// Expected, actual
 		assertEquals('.', r1.data);
@@ -165,6 +174,7 @@ class DiSimoneTest {
 		assertEquals('*', r5.data);
 		assertEquals('|', r6.data);
 		assertEquals('|', r7.data);
+		assertEquals('*', r8.data);
 	}
 	
 	
@@ -251,6 +261,7 @@ class DiSimoneTest {
 		FiniteAutomata fa5 = FAOperator.minimize(diSimoneObject[4].getFA()); //(ab)*
 		FiniteAutomata fa6 = FAOperator.minimize(diSimoneObject[5].getFA()); // (ab)+ | cd*e
 		FiniteAutomata fa7 = FAOperator.minimize(diSimoneObject[6].getFA()); // (ab)+ | (cd)+ | (ab)+(cd)+
+		FiniteAutomata fa8 = FAOperator.minimize(diSimoneObject[7].getFA()); // (a | &)*
 		
 		String expected1 = "+------+----+----+----+----+\n" + 
 				"|   δ  |  a |  b |  c |  d |\n" + 
@@ -302,6 +313,12 @@ class DiSimoneTest {
 				"| ->q3 | q1 |    | q2 |    |\n" + 
 				"|  *q4 |    |    | q2 |    |\n" + 
 				"+------+----+----+----+----+\n";
+		
+		String expected7 = "+-------+----+\n" + 
+				"|   δ   |  a |\n" + 
+				"+-------+----+\n" + 
+				"| *->q0 | q0 |\n" + 
+				"+-------+----+\n";
 		assertEquals(expected1, fa1.getDefinition());
 		assertEquals(expected2, fa2.getDefinition());
 		assertEquals(expected2, fa3.getDefinition());
@@ -309,6 +326,7 @@ class DiSimoneTest {
 		assertEquals(expected4, fa5.getDefinition());
 		assertEquals(expected5, fa6.getDefinition());
 		assertEquals(expected6, fa7.getDefinition());
+		assertEquals(expected7, fa8.getDefinition());
 	}
 	
 	/**
@@ -339,10 +357,30 @@ class DiSimoneTest {
 		rg1 = RegularGrammar.isValidRG("S->&|3|3A|1B|2C \n A->3|3A|1B|2C \n B->3B|1C|2|2A \n C->3C|1|1A|2B");
 		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re1.getFA()));
 		
+		// L = empty language
+		re1 = RegularExpression.isValidRE("");
+		rg1 = RegularGrammar.isValidRG("S -> aS ");
+		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re1.getFA()));
 		
+		// L = { x | x E (a,b)* && #a is even && #b is even }
+		re1 = RegularExpression.isValidRE("(aa | bb | (ab|ba) (aa|bb)* (ab|ba))*");
+		rg1 = RegularGrammar.isValidRG("S -> aA | bB | &\n"
+				+ "A -> aC | bD | a\n"
+				+ "B -> aD | bC | b\n"
+				+ "C -> aA | bB\n"
+				+ "D -> aE | bF\n"
+				+ "E -> aD | bC | b\n"
+				+ "F -> aC | bD | a");
+		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re1.getFA()));
 		
+		// L = { (abcd)^n | n >= 0 }
+		re1 = RegularExpression.isValidRE("(abcd)+ | &");
+		rg1 = RegularGrammar.isValidRG("S -> aA | &\n"
+				+ "A -> bB\n"
+				+ "B -> cC\n"
+				+ "C -> d | dD\n"
+				+ "D -> aA");
+		assertTrue(FAOperator.isEquivalent(rg1.getFA(), re1.getFA()));
 	}
-	
-	
 
 }

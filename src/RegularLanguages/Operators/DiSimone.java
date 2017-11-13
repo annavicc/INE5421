@@ -145,7 +145,6 @@ public class DiSimone {
 		
 		}
 		return -1;
-		
 	}
 	
 	/**
@@ -474,7 +473,7 @@ public class DiSimone {
             case '?': // up
                 if (node.right != null) { // if it is threaded
                     up.addAll(upPath(node.right, visited));
-                } else { // points to lamda
+                } else { // points to lambda
                     up.add(lambda);
                 }
                 break;

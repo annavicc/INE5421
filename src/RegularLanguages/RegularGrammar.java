@@ -11,7 +11,6 @@ import RegularLanguages.Operators.FAOperator;
 /**
  * Representation of a Regular Grammar
  * Eg.: S -> aA | a
- * 
  */
 public class RegularGrammar extends RegularLanguage {
 	
@@ -172,8 +171,6 @@ public class RegularGrammar extends RegularLanguage {
 		}
 		return true;
 	}
-	
-	
 	
 	/**
 	 * Verify if every non terminal symbol vN
