@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.Before;
@@ -209,6 +210,11 @@ public class RegularGrammarTest {
 		assertEquals(expected4, fa4.getDefinition());
 		assertEquals(expected5, fa5.getDefinition());
 		
+		assertTrue(FAOperator.isEquivalent(fa1, fa1.getRG().getFA()));
+		assertTrue(FAOperator.isEquivalent(fa2, fa2.getRG().getFA()));
+		assertTrue(FAOperator.isEquivalent(fa3, fa3.getRG().getFA()));
+		assertTrue(FAOperator.isEquivalent(fa4, fa4.getRG().getFA()));
+		assertTrue(FAOperator.isEquivalent(fa5, fa5.getRG().getFA()));
 		
 	}
 	

@@ -144,7 +144,6 @@ public class RegularExpression extends RegularLanguage {
 				}
 			}
 		}
-		System.out.println(concatenation);
 		return concatenation;
 	}
 	
@@ -163,10 +162,9 @@ public class RegularExpression extends RegularLanguage {
 	 */
 	public static RegularExpression isValidRE(String inp) {
 		RegularExpression re = new RegularExpression(inp);
-		String formatted =  inp.replaceAll("\\s+", ""); // Remove white spaces
-		if (formatted.equals("")) {
+		String formatted =  inp.replaceAll("[\\s.]+", ""); // Remove white spaces
+		if (formatted.replaceAll("[\\(\\)\\+\\?\\*\\|]+", "").equals("")) {
 			re.isEmpty = true;
-			return re;
 		}
 		// Verify invalid symbols
 		if (!lexicalValidation(formatted, re)) {
@@ -227,6 +225,12 @@ public class RegularExpression extends RegularLanguage {
 			}
 			// Parenthesis check
 			if (c == '(') {
+				if (i+1 < formatted.length()) {
+					next = formatted.charAt(i+1);
+					if (!Character.isLetterOrDigit(next) && next != ')' && next != '(' && next != '&') {
+						return false;
+					}
+				}
 				symbols.push(c);
 			} else if (c == ')') {
 				if (symbols.isEmpty()) {

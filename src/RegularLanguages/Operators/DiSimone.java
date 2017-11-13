@@ -27,7 +27,8 @@ public class DiSimone {
 	private Node root; // root of the tree
 	private String regex; // regex that it represents
 	private String postOrderRegex; // regex in postfix notation
-	private int nTerminals = 0; // quantity of terminals 
+	private int nTerminals = 0; // quantity of terminals
+	private int nOperators = 0; // quantity of operators
 	private FiniteAutomata automata; // the equivalent automata
 	
 	/**
@@ -98,7 +99,7 @@ public class DiSimone {
 		for (int i = 0; i < r.length(); i++) {
 			c = r.charAt(i);
 			// If the scanned character is an operand, add it to output.
-			if (Character.isLetterOrDigit(c)) {
+			if (Character.isLetterOrDigit(c) || c == '&') {
 				s += c;
 			} else if (c == '(') { // If the scanned character is an '(', push it to the stack.
 				stack.push(c);
@@ -154,6 +155,7 @@ public class DiSimone {
 	 */
 	public Node createTree(char postfix[]) {
 		this.nTerminals = 0;
+		this.nOperators = 0;
         
 		Stack<Node> stack = new Stack<>();
 
@@ -162,19 +164,17 @@ public class DiSimone {
             Character c = postfix[i];
             Node node = new Node(c);
 
-            if (Character.isLetterOrDigit(c) || c == '&') { // operand
+            if (Character.isLetterOrDigit(c)) { // operand
             	node.nodeNumber = ++this.nTerminals; // sets leaf number
+            } else {
+            	node.nodeNumber = ++this.nOperators; // sets operator number
             }
             if (precedence(c) >= 0) { // operator
                 if (precedence(c) == closurePrecedence) {
-                    Node nodoDaEsquerda = stack.pop();
-                    node.left = nodoDaEsquerda;
+                    node.left = stack.pop();
                 } else {
-                    Node nodoDaDireita = stack.pop();
-                    node.right = nodoDaDireita;
-
-                    Node nodoDaEsquerda = stack.pop();
-                    node.left = nodoDaEsquerda;
+                    node.right = stack.pop();
+                    node.left = stack.pop();
                 }
 
                 stack.push(node);
@@ -328,7 +328,7 @@ public class DiSimone {
 		List<Set<Node>> pendentNodes = new ArrayList<Set<Node>>();
 
 		// First step: go down from root
-		Set<Node> downFromRoot = downPath(root);
+		Set<Node> downFromRoot = downPath(root, new HashSet<Node>());
 		statesComposition.put(downFromRoot, q0); // composition for q0
 		pendentNodes.add(downFromRoot); // analyze q0 composition
 		for (Node nd : downFromRoot) {
@@ -397,7 +397,7 @@ public class DiSimone {
 			(HashMap<Character, Set<Node>> unionSymbolsComposition, Set<Node> qiComposition) {
 		for (Node nd : qiComposition) {
 			if (nd.data != '$') { // If symbol is not a lambda
-				Set<Node> upComposition = upPath(nd); // Nodes reached by going up routine
+				Set<Node> upComposition = upPath(nd, new HashSet<Node>()); // Nodes reached by going up routine
 				// Composition for the current terminal
 				Set<Node> symbolComposition = unionSymbolsComposition.get(nd.data);
 				if (symbolComposition != null) {
@@ -417,24 +417,32 @@ public class DiSimone {
 	 * @param  node the node from which the traversal begins
 	 * @return the set of nodes reached by the current node
 	 */
-	public Set<Node> downPath(Node node) {
+	public Set<Node> downPath(Node node, Set<Node> visited) {
 		Set<Node> down = new HashSet<>(); // the nodes reached by the up routine
 		Node lambda = new Node('$');
+		if (node.data == '&') {
+			if (visited.contains(node)) {
+				return down;
+			} else {
+				visited.add(node);
+			}
+		}
         switch (node.data) {
             case '*':
             case '?': // go up and down
-                down.addAll(downPath(node.left));
+                down.addAll(downPath(node.left, visited));
+            case '&': // go up
                 if (node.right != null) {
-                	down.addAll(upPath(node.right));
+                	down.addAll(upPath(node.right, visited));
                 } else {
                     down.add(lambda);
                 }
                 break;
             case '|': // go both to right and left
-                down.addAll(downPath(node.right));
+                down.addAll(downPath(node.right, visited));
             case '+': // only to left
             case '.':
-            	down.addAll(downPath(node.left));
+            	down.addAll(downPath(node.left, visited));
                 break;
             default:
             	down.add(node);
@@ -449,22 +457,29 @@ public class DiSimone {
 	 * @param node the node from which the traversal begins
 	 * @return the set of nodes reached by the current node
 	 */
-	public Set<Node> upPath(Node node) {
+	public Set<Node> upPath(Node node, Set<Node> visited) {
 		Set<Node> up = new HashSet<>(); // the nodes reached by the up routine
 		Node lambda = new Node('$');
+		if (node.data == '+' || node.data == '*') {
+			if (visited.contains(node)) {
+				return up;
+			} else {
+				visited.add(node);
+			}
+		}
 		switch (node.data) { // which operator
             case '*': // down and up
             case '+':
-                up.addAll(downPath(node.left));
+                up.addAll(downPath(node.left, visited));
             case '?': // up
                 if (node.right != null) { // if it is threaded
-                    up.addAll(upPath(node.right));
+                    up.addAll(upPath(node.right, visited));
                 } else { // points to lamda
                     up.add(lambda);
                 }
                 break;
             case '.': // go to right
-                up.addAll(downPath(node.right));
+                up.addAll(downPath(node.right, visited));
                 break;
             case '|': 
                 Node rightNode = node.right; // ignore right subtree
@@ -472,14 +487,14 @@ public class DiSimone {
                 	rightNode = rightNode.right;
                 }
                 if (rightNode.right != null) {
-                    up.addAll(upPath(rightNode.right));
+                    up.addAll(upPath(rightNode.right, visited));
                 } else {
                     up.add(lambda);
                 }
                 break;
             default:
                 if (node.right != null) {
-                    up.addAll(upPath(node.right));
+                    up.addAll(upPath(node.right, visited));
                 } else {
                     up.add(lambda);
                 }
@@ -504,9 +519,9 @@ public class DiSimone {
 		 * @param data the data of the node
 		 */
 		public Node(char data) {
-		 this.data = data;
-		 this.left = this.right = null;
-		 this.nodeNumber = -1;
+			this.data = data;
+			this.left = this.right = null;
+			this.nodeNumber = -1;
 		}
 		
 		@Override
