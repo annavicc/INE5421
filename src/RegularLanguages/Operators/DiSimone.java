@@ -98,7 +98,7 @@ public class DiSimone {
 		for (int i = 0; i < r.length(); i++) {
 			c = r.charAt(i);
 			// If the scanned character is an operand, add it to output.
-			if (Character.isLetterOrDigit(c)) {
+			if (Character.isLetterOrDigit(c) || c == '&') {
 				s += c;
 			} else if (c == '(') { // If the scanned character is an '(', push it to the stack.
 				stack.push(c);
@@ -153,6 +153,7 @@ public class DiSimone {
 	 * @return the root of the tree
 	 */
 	public Node createTree(char postfix[]) {
+		System.err.println(postfix);
 		this.nTerminals = 0;
         
 		Stack<Node> stack = new Stack<>();
@@ -420,10 +421,21 @@ public class DiSimone {
 	public Set<Node> downPath(Node node) {
 		Set<Node> down = new HashSet<>(); // the nodes reached by the up routine
 		Node lambda = new Node('$');
+		switch (node.data) {
+			case '&':
+				if (node.visited) {
+					node.visited = false;
+					return down;
+				} else {
+					node.visited = true;
+				}
+				break;
+		}
         switch (node.data) {
             case '*':
             case '?': // go up and down
                 down.addAll(downPath(node.left));
+            case '&': // go up
                 if (node.right != null) {
                 	down.addAll(upPath(node.right));
                 } else {
@@ -498,6 +510,7 @@ public class DiSimone {
 		public char data; // node data
 		boolean isThreaded; // If right pointer is a normal right pointer or a pointer to inorder successor.
 		public int nodeNumber; // number of terminal leaf node
+		boolean visited = false; // if node was visited recently  
 		
 		/**
 		 * Public constructor
