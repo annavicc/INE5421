@@ -165,6 +165,10 @@ class RegularExpressionTest {
 		for (RegularLanguage lr : rl) {
 			assertNotNull(lr);
 		}
+		// Should return a FA without error
+		for (RegularLanguage lr : rl) {
+			lr.getFA();
+		}
 		
 		
 	}
