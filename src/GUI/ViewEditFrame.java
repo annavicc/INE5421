@@ -208,7 +208,11 @@ public class ViewEditFrame extends JFrame{
 			viewEditTabbedPane.setSelectedComponent(scpViewEditFA);
 			viewEditTabbedPane.setEnabledAt(0, false);
 		}
-		txtaViewEditRG.setText(language.getRG().getDefinition());
+		if (language.getRG() == null) {
+			viewEditTabbedPane.setEnabledAt(2, false);
+		} else {
+			txtaViewEditRG.setText(language.getRG().getDefinition());
+		}
 		txtaViewEditRG.setCaretPosition(0);
 		txtaViewEditFA.setText(language.getFA().getDefinition());
 		txtaViewEditFA.setCaretPosition(0);
